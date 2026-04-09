@@ -9,8 +9,17 @@ class MonthlyReport extends Model
 {
     use HasFactory;
 
-    // Buka gembok keamanan
-    protected $guarded = ['id'];
+    // PASTIKAN 'tahun_pelajaran' ADA DI DALAM SINI
+    protected $fillable = [
+        'school_id', 
+        'bulan', 
+        'tahun',
+        'tahun_pelajaran', // <--- Tambahan baru
+        'kurikulum_link', 
+        'kesiswaan_link', 
+        'sarpras_link', 
+        'humas_link'
+    ];
 
     public function school()
     {

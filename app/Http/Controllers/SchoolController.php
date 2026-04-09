@@ -64,10 +64,11 @@ class SchoolController extends Controller
         // 1. Validasi Input (Pastikan formatnya adalah URL/Link)
         $request->validate([
             'bulan' => 'required|integer|min:1|max:12',
-            'kurikulum_link' => 'nullable|url',
-            'kesiswaan_link' => 'nullable|url',
-            'sarpras_link' => 'nullable|url',
-            'humas_link' => 'nullable|url',
+            'tahun_pelajaran' => 'required|string',
+            'kurikulum_link' => 'nullable',
+            'kesiswaan_link' => 'nullable',
+            'sarpras_link' => 'nullable',
+            'humas_link' => 'nullable',
         ]);
 
         // 2. Simpan atau Update Laporan di bulan dan tahun yang dipilih
@@ -78,6 +79,7 @@ class SchoolController extends Controller
                 'tahun' => date('Y'), // Tahun berjalan otomatis
             ],
             [
+                'tahun_pelajaran' => $request->tahun_pelajaran,
                 'kurikulum_link' => $request->kurikulum_link,
                 'kesiswaan_link' => $request->kesiswaan_link,
                 'sarpras_link' => $request->sarpras_link,
@@ -150,13 +152,14 @@ class SchoolController extends Controller
     $report = \App\Models\MonthlyReport::findOrFail($id);
     
     $request->validate([
-        'kurikulum_link' => 'nullable|url',
-        'kesiswaan_link' => 'nullable|url',
-        'sarpras_link' => 'nullable|url',
-        'humas_link' => 'nullable|url',
+        // 'tahun_pelajaran' => 'required|string',
+        'kurikulum_link' => 'nullable',
+        'kesiswaan_link' => 'nullable',
+        'sarpras_link' => 'nullable',
+        'humas_link' => 'nullable',
     ]);
 
-    $report->update($request->only(['kurikulum_link', 'kesiswaan_link', 'sarpras_link', 'humas_link']));
+    $report->update($request->only(['tahun_pelajaran','kurikulum_link', 'kesiswaan_link', 'sarpras_link', 'humas_link']));
 
     return redirect()->back()->with('success', 'Laporan bulanan berhasil diperbarui!');
     }

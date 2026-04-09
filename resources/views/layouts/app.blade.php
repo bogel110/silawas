@@ -57,9 +57,6 @@
             <a class="nav-link {{ request()->is('/') || request()->is('dashboard') ? 'active' : '' }}" href="{{ url('/') }}">
                 <span class="material-symbols-outlined me-3">dashboard</span> Dashboard
             </a>
-            <a class="nav-link" href="#">
-                <span class="material-symbols-outlined me-3">domain</span> Data Sekolah
-            </a>
         </nav>
     </aside>
 
@@ -68,8 +65,8 @@
             <div class="container-fluid d-flex align-items-center justify-content-between">
                 <div class="search-bar w-50">
                     <div class="input-group">
-                        <span class="input-group-text bg-light border-0"><span class="material-symbols-outlined text-muted fs-5">search</span></span>
-                        <input class="form-control bg-light border-0 shadow-none rounded-end" placeholder="Cari data..." type="text"/>
+                        <span class="input-group-text bg-light border-0"><span class=""></span></span>
+                        {{-- <input class="form-control bg-light border-0 shadow-none rounded-end" placeholder="Cari data..." type="text"/> --}}
                     </div>
                 </div>
                 <div class="d-flex align-items-center gap-3">
