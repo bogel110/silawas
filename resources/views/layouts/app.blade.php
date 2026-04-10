@@ -58,6 +58,14 @@
                 <span class="material-symbols-outlined me-3">dashboard</span> Dashboard
             </a>
         </nav>
+        @if(auth()->user()->role === 'pengawas')
+            <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('admin.users.*') ? 'active fw-bold' : '' }}" href="{{ route('admin.users.index') }}">
+                    <span class="material-symbols-outlined align-middle fs-5">manage_accounts</span>
+                    <span class="align-middle">Administrator</span>
+                </a>
+            </li>
+        @endif
     </aside>
 
     <main class="main-content">

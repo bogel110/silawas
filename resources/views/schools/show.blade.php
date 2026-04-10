@@ -53,7 +53,7 @@
                 </div>
                 <div class="card-body p-4">
                     @if(auth()->user()->role === 'admin_sekolah' && auth()->user()->school_id == $school->id)
-                        <button type="button" class="btn btn-sm btn-outline-primary fw-bold d-flex align-items-center gap-1 mt-2" data-bs-toggle="modal" data-bs-target="#modalDokumenMaster">
+                        <button type="button" class="btn btn-sm btn-primary fw-bold fw-bold d-flex align-items-center gap-1 mt-2" data-bs-toggle="modal" data-bs-target="#modalDokumenMaster">
                             <span class="material-symbols-outlined fs-6">edit</span> Input Link Dokumen
                         </button>
                     @endif
@@ -323,7 +323,7 @@
                             <option value="1">Hadir (Ada di tempat)</option>
                             <option value="0">Tidak Hadir (Dinas Luar / Izin)</option>
                         </select>
-                    </div>f
+                    </div>
                 </div>
                 <div class="modal-footer bg-light border-top-0 rounded-bottom-4">
                     <button type="button" class="btn btn-outline-secondary btn-sm fw-bold" data-bs-dismiss="modal">Batal</button>
@@ -434,10 +434,10 @@
                             <label class="form-label small fw-bold">Link Data GTK</label>
                             <input type="url" name="gtk_link" class="form-control form-control-sm" value="{{ $school->gtk_link }}">
                         </div>
-                        <div class="col-md-6">
+                        {{-- <div class="col-md-6">
                             <label class="form-label small fw-bold">Link Data GTK</label>
                             <input type="url" name="gtk_link" class="form-control" value="{{ $school->gtk_link }}" placeholder="https://drive.google.com/...">
-                        </div>
+                        </div> --}}
                         <div class="col-md-6">
                             <label class="form-label small fw-bold">Link Data Peserta Didik</label>
                             <input type="url" name="pd_link" class="form-control" value="{{ $school->pd_link }}" placeholder="https://drive.google.com/...">

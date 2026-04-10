@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\SchoolController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\UserController;
 
 // Semua route di dalam grup ini wajib login (auth)
 Route::middleware(['auth'])->group(function () {
@@ -33,12 +34,26 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/monthly-report/{id}', [SchoolController::class, 'updateMonthlyReport'])->name('school.update_monthly_report');
     Route::delete('/monthly-report/{id}', [SchoolController::class, 'destroyMonthlyReport'])->name('school.destroy_monthly_report');
 
-
-
     // Route bawaan Breeze untuk ganti password/profil (biarkan saja agar tidak error)
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    // Rute Khusus Pengawas -> Administrator
+    Route::prefix('administrator')->name('admin.')->group(function () {
+        Route::get('/users', [UserController::class, 'index'])->name('users.index');
+        Route::post('/users', [UserController::class, 'store'])->name('users.store');
+        Route::delete('/users/{id}', [UserController::class, 'destroy'])->name('users.destroy');
+    });
+
+    Route::prefix('administrator')->name('admin.')->group(function () {
+    Route::get('/users', [UserController::class, 'index'])->name('users.index');
+    Route::post('/users', [UserController::class, 'store'])->name('users.store');
+    Route::delete('/users/{id}', [UserController::class, 'destroy'])->name('users.destroy');
+    
+    // TAMBAHKAN BARIS INI:
+    Route::put('/users/{id}/reset-password', [UserController::class, 'resetPassword'])->name('users.reset_password');});
+    
 });
 
 // Memuat route bawaan otentikasi Laravel (Login, Register, Logout)
