@@ -9,16 +9,16 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-   public function up(): void
-{
-    Schema::table('users', function (Blueprint $table) {
-        // Menentukan role pengguna
-        $table->enum('role', ['pengawas', 'admin_sekolah'])->default('admin_sekolah');
-        
-        // Menghubungkan user dengan tabel schools (Pengawas tidak punya sekolah, jadi boleh kosong/nullable)
-        $table->foreignId('school_id')->nullable()->constrained('schools')->nullOnDelete();
-    });
-}
+  public function up(): void
+    {
+        Schema::table('users', function (Blueprint $table) {
+            // UBAH BARIS INI: Gunakan string agar bebas menerima teks (Kepala Sekolah, dll)
+            $table->string('role')->nullable();
+            
+            // Baris school_id ini sudah sangat benar, biarkan saja
+            $table->foreignId('school_id')->nullable()->constrained('schools')->nullOnDelete();
+        });
+    }
 
 public function down(): void
 {

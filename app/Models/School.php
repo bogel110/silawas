@@ -22,4 +22,10 @@ class School extends Model
     {
         return $this->hasMany(MonthlyReport::class);
     }
+
+    public function school()
+    {
+        // Format: belongsTo(ModelTujuan, KolomDiUser, KolomDiTujuan)
+        return $this->belongsTo(School::class, 'school_name', 'name');
+    }
 }

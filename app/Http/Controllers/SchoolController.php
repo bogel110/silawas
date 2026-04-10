@@ -4,13 +4,30 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\School;
+use Illuminate\Support\Facades\Auth;
 
 class SchoolController extends Controller
 {
     public function show($id)
     {
+
+        $user = Auth::user();
+
         // Mencari data sekolah beserta relasi absensi dan laporan bulanannya
         $school = School::with(['attendances', 'monthlyReports'])->findOrFail($id);
+        // dd($school);
+
+        //  $school = \App\Models\School::where('name', $user->school_id)->firstOrFail();
+        
+
+        // 2. PROTEKSI: Jika yang login adalah Admin Sekolah
+        if ($user->role === 'admin_sekolah') {
+            // Bandingkan apakah nama sekolah di URL sama dengan school_name di akunnya
+            // Kita gunakan strtolower untuk menghindari masalah huruf besar/kecil
+            if ($school->id !== $user->school_id) {
+                abort(403, 'Anda tidak memiliki hak akses untuk melihat data sekolah lain.');
+            }
+        }
 
             $filledLinks = 0;
             // Cek semua 9 kolom link
@@ -176,5 +193,15 @@ class SchoolController extends Controller
 
     abort(403);
     }
+
+    public function destroy($id)
+{
+    $school = \App\Models\School::findOrFail($id);
+    
+    // Hapus sekolah
+    $school->delete();
+
+    return redirect()->back()->with('success', 'Data sekolah berhasil dihapus!');
+}
  
 }

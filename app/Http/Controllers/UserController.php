@@ -23,28 +23,38 @@ class UserController extends Controller
     }
 
     public function store(Request $request)
-    {
-        if (auth()->user()->role !== 'pengawas') abort(403);
+{
+    // Validasi
+    $request->validate([
+        'name'          => 'required|string|max:255',
+        'email'         => 'required|email|unique:users,email',
+        'password'      => 'required|string|min:8',
+        'role'         => 'required|string',
+        'school_name'   => 'required|string|max:255',
+        'school_level'  => 'required|string',
+        'school_status' => 'required|string',
+    ]);
 
-        // VALIDASI: Meminta school_name (bukan school_id)
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8',
-            'school_name' => 'required|string|max:255', 
-        ]);
+    // 1. Simpan ke Database Schools (Mencegah duplikat jika nama sekolah sama)
+    $school = \App\Models\School::firstOrCreate(
+        ['name' => $request->school_name],
+        [
+            'level' => $request->school_level,
+            'status' => $request->school_status
+        ]
+    );
 
-        // PROSES SIMPAN: Menyimpan school_name (bukan school_id)
-        User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'role' => 'admin_sekolah',
-            'school_name' => $request->school_name, 
-        ]);
+    // 2. Simpan ke Database Users
+    \App\Models\User::create([
+        'name'      => $request->name,
+        'email'     => $request->email,
+        'password'  => \Illuminate\Support\Facades\Hash::make($request->password),
+        'role'      => $request->role,
+        'school_id' => $school->id, // Ambil ID dari tabel schools yang baru saja dibuat
+    ]);
 
-        return back()->with('success', 'Akun Admin Sekolah berhasil dibuat!');
-    }
+    return redirect()->back()->with('success', 'Akun admin dan data sekolah berhasil ditambahkan!');
+}
 
     public function destroy($id)
     {

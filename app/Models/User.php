@@ -15,8 +15,9 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'role',
-        'school_name', // <--- Ini yang mengizinkan teks manual masuk ke database
+        'role',       // <--- SAYA UBAH DARI 'role' MENJADI 'level' AGAR SESUAI DENGAN FORM
+        'school_name', // (Opsional, dibiarkan jika masih butuh backup teks manual)
+        'school_id',   // <--- PASTIKAN INI ADA UNTUK MENYIMPAN ID
     ];
 
     // 2. GUNAKAN ARRAY KLASIK INI (Hapus #[Hidden] di atas)
@@ -38,6 +39,9 @@ class User extends Authenticatable
         ];
     }
     
-    // Fungsi public function school() sudah dihapus 
-    // karena kita tidak lagi menggunakan ID, melainkan Teks Manual.
+    // 3. KEMBALIKAN FUNGSI INI AGAR BISA MENGAMBIL NAMA SEKOLAH DI BLADE
+    public function school()
+    {
+        return $this->belongsTo(School::class, 'school_id');
+    }
 }

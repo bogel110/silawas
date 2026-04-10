@@ -53,7 +53,9 @@ Route::middleware(['auth'])->group(function () {
     
     // TAMBAHKAN BARIS INI:
     Route::put('/users/{id}/reset-password', [UserController::class, 'resetPassword'])->name('users.reset_password');});
-    
+
+    // Tambahkan baris ini untuk menangani aksi hapus sekolah
+    Route::delete('/school/{id}', [SchoolController::class, 'destroy'])->name('school.destroy');
 });
 
 // Memuat route bawaan otentikasi Laravel (Login, Register, Logout)
