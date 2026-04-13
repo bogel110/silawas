@@ -58,6 +58,10 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/school/{id}', [SchoolController::class, 'destroy'])->name('school.destroy');
     // Download Excel seluruh sekolaah binaan
     Route::get('/schools/export', [App\Http\Controllers\SchoolController::class, 'exportExcel'])->name('school.export');
+
+    //Download excel rekap kehadiran kepala sekolah
+    Route::get('/school/{id}/export-attendance', [App\Http\Controllers\SchoolController::class, 'exportAttendanceExcel'])->name('school.export_attendance');
+    
 });
 
 // Memuat route bawaan otentikasi Laravel (Login, Register, Logout)

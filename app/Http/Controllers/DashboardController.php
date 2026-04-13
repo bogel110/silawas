@@ -35,13 +35,13 @@ class DashboardController extends Controller
             $school->score = ($filledLinks / 9) * 100;
 
             if ($school->score >= 85) {
-                $school->status_text = 'Lengkap';
+                $school->status_text = 'Berkas Lengkap';
                 $school->status_color = 'success';
             } elseif ($school->score >= 60) {
-                $school->status_text = 'Kurang Lengkap';
+                $school->status_text = 'Beberapa Berkas Tidak Lengkap';
                 $school->status_color = 'primary';
             } elseif ($school->score > 0) {
-                $school->status_text = 'Kurang Lengkap';
+                $school->status_text = 'Berkas Kurang Lengkap';
                 $school->status_color = 'warning';
             } else {
                 $school->status_text = 'Tidak Mengisi';

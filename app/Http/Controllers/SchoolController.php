@@ -264,4 +264,59 @@ class SchoolController extends Controller
 
         return response()->stream($callback, 200, $headers);
     }
+
+    public function exportAttendanceExcel($id)
+    {
+        // 1. Ambil data sekolah beserta data absensi yang berelasi
+        // (Diurutkan dari tanggal paling baru / descending)
+        $school = \App\Models\School::with(['attendances' => function($query) {
+            $query->orderBy('tanggal', 'desc');
+        }])->findOrFail($id);
+
+        // 2. Format nama file excel agar mengandung nama sekolah
+        $namaSekolah = str_replace(' ', '_', $school->name); // Ganti spasi dengan underscore
+        $filename = "Rekap_Kehadiran_" . $namaSekolah . "_" . date('Ymd') . ".csv";
+
+        $headers = [
+            "Content-type"        => "text/csv; charset=UTF-8",
+            "Content-Disposition" => "attachment; filename=$filename",
+            "Pragma"              => "no-cache",
+            "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
+            "Expires"             => "0"
+        ];
+
+        // 3. Header kolom Excel
+        $columns = ['No.', 'Tanggal', 'Siswa Hadir', 'Guru Hadir', 'Status Kepsek'];
+
+        $callback = function() use($school, $columns) {
+            $file = fopen('php://output', 'w');
+            
+            // BOM (Byte Order Mark) agar kompatibel dengan Excel Indonesia
+            fputs($file, $bom =( chr(0xEF) . chr(0xBB) . chr(0xBF) ));
+            
+            // Tulis Header menggunakan titik koma (;)
+            fputcsv($file, $columns, ';');
+
+            $nomor = 1;
+            foreach ($school->attendances as $absen) {
+                // Ubah status angka (1/0) menjadi teks yang mudah dibaca
+                $statusKepsek = $absen->kepsek_hadir ? 'Hadir' : 'Tidak Hadir';
+                
+                $row = [
+                    $nomor,
+                    $absen->tanggal,
+                    $absen->siswa_hadir,
+                    $absen->guru_hadir,
+                    $statusKepsek
+                ];
+
+                // Tulis baris data menggunakan titik koma (;)
+                fputcsv($file, $row, ';');
+                $nomor++;
+            }
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
 }

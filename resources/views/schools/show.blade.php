@@ -109,32 +109,36 @@
 
             {{-- CATATAN PENGAWAS --}}
             <div class="mt-4 mb-5">
-                <span class="small text-muted fw-bold d-block mb-2">Catatan/Rekomendasi Pengawas</span>
+                <div class="card-header bg-white border-bottom-0 pt-4 pb-0 px-4">
+                    <h5 class="font-headline fw-bold mb-0">2. Catatan dan Rekomendasi Pengawas</h5>
+                
+                {{-- <span class="small text-muted fw-bold d-block mb-2">Catatan dan Rekomendasi Pengawas</span> --}}
                 @if(auth()->user()->role === 'pengawas')
                     <form action="{{ route('school.update_catatan', $school->id) }}" method="POST">
                         @csrf
-                        <textarea name="catatan_pengawas" class="form-control border-0 shadow-sm mb-2" rows="4" placeholder="Tulis rekomendasi dan hasil evaluasi pengawasan di sini...">{{ $school->catatan_pengawas }}</textarea>
-                        <button type="submit" class="btn btn-sm btn-primary w-100 fw-bold">Simpan Evaluasi</button>
+                        <textarea name="catatan_pengawas" class="form-control border-2 shadow-sm mb-2" rows="4" placeholder="Tulis rekomendasi dan hasil evaluasi pengawasan di sini...">{{ $school->catatan_pengawas }}</textarea>
+                        <button type="submit" class="btn btn-sm btn-primary w-25 fw-bold">Simpan Evaluasi</button>
                     </form>
                 @else
                     <div class="p-3 bg-white rounded-3 border shadow-sm small">
                         @if($school->catatan_pengawas)
                             {!! nl2br(e($school->catatan_pengawas)) !!}
                         @else
-                            <span class="text-muted fst-italic">Belum ada catatan evaluasi dari Pengawas.</span>
+                            <span class="text-muted fst-italic">Belum ada catatan evaluasi dan rekomendasi dari Pengawas.</span>
                         @endif
                     </div>
                 @endif
+                </div>
             </div>
         </div>
 
         {{-- MODUL 2: KONTROL KBM --}}
         <div class="col-lg-12">
             <div class="card border-0 shadow-sm rounded-4 mb-4">
-                {{-- HEADER DENGAN FITUR SEARCH --}}
+                {{-- HEADER DENGAN FITUR SEARCH DAN TOMBOL EXCEL --}}
                 <div class="card-header bg-white border-bottom-0 pt-4 pb-0 px-4 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
                     <div class="d-flex align-items-center gap-3">
-                        <h5 class="font-headline fw-bold mb-0">2. Kontrol KBM</h5>
+                        <h5 class="font-headline fw-bold mb-0">3. Kontrol KBM</h5>
                         @if(auth()->user()->role === 'admin_sekolah' && auth()->user()->school_id == $school->id)
                             <button type="button" class="btn btn-sm btn-primary fw-bold" data-bs-toggle="modal" data-bs-target="#modalAbsensi">
                                 + Isi Absensi
@@ -142,12 +146,17 @@
                         @endif
                     </div>
                     
-                    {{-- Kotak Pencarian Absensi --}}
-                    <div class="input-group" style="max-width: 250px;">
-                        <span class="input-group-text bg-light border-end-0">
-                            <span class="material-symbols-outlined fs-6 text-muted">search</span>
-                        </span>
-                        <input type="text" id="searchAbsensi" class="form-control border-start-0 bg-light" placeholder="Cari tanggal...">
+                    <div class="d-flex flex-column flex-sm-row gap-2 align-items-sm-center">
+                        <div class="input-group" style="max-width: 250px;">
+                            <span class="input-group-text bg-light border-end-0">
+                                <span class="material-symbols-outlined fs-6 text-muted">search</span>
+                            </span>
+                            <input type="text" id="searchAbsensi" class="form-control border-start-0 bg-light" placeholder="Cari tanggal...">
+                        </div>
+                        
+                        <a href="{{ route('school.export_attendance', $school->id) }}" class="btn btn-success btn-sm fw-bold d-flex align-items-center justify-content-center gap-1 shadow-sm" title="Download Excel Rekap Kehadiran">
+                            <span class="material-symbols-outlined fs-6">download</span> Download Rekap Kehadiran
+                        </a>
                     </div>
                 </div>
 
@@ -168,10 +177,18 @@
                                 <tbody>
                                     @forelse($school->attendances as $absen)
                                     <tr class="absensi-row">
-                                        <td class="small">{{ $absen->tanggal }}</td>
+                                        <td class="small">{{ \Carbon\Carbon::parse($absen->tanggal)->format('d / m / Y') }}</td>
                                         <td class="text-center small">{{ $absen->siswa_hadir }}</td>
                                         <td class="text-center small">{{ $absen->guru_hadir }}</td>
-                                        <td class="text-center"><span class="material-symbols-outlined fs-6 {{ $absen->kepsek_hadir ? 'text-success' : 'text-danger' }}">{{ $absen->kepsek_hadir ? 'check_circle' : 'cancel' }}</span></td>
+                                        <td class="text-center">
+                                            <span class="material-symbols-outlined fs-6 {{ $absen->kepsek_hadir ? 'text-success' : 'text-danger' }} d-block mb-1">
+                                                {{ $absen->kepsek_hadir ? 'check_circle' : 'cancel' }}
+                                            </span>
+                                            {{-- BAGIAN YANG DIUBAH: Mengikuti waktu server aplikasi --}}
+                                            <div class="text-muted" style="font-size: 0.65rem; font-family: monospace;">
+                                                {{ \Carbon\Carbon::parse($absen->created_at)->format('H:i:s') }}
+                                            </div>
+                                        </td>
                                         <td class="text-center">
                                             @if(auth()->user()->role === 'pengawas' || auth()->user()->school_id == $school->id)
                                             <form action="{{ route('attendance.destroy', $absen->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data ini?')">
@@ -210,7 +227,7 @@
                 {{-- HEADER DENGAN FITUR SEARCH --}}
                 <div class="card-header bg-white border-bottom-0 pt-4 pb-0 px-4 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
                     <div class="d-flex align-items-center gap-3">
-                        <h5 class="font-headline fw-bold mb-0">3. Laporan Kinerja Wakasek</h5>
+                        <h5 class="font-headline fw-bold mb-0">4. Laporan Kinerja Wakasek</h5>
                         @if(auth()->user()->role === 'admin_sekolah' && auth()->user()->school_id == $school->id)
                             <button type="button" class="btn btn-sm btn-primary fw-bold" data-bs-toggle="modal" data-bs-target="#modalLaporan">
                                 + Tambah Laporan

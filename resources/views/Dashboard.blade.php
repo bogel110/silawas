@@ -78,7 +78,7 @@
                         <th class="px-4 py-3 text-muted text-uppercase fw-bold" style="font-size: 0.65rem;">Rank</th>
                         <th class="py-3 text-muted text-uppercase fw-bold" style="font-size: 0.65rem;">School Name</th>
                         <th class="py-3 text-center text-muted text-uppercase fw-bold" style="font-size: 0.65rem;">Score</th>
-                        <th class="py-3 text-muted text-uppercase fw-bold" style="font-size: 0.65rem;">Status</th>
+                        <th class="py-3 text-center text-uppercase fw-bold" style="font-size: 0.65rem;">Status</th>
                         <th class="py-3 text-center text-muted text-uppercase fw-bold" style="font-size: 0.65rem;">Aksi</th>
                     </tr>
                 </thead>
@@ -90,9 +90,9 @@
                         </td>
                         <td>
                             <div class="d-flex align-items-center gap-3">
-                                <div class="icon-box bg-{{ $school->status_color }} bg-opacity-10 text-{{ $school->status_color }} small fw-bold">
-                                    {{ substr($school->name, 0, 2) }}
-                                </div>
+                                {{-- <div class="icon-box bg-{{ $school->status_color }} bg-opacity-10 text-{{ $school->status_color }} small fw-bold">
+                                    {{ substr($school->name, 0, 2) }}  
+                                </div> --}}
                                 <div>
                                     <a href="{{ route('school.show', $school->id) }}" class="text-decoration-none">
                                         <p class="mb-0 fw-bold small text-primary school-name">{{ $school->name }}</p>
@@ -104,7 +104,7 @@
                         <td class="text-center">
                             <span class="fw-bold text-primary">{{ number_format($school->score, 1) }}</span>
                         </td>
-                        <td>
+                        <td class="text-center">
                             <span class="badge rounded-pill bg-{{ $school->status_color }}-subtle text-{{ $school->status_color }} text-uppercase fw-bold" style="font-size: 0.65rem; padding: 0.35rem 0.8rem;">
                                 {{ $school->status_text }}
                             </span>
