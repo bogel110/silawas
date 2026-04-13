@@ -184,13 +184,13 @@
                                             <span class="material-symbols-outlined fs-6 {{ $absen->kepsek_hadir ? 'text-success' : 'text-danger' }} d-block mb-1">
                                                 {{ $absen->kepsek_hadir ? 'check_circle' : 'cancel' }}
                                             </span>
-                                            {{-- BAGIAN YANG DIUBAH: Mengikuti waktu server aplikasi --}}
                                             <div class="text-muted" style="font-size: 0.65rem; font-family: monospace;">
                                                 {{ \Carbon\Carbon::parse($absen->created_at)->format('H:i:s') }}
                                             </div>
                                         </td>
                                         <td class="text-center">
-                                            @if(auth()->user()->role === 'pengawas' || auth()->user()->school_id == $school->id)
+                                            {{-- BAGIAN YANG DIUBAH: Hanya role pengawas yang bisa melihat dan menggunakan tombol hapus --}}
+                                            @if(auth()->user()->role === 'pengawas')
                                             <form action="{{ route('attendance.destroy', $absen->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data ini?')">
                                                 @csrf
                                                 @method('DELETE')

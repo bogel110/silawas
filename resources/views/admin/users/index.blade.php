@@ -85,7 +85,7 @@
                                 <span class="text-muted small fst-italic">Semua Sekolah Binaan</span>
                             @else
                                 <span class="badge bg-primary bg-opacity-10 text-primary">
-                                    [ID: {{ $user->school_id ?? '-' }}] {{ $user->school->name ?? ($user->school_name ?? 'Tidak ada data') }}
+                                    {{ $user->school->name ?? ($user->school_name ?? 'Tidak ada data') }}
                                 </span>
                             @endif
                         </td>
