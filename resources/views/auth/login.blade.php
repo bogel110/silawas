@@ -23,14 +23,13 @@
             padding: 24px;
         }
 
-        /* Menghilangkan kotak (card), hanya menyisakan wrapper konten */
         .login-box {
             width: 100%;
             max-width: 400px;
-            background: transparent; /* Kotak dihilangkan */
+            background: transparent;
             padding: 20px;
-            box-shadow: none; /* Shadow dihilangkan */
-            border: none; /* Border dihilangkan */
+            box-shadow: none;
+            border: none;
         }
 
         .input-label {
@@ -43,12 +42,13 @@
             display: block;
         }
 
-        /* Input tetap menggunakan gaya glassmorphism tipis agar teks terbaca */
         .input-group {
             background: rgba(255, 255, 255, 0.03);
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 16px;
             transition: all 0.3s ease;
+            display: flex; /* Ditambahkan agar input dan ikon sejajar */
+            align-items: center; 
         }
 
         .input-group:focus-within {
@@ -60,10 +60,29 @@
         .input-group input {
             color: #ffffff;
             font-size: 0.95rem;
+            background: transparent;
+            flex: 1; /* Input mengambil sisa ruang */
         }
 
         .input-group input::placeholder {
             color: rgba(255, 255, 255, 0.15);
+        }
+
+        /* Styling untuk tombol toggle mata */
+        .toggle-password {
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.4);
+            cursor: pointer;
+            padding: 0 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: color 0.3s ease;
+        }
+
+        .toggle-password:hover {
+            color: #ffffff;
         }
 
         .btn-login {
@@ -89,6 +108,7 @@
         .checkbox-label {
             color: rgba(255, 255, 255, 0.4);
             font-size: 0.8rem;
+            cursor: pointer;
         }
 
         .footer-text {
@@ -119,7 +139,7 @@
                 <div class="logo-container">
                     <span class="material-symbols-outlined text-blue-500 text-3xl">SILAWAS</span>
                 </div>
-                <h3 class="text-3xl font-extrabold text-white tracking-tighter">Sistem Laporan <span class="text-blue-500">& Pengawasan Sekolah</span></h1>
+                <h3 class="text-3xl font-extrabold text-white tracking-tighter">Sistem Laporan <span class="text-blue-500">& Pengawasan Sekolah</span></h3>
                 <p class="text-blue-400/50 text-[9px] mt-2 uppercase tracking-[0.4em] font-bold">Secure Access Portal</p>
             </div>
 
@@ -129,39 +149,37 @@
                 @csrf
 
                 <div class="mb-6">
-                    <label class="input-label">Username</label>
-                    <div >
-                        <input id="email" type="email" name="email" :value="old('email')" required autofocus 
-                            class="w-full border-none bg-transparent focus:ring-0 text-black py-4" placeholder="email">
+                    <label class="input-label" for="email">Username / Email</label>
+                    <div class="input-group overflow-hidden px-4">
+                        <input id="email" type="email" name="email" value="{{ old('email') }}" required autofocus autocomplete="username"
+                            class="border-none focus:ring-0 py-4 px-0 bg-transparent outline-none" placeholder="Masukkan email anda">
                     </div>
                 </div>
 
                 <div class="mb-6">
-                    <div class="flex justify-between items-center mb-2 px-1">
-                        <label class="input-label mb-0">Password</label>
-                    </div>
-                    <div>
+                    <label class="input-label" for="password">Password</label>
+                    <div class="input-group overflow-hidden px-4">
                         <input id="password" type="password" name="password" required autocomplete="current-password"
-                            class="w-full border-none bg-transparent focus:ring-0 text-black py-4" placeholder="password">
+                            class="border-none focus:ring-0 py-4 px-0 bg-transparent outline-none" placeholder="••••••••">
+                        
+                        {{-- Tombol Ikon Mata ditambahkan di sini --}}
+                        <button type="button" id="togglePassword" class="toggle-password focus:outline-none" tabindex="-1" title="Tampilkan Password">
+                            <span class="material-symbols-outlined" style="font-size: 20px;" id="toggleIcon">hidden</span>
+                        </button>
                     </div>
                 </div>
 
-                <div class="flex items-center mb-8 px-1">
-                    <input id="remember_me" type="checkbox" name="remember" class="rounded border-white/10 bg-white/5 text-blue-600 focus:ring-0 focus:ring-offset-0">
-                    <span class="ms-3 checkbox-label">Remember Session</span>
-                    <div class="flex justify-between items-center mb-2 px-1">
-                        {{-- <label class="input-label mb-0">Reset</label>
-                        @if (Route::has('password.request'))
-                            <a class="text-[9px] font-bold text-white/50 hover:text-blue-400 uppercase tracking-widest" href="{{ route('password.request') }}">Reset?</a>
-                        @endif --}}
-                    </div>
-                </div>
-                <div class="flex items-center mb-8 px-1">
-                    <div class="input-label mb-0 flex justify-between items-center mb-2 px-1">
-                        @if (Route::has('password.request'))
-                            <a class="rounded border-white/10 bg-white/5 text-blue-600 focus:ring-0 focus:ring-offset-0" href="{{ route('password.request') }}">Reset Password</a>
-                        @endif
-                    </div>
+                <div class="flex items-center justify-between mb-8 px-1">
+                    <label for="remember_me" class="inline-flex items-center cursor-pointer">
+                        <input id="remember_me" type="checkbox" name="remember" class="rounded border-white/10 bg-white/5 text-blue-600 focus:ring-blue-500 focus:ring-offset-0">
+                        <span class="ms-3 checkbox-label">Remember Session</span>
+                    </label>
+
+                    @if (Route::has('password.request'))
+                        <a class="text-[10px] font-bold text-white/50 hover:text-blue-400 uppercase tracking-widest transition-colors" href="{{ route('password.request') }}">
+                            Reset Password?
+                        </a>
+                    @endif
                 </div>
 
                 <button type="submit" class="btn-login">
@@ -178,4 +196,27 @@
             </div>
         </div>
     </div>
+
+    {{-- SCRIPT: Untuk memfungsikan tombol Show/Hide Password --}}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const togglePassword = document.getElementById('togglePassword');
+            const passwordInput = document.getElementById('password');
+            const toggleIcon = document.getElementById('toggleIcon');
+
+            togglePassword.addEventListener('click', function () {
+                // Mengecek tipe input saat ini (password atau teks biasa)
+                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                
+                // Menerapkan perubahan tipe
+                passwordInput.setAttribute('type', type);
+                
+                // Mengubah ikon (visibility_off = mata disilang, visibility = mata terbuka)
+                toggleIcon.textContent = type === 'password' ? 'hidden_off' : 'hidden';
+                
+                // Opsional: mengubah judul tooltip saat dihover
+                this.setAttribute('title', type === 'password' ? 'Tampilkan Password' : 'Sembunyikan Password');
+            });
+        });
+    </script>
 </x-guest-layout>

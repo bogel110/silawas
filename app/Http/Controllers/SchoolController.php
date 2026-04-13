@@ -15,33 +15,28 @@ class SchoolController extends Controller
 
         // Mencari data sekolah beserta relasi absensi dan laporan bulanannya
         $school = School::with(['attendances', 'monthlyReports'])->findOrFail($id);
-        // dd($school);
 
-        //  $school = \App\Models\School::where('name', $user->school_id)->firstOrFail();
-        
-
-        // 2. PROTEKSI: Jika yang login adalah Admin Sekolah
+        // PROTEKSI: Jika yang login adalah Admin Sekolah
         if ($user->role === 'admin_sekolah') {
             // Bandingkan apakah nama sekolah di URL sama dengan school_name di akunnya
-            // Kita gunakan strtolower untuk menghindari masalah huruf besar/kecil
             if ($school->id !== $user->school_id) {
                 abort(403, 'Anda tidak memiliki hak akses untuk melihat data sekolah lain.');
             }
         }
 
-            $filledLinks = 0;
-            // Cek semua 9 kolom link
-            if ($school->ijop_link) $filledLinks++;
-            if ($school->ksp_link) $filledLinks++;
-            if ($school->akreditasi_link) $filledLinks++;
-            if ($school->gtk_link) $filledLinks++;
-            if ($school->pd_link) $filledLinks++;
-            if ($school->sarpras_link) $filledLinks++;
-            if ($school->rpp_link) $filledLinks++;
-            if ($school->ekskul_link) $filledLinks++;
-            if ($school->rapor_link) $filledLinks++;
+        $filledLinks = 0;
+        // Cek semua 9 kolom link
+        if ($school->ijop_link) $filledLinks++;
+        if ($school->ksp_link) $filledLinks++;
+        if ($school->akreditasi_link) $filledLinks++;
+        if ($school->gtk_link) $filledLinks++;
+        if ($school->pd_link) $filledLinks++;
+        if ($school->sarpras_link) $filledLinks++;
+        if ($school->rpp_link) $filledLinks++;
+        if ($school->ekskul_link) $filledLinks++;
+        if ($school->rapor_link) $filledLinks++;
 
-            // Pembagi harus sama yaitu 9
+        // Pembagi harus sama yaitu 9
         $school->score = ($filledLinks / 9) * 100;
 
         return view('schools.show', compact('school'));
@@ -115,8 +110,8 @@ class SchoolController extends Controller
         // 2. Validasi input (Pastikan semuanya berupa URL jika diisi)
         $request->validate([
             'ijop_link' => 'nullable|url',
-            'ksp_link' => 'nullable|url', // Tambahan
-            'akreditasi_link' => 'nullable|url', // Tambahan
+            'ksp_link' => 'nullable|url', 
+            'akreditasi_link' => 'nullable|url', 
             'gtk_link' => 'nullable|url',
             'pd_link' => 'nullable|url',
             'sarpras_link' => 'nullable|url',
@@ -153,55 +148,120 @@ class SchoolController extends Controller
 
     public function destroyAttendance($id)
     {
-    $attendance = \App\Models\Attendance::findOrFail($id);
-    
-    // Keamanan: Pastikan hanya admin sekolah pemilik data atau pengawas yang bisa hapus
-    if (auth()->user()->role === 'pengawas' || auth()->user()->school_id === $attendance->school_id) {
-        $attendance->delete();
-        return redirect()->back()->with('success', 'Data kehadiran berhasil dihapus!');
-    }
+        $attendance = \App\Models\Attendance::findOrFail($id);
+        
+        // Keamanan: Pastikan hanya admin sekolah pemilik data atau pengawas yang bisa hapus
+        if (auth()->user()->role === 'pengawas' || auth()->user()->school_id === $attendance->school_id) {
+            $attendance->delete();
+            return redirect()->back()->with('success', 'Data kehadiran berhasil dihapus!');
+        }
 
-    abort(403, 'Anda tidak memiliki akses untuk menghapus data ini.');
+        abort(403, 'Anda tidak memiliki akses untuk menghapus data ini.');
     }
 
     public function updateMonthlyReport(Request $request, $id)
     {
-    $report = \App\Models\MonthlyReport::findOrFail($id);
-    
-    $request->validate([
-        // 'tahun_pelajaran' => 'required|string',
-        'kurikulum_link' => 'nullable',
-        'kesiswaan_link' => 'nullable',
-        'sarpras_link' => 'nullable',
-        'humas_link' => 'nullable',
-    ]);
+        $report = \App\Models\MonthlyReport::findOrFail($id);
+        
+        $request->validate([
+            'kurikulum_link' => 'nullable',
+            'kesiswaan_link' => 'nullable',
+            'sarpras_link' => 'nullable',
+            'humas_link' => 'nullable',
+        ]);
 
-    $report->update($request->only(['tahun_pelajaran','kurikulum_link', 'kesiswaan_link', 'sarpras_link', 'humas_link']));
+        $report->update($request->only(['tahun_pelajaran','kurikulum_link', 'kesiswaan_link', 'sarpras_link', 'humas_link']));
 
-    return redirect()->back()->with('success', 'Laporan bulanan berhasil diperbarui!');
+        return redirect()->back()->with('success', 'Laporan bulanan berhasil diperbarui!');
     }
 
     public function destroyMonthlyReport($id)
     {
-    $report = \App\Models\MonthlyReport::findOrFail($id);
-    
-    // Proteksi: Hanya admin sekolah bersangkutan atau pengawas
-    if (auth()->user()->role === 'pengawas' || auth()->user()->school_id === $report->school_id) {
-        $report->delete();
-        return redirect()->back()->with('success', 'Laporan bulanan berhasil dihapus!');
-    }
+        $report = \App\Models\MonthlyReport::findOrFail($id);
+        
+        // Proteksi: Hanya admin sekolah bersangkutan atau pengawas
+        if (auth()->user()->role === 'pengawas' || auth()->user()->school_id === $report->school_id) {
+            $report->delete();
+            return redirect()->back()->with('success', 'Laporan bulanan berhasil dihapus!');
+        }
 
-    abort(403);
+        abort(403);
     }
 
     public function destroy($id)
-{
-    $school = \App\Models\School::findOrFail($id);
-    
-    // Hapus sekolah
-    $school->delete();
+    {
+        $school = \App\Models\School::findOrFail($id);
+        
+        // Hapus sekolah
+        $school->delete();
 
-    return redirect()->back()->with('success', 'Data sekolah berhasil dihapus!');
-}
- 
+        return redirect()->back()->with('success', 'Data sekolah berhasil dihapus!');
+    }
+
+    public function exportExcel()
+    {
+        // Ambil semua data sekolah
+        $schools = \App\Models\School::all(); 
+        $filename = "Data_Performa_Sekolah_Binaan_" . date('Ymd') . ".csv";
+
+        $headers = [
+            "Content-type"        => "text/csv; charset=UTF-8",
+            "Content-Disposition" => "attachment; filename=$filename",
+            "Pragma"              => "no-cache",
+            "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
+            "Expires"             => "0"
+        ];
+
+        // Tambahkan kolom nomor (No.) agar lebih rapi
+        $columns = ['No.', 'Nama Sekolah', 'Level', 'Status', 'Skor Performa'];
+
+        $callback = function() use($schools, $columns) {
+            $file = fopen('php://output', 'w');
+            
+            // 1. BOM untuk UTF-8 (agar karakter rapi di Excel)
+            fputs($file, $bom =( chr(0xEF) . chr(0xBB) . chr(0xBF) ));
+
+            // 2. Tulis Header dengan separator titik koma (;)
+            fputcsv($file, $columns, ';');
+
+            $nomor = 1;
+
+            foreach ($schools as $school) {
+                
+                // MENGHITUNG SKOR SECARA DINAMIS (Sama seperti di fungsi show)
+                $filledLinks = 0;
+                if ($school->ijop_link) $filledLinks++;
+                if ($school->ksp_link) $filledLinks++;
+                if ($school->akreditasi_link) $filledLinks++;
+                if ($school->gtk_link) $filledLinks++;
+                if ($school->pd_link) $filledLinks++;
+                if ($school->sarpras_link) $filledLinks++;
+                if ($school->rpp_link) $filledLinks++;
+                if ($school->ekskul_link) $filledLinks++;
+                if ($school->rapor_link) $filledLinks++;
+
+                // Perhitungan skor
+                $calculatedScore = ($filledLinks / 9) * 100;
+                
+                // Memformat skor menjadi 1 angka desimal + menambahkan simbol %
+                $formattedScore = number_format($calculatedScore, 1) . '%';
+
+                $row = [
+                    $nomor,
+                    $school->name,
+                    $school->level,
+                    $school->status,
+                    $formattedScore
+                ];
+
+                // Tulis Baris dengan separator titik koma (;)
+                fputcsv($file, $row, ';');
+                
+                $nomor++;
+            }
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
 }

@@ -35,16 +35,16 @@ class DashboardController extends Controller
             $school->score = ($filledLinks / 9) * 100;
 
             if ($school->score >= 85) {
-                $school->status_text = 'Exemplary';
+                $school->status_text = 'Lengkap';
                 $school->status_color = 'success';
             } elseif ($school->score >= 60) {
-                $school->status_text = 'Proficient';
+                $school->status_text = 'Kurang Lengkap';
                 $school->status_color = 'primary';
             } elseif ($school->score > 0) {
-                $school->status_text = 'Emerging';
+                $school->status_text = 'Kurang Lengkap';
                 $school->status_color = 'warning';
             } else {
-                $school->status_text = 'Critical';
+                $school->status_text = 'Tidak Mengisi';
                 $school->status_color = 'danger';
             }
 

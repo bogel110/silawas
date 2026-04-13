@@ -46,62 +46,33 @@
         </div>
     </div>
 
-    <div class="row g-4 mb-5">
-        <div class="col-lg-8">
-            <div class="card border-0 rounded-4 shadow-sm bg-light p-4 h-100">
-                <div class="d-flex justify-content-between align-items-start mb-4">
-                    <div>
-                        <h4 class="font-headline fw-bold mb-1">Compliance Distribution</h4>
-                        <p class="text-muted small mb-0">School health categorization based on latest audits.</p>
-                    </div>
-                </div>
-                <div class="chart-container align-items-end">
-                    <div class="bar bg-info opacity-75" style="height: 65%;"></div>
-                    <div class="bar bg-primary" style="height: 85%;"></div>
-                    <div class="bar bg-secondary" style="height: 45%;"></div>
-                    <div class="bar bg-danger" style="height: 15%;"></div>
-                </div>
-                <div class="d-flex justify-content-between mt-3 px-1 text-center">
-                    <div class="flex-grow-1"><small class="text-muted text-uppercase fw-bold" style="font-size: 0.65rem;">Exemplary</small></div>
-                    <div class="flex-grow-1"><small class="text-muted text-uppercase fw-bold" style="font-size: 0.65rem;">Proficient</small></div>
-                    <div class="flex-grow-1"><small class="text-muted text-uppercase fw-bold" style="font-size: 0.65rem;">Emerging</small></div>
-                    <div class="flex-grow-1"><small class="text-muted text-uppercase fw-bold" style="font-size: 0.65rem;">Critical</small></div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-lg-4">
-            <div class="d-flex flex-column gap-3 h-100">
-                <h5 class="font-headline fw-bold mb-1">Report Insights</h5>
-                <div class="card border-0 shadow-sm p-3 report-item bg-white">
-                    <div class="d-flex align-items-center gap-3">
-                        <span class="material-symbols-outlined text-primary">account_balance</span>
-                        <span class="fw-bold small">Administrasi (Modul 1)</span>
-                    </div>
-                </div>
-                <div class="card border-0 shadow-sm p-3 report-item bg-white" style="border-left-color: var(--tertiary) !important;">
-                    <div class="d-flex align-items-center gap-3">
-                        <span class="material-symbols-outlined" style="color: var(--tertiary);">menu_book</span>
-                        <span class="fw-bold small">Kontrol KBM (Modul 2)</span>
-                    </div>
-                </div>
-                <div class="card border-0 rounded-4 overflow-hidden position-relative p-4 mt-auto" style="background-color: #eff4ff;">
-                    <span class="badge bg-primary-subtle text-primary mb-2 fw-bold" style="font-size: 0.65rem;">PRO TIP</span>
-                    <p class="small text-dark fw-medium mb-0">Pastikan tautan Google Drive dari sekolah diatur ke "Anyone with the link".</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
-        <div class="p-4 bg-light bg-opacity-50 d-flex justify-content-between align-items-center">
+        {{-- Header Tabel dan Search Bar --}}
+        <div class="p-4 bg-light bg-opacity-50 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
             <div>
-                <h4 class="font-headline fw-bold mb-1">Performance Leaderboard</h4>
-                <p class="text-muted small mb-0">Top ranked institutions by composite audit scores.</p>
+                <h4 class="font-headline fw-bold mb-1">Performa Sekolaan Binaan</h4>
+                <p class="text-muted small mb-0">Top ranked</p>
+            </div>
+            
+            {{-- BAGIAN YANG DIUBAH: Menggabungkan Input Pencarian dan Tombol Excel --}}
+            <div class="d-flex flex-column flex-sm-row gap-2 align-items-sm-center">
+                {{-- Kotak Input Pencarian --}}
+                <div class="input-group" style="max-width: 300px;">
+                    <span class="input-group-text bg-white border-end-0">
+                        <span class="material-symbols-outlined fs-6 text-muted">search</span>
+                    </span>
+                    <input type="text" id="searchSchool" class="form-control border-start-0 ps-0" placeholder="Cari nama sekolah...">
+                </div>
+
+                {{-- Tombol Download Excel --}}
+                <a href="{{ route('school.export') }}" class="btn btn-success fw-bold d-flex align-items-center justify-content-center gap-1 shadow-sm">
+                    <span class="material-symbols-outlined fs-6">download</span> Excel
+                </a>
             </div>
         </div>
+
         <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
+            <table class="table table-hover align-middle mb-0" id="schoolTable">
                 <thead class="bg-light bg-opacity-25">
                     <tr>
                         <th class="px-4 py-3 text-muted text-uppercase fw-bold" style="font-size: 0.65rem;">Rank</th>
@@ -113,8 +84,8 @@
                 </thead>
                 <tbody>
                     @forelse($schools as $index => $school)
-                    <tr>
-                        <td class="px-4 fw-bold font-headline text-dark">
+                    <tr class="school-row">
+                        <td class="px-4 fw-bold font-headline text-dark rank-number">
                             #{{ str_pad($loop->iteration, 2, '0', STR_PAD_LEFT) }}
                         </td>
                         <td>
@@ -124,7 +95,7 @@
                                 </div>
                                 <div>
                                     <a href="{{ route('school.show', $school->id) }}" class="text-decoration-none">
-                                        <p class="mb-0 fw-bold small text-primary">{{ $school->name }}</p>
+                                        <p class="mb-0 fw-bold small text-primary school-name">{{ $school->name }}</p>
                                     </a>
                                     <p class="mb-0 text-muted" style="font-size: 0.65rem;">{{ $school->level }} • {{ $school->status }}</p>
                                 </div>
@@ -149,12 +120,129 @@
                         </td>
                     </tr>
                     @empty
-                    <tr>
+                    <tr id="emptyRow">
                         <td colspan="5" class="text-center text-muted py-4">Belum ada data sekolah.</td>
                     </tr>
                     @endforelse
+                    
+                    <tr id="notFoundRow" style="display: none;">
+                        <td colspan="5" class="text-center text-muted py-4">Sekolah yang dicari tidak ditemukan.</td>
+                    </tr>
                 </tbody>
             </table>
         </div>
+        
+        <div class="p-3 bg-light bg-opacity-25 border-top d-flex justify-content-between align-items-center">
+            <small class="text-muted fw-semibold" id="pageInfo">Menampilkan data...</small>
+            <nav id="paginationControls"></nav>
+        </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('searchSchool');
+            const schoolRows = Array.from(document.querySelectorAll('.school-row')); 
+            const notFoundRow = document.getElementById('notFoundRow');
+            const paginationControls = document.getElementById('paginationControls');
+            const pageInfo = document.getElementById('pageInfo');
+
+            let currentPage = 1;
+            const rowsPerPage = 5; 
+
+            function renderTable() {
+                const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
+                
+                const filteredRows = schoolRows.filter(row => {
+                    const schoolName = row.querySelector('.school-name').textContent.toLowerCase();
+                    return schoolName.includes(searchTerm);
+                });
+
+                schoolRows.forEach(row => row.style.display = 'none');
+
+                if (filteredRows.length === 0 && schoolRows.length > 0) {
+                    notFoundRow.style.display = '';
+                    paginationControls.innerHTML = '';
+                    pageInfo.textContent = 'Menampilkan 0 data';
+                    return;
+                } else {
+                    notFoundRow.style.display = 'none';
+                }
+
+                const totalPages = Math.ceil(filteredRows.length / rowsPerPage);
+                if (currentPage > totalPages) currentPage = totalPages || 1;
+
+                const startIndex = (currentPage - 1) * rowsPerPage;
+                const endIndex = startIndex + rowsPerPage;
+
+                const rowsToShow = filteredRows.slice(startIndex, endIndex);
+                rowsToShow.forEach((row, index) => {
+                    row.style.display = ''; 
+                    
+                    const rankCell = row.querySelector('.rank-number');
+                    if(rankCell) {
+                        const rankNum = startIndex + index + 1;
+                        rankCell.textContent = '#' + rankNum.toString().padStart(2, '0');
+                    }
+                });
+
+                const endItem = Math.min(endIndex, filteredRows.length);
+                pageInfo.textContent = `Menampilkan ${startIndex + 1} - ${endItem} dari total ${filteredRows.length} sekolah`;
+
+                renderPaginationUI(totalPages);
+            }
+
+            function renderPaginationUI(totalPages) {
+                if (totalPages <= 1) {
+                    paginationControls.innerHTML = '';
+                    return;
+                }
+
+                let html = '<ul class="pagination pagination-sm mb-0 shadow-sm">';
+                
+                html += `<li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+                            <a class="page-link text-primary" href="#" data-page="${currentPage - 1}">Prev</a>
+                         </li>`;
+
+                let startPage = Math.max(1, currentPage - 2);
+                let endPage = Math.min(totalPages, startPage + 4);
+                
+                if (endPage - startPage < 4) {
+                    startPage = Math.max(1, endPage - 4);
+                }
+
+                for (let i = startPage; i <= endPage; i++) {
+                    html += `<li class="page-item ${currentPage === i ? 'active' : ''}">
+                                <a class="page-link" href="#" data-page="${i}">${i}</a>
+                             </li>`;
+                }
+
+                html += `<li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
+                            <a class="page-link text-primary" href="#" data-page="${currentPage + 1}">Next</a>
+                         </li>`;
+                
+                html += '</ul>';
+                paginationControls.innerHTML = html;
+
+                paginationControls.querySelectorAll('.page-link').forEach(link => {
+                    link.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        const page = parseInt(this.getAttribute('data-page'));
+                        if (!isNaN(page) && page >= 1 && page <= totalPages) {
+                            currentPage = page;
+                            renderTable();
+                        }
+                    });
+                });
+            }
+
+            if(searchInput) {
+                searchInput.addEventListener('keyup', function() {
+                    currentPage = 1;
+                    renderTable();
+                });
+            }
+
+            renderTable();
+        });
+    </script>
 @endsection
