@@ -82,7 +82,7 @@
                         </td>
                         <td>
                             @if($user->role === 'pengawas')
-                                <span class="text-muted small fst-italic">Semua Sekolah Binaan</span>
+                                <span class="badge bg-primary text-white">Semua Sekolah Binaan</span>
                             @else
                                 <span class="badge bg-primary bg-opacity-10 text-primary">
                                     {{ $user->school->name ?? ($user->school_name ?? 'Tidak ada data') }}

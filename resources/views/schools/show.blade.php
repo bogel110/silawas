@@ -112,7 +112,6 @@
                 <div class="card-header bg-white border-bottom-0 pt-4 pb-0 px-4">
                     <h5 class="font-headline fw-bold mb-0">2. Catatan dan Rekomendasi Pengawas</h5>
                 
-                {{-- <span class="small text-muted fw-bold d-block mb-2">Catatan dan Rekomendasi Pengawas</span> --}}
                 @if(auth()->user()->role === 'pengawas')
                     <form action="{{ route('school.update_catatan', $school->id) }}" method="POST">
                         @csrf
@@ -135,7 +134,6 @@
         {{-- MODUL 2: KONTROL KBM --}}
         <div class="col-lg-12">
             <div class="card border-0 shadow-sm rounded-4 mb-4">
-                {{-- HEADER DENGAN FITUR SEARCH DAN TOMBOL EXCEL --}}
                 <div class="card-header bg-white border-bottom-0 pt-4 pb-0 px-4 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
                     <div class="d-flex align-items-center gap-3">
                         <h5 class="font-headline fw-bold mb-0">3. Kontrol KBM</h5>
@@ -145,17 +143,26 @@
                             </button>
                         @endif
                     </div>
-                    
                     <div class="d-flex flex-column flex-sm-row gap-2 align-items-sm-center">
-                        <div class="input-group" style="max-width: 250px;">
-                            <span class="input-group-text bg-light border-end-0">
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="small text-muted fw-bold d-none d-md-inline">Tampilkan</span>
+                            <select id="entriesAbsensi" class="form-select form-select-sm bg-light border-0 shadow-sm" style="width: auto; cursor: pointer;">
+                                <option value="5">5</option>
+                                <option value="10">10</option>
+                                <option value="25">25</option>
+                                <option value="50">50</option>
+                            </select>
+                        </div>
+                        {{-- DIKEMBALIKAN KE PENCARIAN TEKS BIASA --}}
+                        <div class="input-group input-group-sm shadow-sm" style="max-width: 200px;">
+                            <span class="input-group-text bg-white border-end-0">
                                 <span class="material-symbols-outlined fs-6 text-muted">search</span>
                             </span>
-                            <input type="text" id="searchAbsensi" class="form-control border-start-0 bg-light" placeholder="Cari tanggal...">
+                            <input type="text" id="searchAbsensi" class="form-control border-start-0 ps-0" placeholder="Cari tanggal / data...">
                         </div>
                         
                         <a href="{{ route('school.export_attendance', $school->id) }}" class="btn btn-success btn-sm fw-bold d-flex align-items-center justify-content-center gap-1 shadow-sm" title="Download Excel Rekap Kehadiran">
-                            <span class="material-symbols-outlined fs-6">download</span> Download Rekap Kehadiran
+                            <span class="material-symbols-outlined fs-6">download</span> Excel
                         </a>
                     </div>
                 </div>
@@ -189,7 +196,6 @@
                                             </div>
                                         </td>
                                         <td class="text-center">
-                                            {{-- BAGIAN YANG DIUBAH: Hanya role pengawas yang bisa melihat dan menggunakan tombol hapus --}}
                                             @if(auth()->user()->role === 'pengawas')
                                             <form action="{{ route('attendance.destroy', $absen->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data ini?')">
                                                 @csrf
@@ -205,7 +211,6 @@
                                     <tr id="emptyAbsensiRow"><td colspan="5" class="text-center small text-muted py-3">Belum ada data absensi harian.</td></tr>
                                     @endforelse
 
-                                    {{-- Baris khusus jika pencarian tidak ditemukan --}}
                                     <tr id="notFoundAbsensi" style="display: none;">
                                         <td colspan="5" class="text-center small text-muted py-3">Data tidak ditemukan.</td>
                                     </tr>
@@ -214,7 +219,6 @@
                         </div>
                     </div>
                     
-                    {{-- Pagination Kontrol KBM --}}
                     <div class="p-3 bg-light bg-opacity-25 border-top d-flex justify-content-between align-items-center rounded-bottom-4">
                         <small class="text-muted fw-semibold" id="absensiPageInfo">Menampilkan data...</small>
                         <nav id="absensiPagination"></nav>
@@ -224,7 +228,6 @@
 
             {{-- MODUL 3: LAPORAN KINERJA WAKASEK --}}
             <div class="card border-0 shadow-sm rounded-4 mb-4">
-                {{-- HEADER DENGAN FITUR SEARCH --}}
                 <div class="card-header bg-white border-bottom-0 pt-4 pb-0 px-4 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
                     <div class="d-flex align-items-center gap-3">
                         <h5 class="font-headline fw-bold mb-0">4. Laporan Kinerja Wakasek</h5>
@@ -235,12 +238,23 @@
                         @endif
                     </div>
 
-                    {{-- Kotak Pencarian Laporan --}}
-                    <div class="input-group" style="max-width: 250px;">
-                        <span class="input-group-text bg-light border-end-0">
-                            <span class="material-symbols-outlined fs-6 text-muted">search</span>
-                        </span>
-                        <input type="text" id="searchLaporan" class="form-control border-start-0 bg-light" placeholder="Cari bulan/tahun...">
+                    <div class="d-flex flex-column flex-sm-row gap-2 align-items-sm-center">
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="small text-muted fw-bold d-none d-md-inline">Tampilkan</span>
+                            <select id="entriesLaporan" class="form-select form-select-sm bg-light border-0 shadow-sm" style="width: auto; cursor: pointer;">
+                                <option value="5">5</option>
+                                <option value="10">10</option>
+                                <option value="25">25</option>
+                                <option value="50">50</option>
+                            </select>
+                        </div>
+
+                        <div class="input-group input-group-sm shadow-sm" style="max-width: 200px;">
+                            <span class="input-group-text bg-white border-end-0">
+                                <span class="material-symbols-outlined fs-6 text-muted">search</span>
+                            </span>
+                            <input type="text" id="searchLaporan" class="form-control border-start-0 ps-0" placeholder="Cari bulan/tahun...">
+                        </div>
                     </div>
                 </div>
 
@@ -326,7 +340,6 @@
                                 <tr><td colspan="7" class="text-center small text-muted py-4">Laporan bulanan belum tersedia.</td></tr>
                                 @endforelse
 
-                                {{-- Baris khusus jika pencarian tidak ditemukan --}}
                                 <tr id="notFoundLaporan" style="display: none;">
                                     <td colspan="7" class="text-center small text-muted py-3">Data tidak ditemukan.</td>
                                 </tr>
@@ -334,7 +347,6 @@
                         </table>
                     </div>
 
-                    {{-- Pagination Laporan Wakasek --}}
                     <div class="p-3 bg-light bg-opacity-25 border-top d-flex justify-content-between align-items-center rounded-bottom-4">
                         <small class="text-muted fw-semibold" id="laporanPageInfo">Menampilkan data...</small>
                         <nav id="laporanPagination"></nav>
@@ -521,19 +533,32 @@
         </div>
     </div>
 
-    {{-- SCRIPT: Reusable Search + Sliding Pagination 5 Data --}}
+    {{-- SCRIPT: Reusable Search (Teks) + Sliding Pagination Dinamis --}}
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             
-            // FUNGSI UTAMA: Digunakan berulang untuk banyak tabel
-            function initTableFeatures(rowClass, infoId, paginationId, searchInputId, notFoundId, rowsPerPage = 5) {
+            function initTableFeatures(rowClass, infoId, paginationId, searchInputId, notFoundId, entriesSelectId, defaultRowsPerPage = 5) {
                 const rows = Array.from(document.querySelectorAll(rowClass));
                 const paginationControls = document.getElementById(paginationId);
                 const pageInfo = document.getElementById(infoId);
                 const searchInput = document.getElementById(searchInputId);
                 const notFoundRow = document.getElementById(notFoundId);
+                const entriesSelect = document.getElementById(entriesSelectId); 
                 
                 let currentPage = 1;
+                let rowsPerPage = entriesSelect ? parseInt(entriesSelect.value) : defaultRowsPerPage; 
+
+                // Event Listener ganti jumlah Tampilkan Data
+                if (entriesSelect) {
+                    entriesSelect.addEventListener('change', function(e) {
+                        const selectedValue = parseInt(e.target.value);
+                        if (!isNaN(selectedValue)) {
+                            rowsPerPage = selectedValue;
+                            currentPage = 1; 
+                            renderTable();
+                        }
+                    });
+                }
 
                 if (rows.length === 0) {
                     if (pageInfo) pageInfo.textContent = 'Menampilkan 0 data';
@@ -543,16 +568,13 @@
                 function renderTable() {
                     const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
                     
-                    // 1. Proses Filter (Pencarian)
+                    // Filter berdasarkan ketikan (teks biasa)
                     const filteredRows = rows.filter(row => {
-                        // Mencari berdasarkan seluruh teks yang ada di dalam baris tersebut
                         return row.textContent.toLowerCase().includes(searchTerm);
                     });
 
-                    // Sembunyikan semua baris terlebih dahulu
                     rows.forEach(row => row.style.display = 'none');
 
-                    // 2. Jika tidak ada hasil
                     if (filteredRows.length === 0 && rows.length > 0) {
                         if (notFoundRow) notFoundRow.style.display = '';
                         if (paginationControls) paginationControls.innerHTML = '';
@@ -562,22 +584,18 @@
                         if (notFoundRow) notFoundRow.style.display = 'none';
                     }
 
-                    // 3. Proses Penomoran Halaman
                     const totalPages = Math.ceil(filteredRows.length / rowsPerPage);
                     if (currentPage > totalPages) currentPage = totalPages || 1;
 
                     const startIndex = (currentPage - 1) * rowsPerPage;
                     const endIndex = startIndex + rowsPerPage;
 
-                    // 4. Tampilkan baris yang lolos filter sesuai halamannya
                     const rowsToShow = filteredRows.slice(startIndex, endIndex);
                     rowsToShow.forEach(row => row.style.display = '');
 
-                    // 5. Update teks info
                     const endItem = Math.min(endIndex, filteredRows.length);
                     if (pageInfo) pageInfo.textContent = `Menampilkan ${startIndex + 1} - ${endItem} dari total ${filteredRows.length} data`;
 
-                    // 6. Buat tombol angka
                     renderPaginationUI(totalPages);
                 }
 
@@ -590,7 +608,7 @@
                     let html = '<ul class="pagination pagination-sm mb-0 shadow-sm">';
                     
                     html += `<li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
-                                <a class="page-link text-primary" href="#" data-page="${currentPage - 1}">Prev</a>
+                                <a class="page-link text-primary fw-medium" href="#" data-page="${currentPage - 1}">Prev</a>
                              </li>`;
 
                     let startPage = Math.max(1, currentPage - 2);
@@ -606,7 +624,7 @@
                     }
 
                     html += `<li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
-                                <a class="page-link text-primary" href="#" data-page="${currentPage + 1}">Next</a>
+                                <a class="page-link text-primary fw-medium" href="#" data-page="${currentPage + 1}">Next</a>
                              </li>`;
                     
                     html += '</ul>';
@@ -624,10 +642,10 @@
                     });
                 }
 
-                // Event Listener untuk Kotak Pencarian
+                // Event Listener untuk input teks biasa (keyup agar langsung jalan saat ngetik)
                 if (searchInput) {
                     searchInput.addEventListener('keyup', function() {
-                        currentPage = 1;
+                        currentPage = 1; 
                         renderTable();
                     });
                 }
@@ -635,12 +653,9 @@
                 renderTable();
             }
 
-            // MENGAKTIFKAN FITUR UNTUK KEDUA TABEL:
-            // 1. Tabel Absensi (Kontrol KBM)
-            initTableFeatures('.absensi-row', 'absensiPageInfo', 'absensiPagination', 'searchAbsensi', 'notFoundAbsensi', 5);
-
-            // 2. Tabel Laporan Wakasek
-            initTableFeatures('.laporan-row', 'laporanPageInfo', 'laporanPagination', 'searchLaporan', 'notFoundLaporan', 5);
+            // Eksekusi untuk ke-2 tabel
+            initTableFeatures('.absensi-row', 'absensiPageInfo', 'absensiPagination', 'searchAbsensi', 'notFoundAbsensi', 'entriesAbsensi', 5);
+            initTableFeatures('.laporan-row', 'laporanPageInfo', 'laporanPagination', 'searchLaporan', 'notFoundLaporan', 'entriesLaporan', 5);
         });
     </script>
 @endsection
