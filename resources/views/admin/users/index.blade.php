@@ -75,7 +75,7 @@
                             @if($user->role === 'pengawas')
                                 <span class="badge bg-primary text-white">Pengawas</span>
                             @else
-                                <span class="badge bg-secondary bg-opacity-10 text-secondary">
+                                <span class="badge bg-primary text-white">
                                     {{ $user->role ?? 'Operator' }}
                                 </span>
                             @endif
@@ -108,7 +108,7 @@
                         </td>
                         <td class="text-center">
                             <div class="d-flex justify-content-center gap-3">
-                                <button type="button" class="btn btn-link text-warning p-0" data-bs-toggle="modal" data-bs-target="#modalResetPassword{{ $user->id }}" title="Reset Password">
+                                <button type="button" class="btn btn-link text-success p-0" data-bs-toggle="modal" data-bs-target="#modalResetPassword{{ $user->id }}" title="Reset Password">
                                     <span class="material-symbols-outlined fs-5">lock_reset</span>
                                 </button>
                                 
@@ -254,8 +254,8 @@
                                 <label class="form-label small fw-bold">Level Sekolah</label>
                                 <select name="school_level" class="form-select" required>
                                     <option value="" disabled selected>Pilih Level...</option>
-                                    <option value="SD">SD</option>
-                                    <option value="SMP">SMP</option>
+                                    {{-- <option value="SD">SD</option>
+                                    <option value="SMP">SMP</option> --}}
                                     <option value="SMA">SMA</option>
                                     <option value="SMK">SMK</option>
                                 </select>
