@@ -375,7 +375,7 @@
             <div class="card border-0 shadow-sm rounded-4 mb-4">
                 <div class="card-header bg-white border-bottom-0 pt-4 pb-0 px-4 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
                     <div class="d-flex align-items-center gap-3">
-                        <h5 class="font-headline fw-bold mb-0">5. Laporan Kinerja Wakasek</h5>
+                        <h5 class="font-headline fw-bold mb-0">5. Laporan Wakasek</h5>
                         @if(auth()->user()->role !== 'pengawas' || (auth()->user()->role === 'admin_sekolah' && auth()->user()->school_id == $school->id))
                             <button type="button" class="btn btn-sm btn-primary fw-bold" data-bs-toggle="modal" data-bs-target="#modalLaporan">
                                 + Tambah Laporan
