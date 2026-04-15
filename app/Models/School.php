@@ -28,4 +28,10 @@ class School extends Model
         // Format: belongsTo(ModelTujuan, KolomDiUser, KolomDiTujuan)
         return $this->belongsTo(School::class, 'school_name', 'name');
     }
+    public function kbmReports()
+    {
+        // hasMany berarti "Satu sekolah memiliki BANYAK laporan KBM"
+        // orderBy digunakan agar tahun pelajaran terbaru selalu muncul di atas
+        return $this->hasMany(KbmReport::class)->orderBy('tahun_pelajaran', 'desc');
+    }
 }

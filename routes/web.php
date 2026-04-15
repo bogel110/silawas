@@ -62,6 +62,16 @@ Route::middleware(['auth'])->group(function () {
     //Download excel rekap kehadiran kepala sekolah
     Route::get('/school/{id}/export-attendance', [App\Http\Controllers\SchoolController::class, 'exportAttendanceExcel'])->name('school.export_attendance');
     
+    //Modul KBM
+    Route::post('/school/{id}/kbm', [SchoolController::class, 'storeKbm'])->name('school.store_kbm');
+
+    //Edit KBM
+    Route::put('/school/kbm/{id}', [App\Http\Controllers\SchoolController::class, 'updateKbm'])->name('school.update_kbm');
+
+    //Delete Kontrol KBM
+    Route::delete('/school/kbm/{id}', [App\Http\Controllers\SchoolController::class, 'destroyKbm'])->name('school.destroy_kbm');
+
+    
 });
 
 // Memuat route bawaan otentikasi Laravel (Login, Register, Logout)

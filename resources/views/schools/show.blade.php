@@ -51,12 +51,12 @@
                     <h5 class="font-headline fw-bold mb-0">1. Berkas Administrasi</h5>
                 </div>
                 <div class="card-body p-4">
-                    @if(auth()->user()->role === 'admin_sekolah' && auth()->user()->school_id == $school->id)
+                    @if(auth()->user()->role !== 'pengawas' || (auth()->user()->role === 'admin_sekolah' && auth()->user()->school_id == $school->id))
                         <button type="button" class="btn btn-sm btn-primary fw-bold fw-bold d-flex align-items-center gap-1 mt-2" data-bs-toggle="modal" data-bs-target="#modalDokumenMaster">
                             <span class="material-symbols-outlined fs-6">edit</span> Input Link Dokumen
                         </button>
                     @endif
-                    <ul class="list-group list-group-flush">
+                    <ul class="list-group list-group-flush mt-3">
                         <li class="list-group-item px-0 d-flex justify-content-between align-items-center">
                             <span class="small fw-medium">1. Izin Operasional (IJOP)</span>
                             @if($school->ijop_link) <a href="{{ $school->ijop_link }}" target="_blank" class="badge bg-success text-decoration-none">Lihat Berkas</a>
@@ -92,16 +92,15 @@
                             @if($school->rapor_link) <a href="{{ $school->rapor_link }}" target="_blank" class="badge bg-success text-decoration-none small">Lihat Berkas</a>
                             @else <span class="badge bg-danger">Kosong</span> @endif
                         </li>
-                        <hr class="my-2 opacity-25"> 
-                        <li class="list-group-item px-0 d-flex justify-content-between align-items-center border-bottom-0">
-                            <span class="small fw-medium">8. RPP / Modul Ajar</span>
-                                @if($school->rpp_link) <a href="{{ $school->rpp_link }}" target="_blank" class="badge bg-success text-decoration-none small">Lihat Berkas</a>
-                                @else <span class="badge bg-danger">Kosong</span> @endif
+                        <li class="list-group-item px-0 d-flex justify-content-between align-items-center">
+                            <span class="small fw-medium">8. Rencana Kerja Tahunan (RKT)</span>
+                            @if($school->rkt_link) <a href="{{ $school->rkt_link }}" target="_blank" class="badge bg-success text-decoration-none small">Lihat Berkas</a>
+                            @else <span class="badge bg-danger">Kosong</span> @endif
                         </li>
                         <li class="list-group-item px-0 d-flex justify-content-between align-items-center border-bottom-0">
-                            <span class="small fw-medium">9. Dokumentasi Ekskul & P5</span>
-                                @if($school->ekskul_link) <a href="{{ $school->ekskul_link }}" target="_blank" class="badge bg-success text-decoration-none small">Lihat Berkas</a>
-                                @else <span class="badge bg-danger">Kosong</span> @endif
+                            <span class="small fw-medium">9. RKAS</span>
+                            @if($school->rkas_link) <a href="{{ $school->rkas_link }}" target="_blank" class="badge bg-success text-decoration-none small">Lihat Berkas</a>
+                            @else <span class="badge bg-danger">Kosong</span> @endif
                         </li>
                     </ul>
                 </div>
@@ -115,11 +114,11 @@
                 @if(auth()->user()->role === 'pengawas')
                     <form action="{{ route('school.update_catatan', $school->id) }}" method="POST">
                         @csrf
-                        <textarea name="catatan_pengawas" class="form-control border-2 shadow-sm mb-2" rows="4" placeholder="Tulis rekomendasi dan hasil evaluasi pengawasan di sini...">{{ $school->catatan_pengawas }}</textarea>
+                        <textarea name="catatan_pengawas" class="form-control border-2 shadow-sm mb-2 mt-3" rows="4" placeholder="Tulis rekomendasi dan hasil evaluasi pengawasan di sini...">{{ $school->catatan_pengawas }}</textarea>
                         <button type="submit" class="btn btn-sm btn-primary w-25 fw-bold">Simpan Evaluasi</button>
                     </form>
                 @else
-                    <div class="p-3 bg-white rounded-3 border shadow-sm small">
+                    <div class="p-3 bg-white rounded-3 border shadow-sm small mt-3">
                         @if($school->catatan_pengawas)
                             {!! nl2br(e($school->catatan_pengawas)) !!}
                         @else
@@ -131,15 +130,158 @@
             </div>
         </div>
 
-        {{-- MODUL 2: KONTROL KBM --}}
+        {{-- MODUL BARU: KEGIATAN BELAJAR MENGAJAR (KBM) --}}
         <div class="col-lg-12">
             <div class="card border-0 shadow-sm rounded-4 mb-4">
                 <div class="card-header bg-white border-bottom-0 pt-4 pb-0 px-4 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
                     <div class="d-flex align-items-center gap-3">
-                        <h5 class="font-headline fw-bold mb-0">3. Kontrol KBM</h5>
-                        @if(auth()->user()->role === 'admin_sekolah' && auth()->user()->school_id == $school->id)
+                        <h5 class="font-headline fw-bold mb-0">3. Modul KBM</h5>
+                        @if(auth()->user()->role !== 'pengawas' || (auth()->user()->role === 'admin_sekolah' && auth()->user()->school_id == $school->id))
+                            <button type="button" class="btn btn-sm btn-primary fw-bold" data-bs-toggle="modal" data-bs-target="#modalKbm">
+                                + Input Link KBM
+                            </button>
+                        @endif
+                    </div>
+                    <div class="d-flex flex-column flex-sm-row gap-2 align-items-sm-center">
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="small text-muted fw-bold d-none d-md-inline">Tampilkan</span>
+                            <select id="entriesKbm" class="form-select form-select-sm bg-light border-0 shadow-sm" style="width: auto; cursor: pointer;">
+                                <option value="5">5</option>
+                                <option value="10">10</option>
+                                <option value="25">25</option>
+                            </select>
+                        </div>
+                        <div class="input-group input-group-sm shadow-sm" style="max-width: 200px;">
+                            <span class="input-group-text bg-white border-end-0">
+                                <span class="material-symbols-outlined fs-6 text-muted">search</span>
+                            </span>
+                            <input type="text" id="searchKbm" class="form-control border-start-0 ps-0" placeholder="Cari tahun...">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-body p-0">
+                    <div class="p-4 pt-3">
+                        <h6 class="fw-bold small text-muted text-uppercase tracking-wider mb-3">Rekap KBM</h6>
+                        <div class="table-responsive">
+                            <table class="table table-sm align-middle mb-0">
+                                <thead class="bg-light text-muted small">
+                                    <tr>
+                                        <th>Tahun Pelajaran</th>
+                                        <th>Intrakurikuler</th>
+                                        <th>Kokurikuler</th>
+                                        <th>Ekstrakurikuler</th>
+                                        <th class="text-center">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @forelse($school->kbmReports as $kbm)
+                                    <tr class="kbm-row small">
+                                        <td class="fw-bold">{{ $kbm->tahun_pelajaran }}</td>
+                                        <td>
+                                            @if($kbm->intra_link) <a href="{{ $kbm->intra_link }}" target="_blank" class="badge bg-success text-decoration-none">Cek Berkas</a>
+                                            @else <span class="-">-</span> @endif
+                                        </td>
+                                        <td>
+                                            @if($kbm->ko_link) <a href="{{ $kbm->ko_link }}" target="_blank" class="badge bg-success text-decoration-none">Cek Berkas</a>
+                                            @else <span class="-">-</span> @endif
+                                        </td>
+                                        <td>
+                                            @if($kbm->extra_link) <a href="{{ $kbm->extra_link }}" target="_blank" class="badge bg-success text-decoration-none">Cek Berkas</a>
+                                            @else <span class="-">-</span> @endif
+                                        </td>
+                                       <td class="text-center">
+                                            @if(auth()->user()->role === 'pengawas' || (auth()->user()->role === 'admin_sekolah' && auth()->user()->school_id == $school->id))
+                                                <div class="d-flex justify-content-center gap-2">
+                                                    {{-- Tombol Edit --}}
+                                                     @if(auth()->user()->role !== 'pengawas' || (auth()->user()->role === 'admin_sekolah' && auth()->user()->school_id == $school->id))
+                                                    <button class="btn btn-link text-primary p-0" data-bs-toggle="modal" data-bs-target="#editModalKbm{{ $kbm->id }}" title="Edit Data">
+                                                        <span class="material-symbols-outlined fs-6">edit</span>
+                                                    </button>
+                                                    @endif
+                                                    {{-- Tombol Hapus --}}
+                                                    <form action="{{ route('school.destroy_kbm', $kbm->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data KBM Tahun Pelajaran {{ $kbm->tahun_pelajaran }}?')">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="btn btn-link text-danger p-0" title="Hapus Data">
+                                                            <span class="material-symbols-outlined fs-6">delete</span>
+                                                        </button>
+                                                    </form>
+                                                </div>
+
+                                                {{-- MODAL EDIT KBM (Spesifik per ID data) --}}
+                                                <div class="modal fade" id="editModalKbm{{ $kbm->id }}" tabindex="-1" aria-hidden="true">
+                                                    <div class="modal-dialog modal-dialog-centered">
+                                                        <div class="modal-content border-0 shadow rounded-4 text-start">
+                                                            <form action="{{ route('school.update_kbm', $kbm->id) }}" method="POST">
+                                                                @csrf
+                                                                @method('PUT')
+                                                                <div class="modal-header border-bottom-0">
+                                                                    <h1 class="modal-title fs-5 font-headline fw-bold">Edit Link KBM</h1>
+                                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                                </div>
+                                                                <div class="modal-body p-4 pt-0">
+                                                                    <div class="mb-3">
+                                                                        <label class="small fw-bold">Pilih Tahun Pelajaran</label>
+                                                                        <select name="tahun_pelajaran" class="form-select" required>
+                                                                            <option value="2023/2024" {{ $kbm->tahun_pelajaran == '2023/2024' ? 'selected' : '' }}>2023/2024</option>
+                                                                            <option value="2024/2025" {{ $kbm->tahun_pelajaran == '2024/2025' ? 'selected' : '' }}>2024/2025</option>
+                                                                            <option value="2025/2026" {{ $kbm->tahun_pelajaran == '2025/2026' ? 'selected' : '' }}>2025/2026</option>
+                                                                            <option value="2025/2026" {{ $kbm->tahun_pelajaran == '2025/2026' ? 'selected' : '' }}>2026/2027</option>
+                                                                        </select>
+                                                                    </div>
+                                                                    <div class="mb-3">
+                                                                        <label class="small fw-bold">1. Intrakurikuler (RPP/Modul Ajar)</label>
+                                                                        <input type="url" name="intra_link" class="form-control" value="{{ $kbm->intra_link }}">
+                                                                    </div>
+                                                                    <div class="mb-3">
+                                                                        <label class="small fw-bold">2. Kokurikuler</label>
+                                                                        <input type="url" name="ko_link" class="form-control" value="{{ $kbm->ko_link }}">
+                                                                    </div>
+                                                                    <div class="mb-3">
+                                                                        <label class="small fw-bold">3. Ekstrakurikuler</label>
+                                                                        <input type="url" name="extra_link" class="form-control" value="{{ $kbm->extra_link }}">
+                                                                    </div>
+                                                                </div>
+                                                                <div class="modal-footer bg-light border-top-0 rounded-bottom-4">
+                                                                    <button type="button" class="btn btn-outline-secondary btn-sm fw-bold" data-bs-dismiss="modal">Batal</button>
+                                                                    <button type="submit" class="btn btn-primary btn-sm fw-bold">Simpan Perubahan</button>
+                                                                </div>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                    @empty
+                                    <tr id="emptyKbmRow"><td colspan="5" class="text-center small text-muted py-3">Belum ada data KBM.</td></tr>
+                                    @endforelse
+
+                                    <tr id="notFoundKbm" style="display: none;">
+                                        <td colspan="5" class="text-center small text-muted py-3">Data tidak ditemukan.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="p-3 bg-light bg-opacity-25 border-top d-flex justify-content-between align-items-center rounded-bottom-4">
+                        <small class="text-muted fw-semibold" id="kbmPageInfo">Menampilkan data...</small>
+                        <nav id="kbmPagination"></nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- MODUL 4: JURNAL KEPSEK --}}
+        <div class="col-lg-12">
+            <div class="card border-0 shadow-sm rounded-4 mb-4">
+                <div class="card-header bg-white border-bottom-0 pt-4 pb-0 px-4 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+                    <div class="d-flex align-items-center gap-3">
+                        <h5 class="font-headline fw-bold mb-0">4. Jurnal Kepsek</h5>
+                        @if(auth()->user()->role !== 'pengawas' || (auth()->user()->role === 'admin_sekolah' && auth()->user()->school_id == $school->id))
                             <button type="button" class="btn btn-sm btn-primary fw-bold" data-bs-toggle="modal" data-bs-target="#modalAbsensi">
-                                + Isi Absensi
+                                + Isi Jurnal
                             </button>
                         @endif
                     </div>
@@ -153,14 +295,12 @@
                                 <option value="50">50</option>
                             </select>
                         </div>
-                        {{-- DIKEMBALIKAN KE PENCARIAN TEKS BIASA --}}
                         <div class="input-group input-group-sm shadow-sm" style="max-width: 200px;">
                             <span class="input-group-text bg-white border-end-0">
                                 <span class="material-symbols-outlined fs-6 text-muted">search</span>
                             </span>
-                            <input type="text" id="searchAbsensi" class="form-control border-start-0 ps-0" placeholder="Cari tanggal / data...">
+                            <input type="text" id="searchAbsensi" class="form-control border-start-0 ps-0" placeholder="Cari data...">
                         </div>
-                        
                         <a href="{{ route('school.export_attendance', $school->id) }}" class="btn btn-success btn-sm fw-bold d-flex align-items-center justify-content-center gap-1 shadow-sm" title="Download Excel Rekap Kehadiran">
                             <span class="material-symbols-outlined fs-6">download</span> Excel
                         </a>
@@ -169,7 +309,7 @@
 
                 <div class="card-body p-0">
                     <div class="p-4 pt-3">
-                        <h6 class="fw-bold small text-muted text-uppercase tracking-wider mb-3">Rekap Kehadiran Terakhir</h6>
+                        <h6 class="fw-bold small text-muted text-uppercase tracking-wider mb-3">Rekap Jurnal Harian</h6>
                         <div class="table-responsive">
                             <table class="table table-sm align-middle mb-0">
                                 <thead class="bg-light text-muted small">
@@ -178,13 +318,15 @@
                                         <th class="text-center">Siswa Hadir</th>
                                         <th class="text-center">Guru Hadir</th>
                                         <th class="text-center">Kepsek Hadir</th>
+                                        <th>Tupoksi</th>
+                                        <th>Keterangan</th>
                                         <th class="text-center">Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @forelse($school->attendances as $absen)
                                     <tr class="absensi-row">
-                                        <td class="small">{{ \Carbon\Carbon::parse($absen->tanggal)->format('d / m / Y') }}</td>
+                                        <td class="small text-nowrap">{{ \Carbon\Carbon::parse($absen->tanggal)->format('d / m / Y') }}</td>
                                         <td class="text-center small">{{ $absen->siswa_hadir }}</td>
                                         <td class="text-center small">{{ $absen->guru_hadir }}</td>
                                         <td class="text-center">
@@ -195,6 +337,8 @@
                                                 {{ \Carbon\Carbon::parse($absen->created_at)->format('H:i:s') }}
                                             </div>
                                         </td>
+                                        <td class="small fw-medium">{{ $absen->tupoksi ?? '-' }}</td>
+                                        <td class="small text-muted" style="max-width: 200px; white-space: normal;">{{ $absen->keterangan ?? '-' }}</td>
                                         <td class="text-center">
                                             @if(auth()->user()->role === 'pengawas')
                                             <form action="{{ route('attendance.destroy', $absen->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data ini?')">
@@ -208,36 +352,36 @@
                                         </td>
                                     </tr>
                                     @empty
-                                    <tr id="emptyAbsensiRow"><td colspan="5" class="text-center small text-muted py-3">Belum ada data absensi harian.</td></tr>
+                                    <tr id="emptyAbsensiRow"><td colspan="7" class="text-center small text-muted py-3">Belum ada data jurnal harian.</td></tr>
                                     @endforelse
 
                                     <tr id="notFoundAbsensi" style="display: none;">
-                                        <td colspan="5" class="text-center small text-muted py-3">Data tidak ditemukan.</td>
+                                        <td colspan="7" class="text-center small text-muted py-3">Data tidak ditemukan.</td>
                                     </tr>
                                 </tbody>
                             </table>
                         </div>
                     </div>
-                    
                     <div class="p-3 bg-light bg-opacity-25 border-top d-flex justify-content-between align-items-center rounded-bottom-4">
                         <small class="text-muted fw-semibold" id="absensiPageInfo">Menampilkan data...</small>
                         <nav id="absensiPagination"></nav>
                     </div>
                 </div>
             </div>
+        </div>
 
-            {{-- MODUL 3: LAPORAN KINERJA WAKASEK --}}
+        {{-- MODUL 5: LAPORAN KINERJA WAKASEK --}}
+        <div class="col-lg-12">
             <div class="card border-0 shadow-sm rounded-4 mb-4">
                 <div class="card-header bg-white border-bottom-0 pt-4 pb-0 px-4 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
                     <div class="d-flex align-items-center gap-3">
-                        <h5 class="font-headline fw-bold mb-0">4. Laporan Kinerja Wakasek</h5>
-                        @if(auth()->user()->role === 'admin_sekolah' && auth()->user()->school_id == $school->id)
+                        <h5 class="font-headline fw-bold mb-0">5. Laporan Kinerja Wakasek</h5>
+                        @if(auth()->user()->role !== 'pengawas' || (auth()->user()->role === 'admin_sekolah' && auth()->user()->school_id == $school->id))
                             <button type="button" class="btn btn-sm btn-primary fw-bold" data-bs-toggle="modal" data-bs-target="#modalLaporan">
                                 + Tambah Laporan
                             </button>
                         @endif
                     </div>
-
                     <div class="d-flex flex-column flex-sm-row gap-2 align-items-sm-center">
                         <div class="d-flex align-items-center gap-2">
                             <span class="small text-muted fw-bold d-none d-md-inline">Tampilkan</span>
@@ -248,7 +392,6 @@
                                 <option value="50">50</option>
                             </select>
                         </div>
-
                         <div class="input-group input-group-sm shadow-sm" style="max-width: 200px;">
                             <span class="input-group-text bg-white border-end-0">
                                 <span class="material-symbols-outlined fs-6 text-muted">search</span>
@@ -277,15 +420,17 @@
                                 <tr class="laporan-row">
                                     <td class="fw-bold small text-dark">{{ \Carbon\Carbon::create()->month($report->bulan)->translatedFormat('F') }}</td>
                                     <td class="small text-muted fw-bold">{{ $report->tahun_pelajaran ?? '-' }}</td> 
-                                    <td>@if($report->kurikulum_link) <a href="{{ $report->kurikulum_link }}" target="_blank" class="text-decoration-none">Cek Berkas</a> @else - @endif</td>
-                                    <td>@if($report->kesiswaan_link) <a href="{{ $report->kesiswaan_link }}" target="_blank" class="text-decoration-none">Cek Berkas</a> @else - @endif</td>
-                                    <td>@if($report->sarpras_link) <a href="{{ $report->sarpras_link }}" target="_blank" class="text-decoration-none">Cek Berkas</a> @else - @endif</td>
-                                    <td>@if($report->humas_link) <a href="{{ $report->humas_link }}" target="_blank" class="text-decoration-none">Cek Berkas</a> @else - @endif</td>
+                                    <td>@if($report->kurikulum_link) <a href="{{ $report->kurikulum_link }}" target="_blank" class="badge bg-success text-decoration-none">Cek Berkas</a> @else - @endif</td>
+                                    <td>@if($report->kesiswaan_link) <a href="{{ $report->kesiswaan_link }}" target="_blank" class="badge bg-success text-decoration-none">Cek Berkas</a> @else - @endif</td>
+                                    <td>@if($report->sarpras_link) <a href="{{ $report->sarpras_link }}" target="_blank" class="badge bg-success text-decoration-none">Cek Berkas</a> @else - @endif</td>
+                                    <td>@if($report->humas_link) <a href="{{ $report->humas_link }}" target="_blank" class="badge bg-success text-decoration-none">Cek Berkas</a> @else - @endif</td>
                                     <td class="text-center">
                                         <div class="d-flex justify-content-center gap-2">
+                                             @if(auth()->user()->role !== 'pengawas' || (auth()->user()->role === 'admin_sekolah' && auth()->user()->school_id == $school->id))
                                             <button class="btn btn-link text-primary p-0" data-bs-toggle="modal" data-bs-target="#editModalLaporan{{ $report->id }}">
                                                 <span class="material-symbols-outlined fs-6">edit</span>
                                             </button>
+                                            @endif
                                             <form action="{{ route('school.destroy_monthly_report', $report->id) }}" method="POST" onsubmit="return confirm('Hapus laporan bulan ini?')">
                                                 @csrf
                                                 @method('DELETE')
@@ -346,7 +491,6 @@
                             </tbody>
                         </table>
                     </div>
-
                     <div class="p-3 bg-light bg-opacity-25 border-top d-flex justify-content-between align-items-center rounded-bottom-4">
                         <small class="text-muted fw-semibold" id="laporanPageInfo">Menampilkan data...</small>
                         <nav id="laporanPagination"></nav>
@@ -356,27 +500,136 @@
         </div>
     </div>
 
+    {{-- ============================== --}}
     {{-- KUMPULAN MODAL --}}
-    {{-- Modal Absensi --}}
+    {{-- ============================== --}}
+
+    {{-- 1. Modal Update Link Dokumen Master --}}
+    <div class="modal fade" id="modalDokumenMaster" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content border-0 shadow rounded-4">
+                <div class="modal-header border-bottom-0">
+                    <h1 class="modal-title fs-5 font-headline fw-bold">Update Link Dokumen Master</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form action="{{ route('school.update_links', $school->id) }}" method="POST">
+                    @csrf
+                    <div class="modal-body p-4 pt-0">
+                        <p class="small text-muted mb-4">Masukkan tautan (link) Google Drive untuk memperbarui data kelengkapan administrasi sekolah.</p>
+                        
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold">1. Link Izin Operasional (IJOP)</label>
+                                <input type="url" name="ijop_link" class="form-control form-control-sm border-primary" value="{{ $school->ijop_link }}" placeholder="https://...">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold">2. Link KSP (Kurikulum)</label>
+                                <input type="url" name="ksp_link" class="form-control form-control-sm border-primary" value="{{ $school->ksp_link }}">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold">3. Link Sertifikat Akreditasi</label>
+                                <input type="url" name="akreditasi_link" class="form-control form-control-sm border-primary" value="{{ $school->akreditasi_link }}">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold">4. Link Data GTK</label>
+                                <input type="url" name="gtk_link" class="form-control form-control-sm border-primary" value="{{ $school->gtk_link }}">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold">5. Link Data Peserta Didik</label>
+                                <input type="url" name="pd_link" class="form-control form-control-sm border-primary" value="{{ $school->pd_link }}">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold">6. Link Data SARPRAS</label>
+                                <input type="url" name="sarpras_link" class="form-control form-control-sm border-primary" value="{{ $school->sarpras_link }}">
+                            </div>
+                            <div class="col-md-12">
+                                <label class="form-label small fw-bold text-primary">7. Link Rapor Pendidikan</label>
+                                <input type="url" name="rapor_link" class="form-control form-control-sm border-primary" value="{{ $school->rapor_link }}" placeholder="https://...">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold text-primary">8. Link RKT</label>
+                                <input type="url" name="rkt_link" class="form-control form-control-sm border-primary" value="{{ $school->rkt_link }}" placeholder="https://...">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold text-primary">9. Link RKAS</label>
+                                <input type="url" name="rkas_link" class="form-control form-control-sm border-primary" value="{{ $school->rkas_link }}" placeholder="https://...">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer bg-light border-top-0 rounded-bottom-4">
+                        <button type="button" class="btn btn-outline-secondary btn-sm fw-bold" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-primary btn-sm fw-bold">Simpan Perubahan</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    {{-- 2. Modal Input KBM --}}
+    <div class="modal fade" id="modalKbm" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow rounded-4">
+                <form action="{{ route('school.store_kbm', $school->id) }}" method="POST">
+                    @csrf
+                    <div class="modal-header border-bottom-0">
+                        <h1 class="modal-title fs-5 font-headline fw-bold">Input Link KBM</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body p-4 pt-0">
+                        <p class="small text-muted mb-4">Masukkan tautan Google Drive untuk tiap kategori kegiatan sesuai tahun pelajaran.</p>
+                        <div class="mb-3">
+                            <label class="small fw-bold">Pilih Tahun Pelajaran</label>
+                            <select name="tahun_pelajaran" class="form-select" required>
+                                <option value="2023/2024">2023/2024</option>
+                                <option value="2024/2025" selected>2024/2025</option>
+                                <option value="2025/2026">2025/2026</option>
+                                <option value="2025/2026">2026/2027</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="small fw-bold">1. Intrakurikuler (RPP/Modul Ajar)</label>
+                            <input type="url" name="intra_link" class="form-control" placeholder="https://drive.google.com/...">
+                        </div>
+                        <div class="mb-3">
+                            <label class="small fw-bold">2. Kokurikuler</label>
+                            <input type="url" name="ko_link" class="form-control" placeholder="https://drive.google.com/...">
+                        </div>
+                        <div class="mb-3">
+                            <label class="small fw-bold">3. Ekstrakurikuler</label>
+                            <input type="url" name="extra_link" class="form-control" placeholder="https://drive.google.com/...">
+                        </div>
+                    </div>
+                    <div class="modal-footer bg-light border-top-0 rounded-bottom-4">
+                        <button type="button" class="btn btn-outline-secondary btn-sm fw-bold" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-primary btn-sm fw-bold">Simpan Laporan KBM</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    {{-- 3. Modal Absensi & Jurnal Kepsek --}}
     <div class="modal fade" id="modalAbsensi" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 shadow rounded-4">
                 <div class="modal-header border-bottom-0">
-                    <h1 class="modal-title fs-5 font-headline fw-bold">Input Kehadiran Harian</h1>
+                    <h1 class="modal-title fs-5 font-headline fw-bold">Input Jurnal Kepsek</h1>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <form action="{{ route('school.store_attendance', $school->id) }}" method="POST">
                     @csrf
                     <div class="modal-body p-4 pt-0">
-                        <p class="small text-muted mb-4">Silakan masukkan data kehadiran yang valid untuk hari ini ({{ now()->format('d M Y') }}).</p>
+                        <p class="small text-muted mb-4">Silakan masukkan data kehadiran & jurnal untuk hari ini ({{ now()->format('d M Y') }}).</p>
                         
-                        <div class="mb-3">
-                            <label class="form-label small fw-bold">Jumlah Siswa Hadir</label>
-                            <input type="number" name="siswa_hadir" class="form-control" required min="0" placeholder="Contoh: 345">
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label small fw-bold">Jumlah Guru Hadir</label>
-                            <input type="number" name="guru_hadir" class="form-control" required min="0" placeholder="Contoh: 42">
+                        <div class="row g-3 mb-3">
+                            <div class="col-6">
+                                <label class="form-label small fw-bold">Jumlah Siswa Hadir</label>
+                                <input type="number" name="siswa_hadir" class="form-control" required min="0" placeholder="Contoh: 345">
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label small fw-bold">Jumlah Guru Hadir</label>
+                                <input type="number" name="guru_hadir" class="form-control" required min="0" placeholder="Contoh: 42">
+                            </div>
                         </div>
                         <div class="mb-3">
                             <label class="form-label small fw-bold">Kehadiran Kepala Sekolah</label>
@@ -384,6 +637,23 @@
                                 <option value="1">Hadir (Ada di tempat)</option>
                                 <option value="0">Tidak Hadir (Dinas Luar / Izin)</option>
                             </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Tupoksi Kepsek</label>
+                            <select name="tupoksi" class="form-select" required>
+                                <option value="">-- Pilih Tupoksi --</option>
+                                <option value="Manajerial">1. Manajerial</option>
+                                <option value="Educator">2. Educator</option>
+                                <option value="Supervisor">3. Supervisor</option>
+                                <option value="Leader">4. Leader</option>
+                                <option value="Entrepreneur">5. Entrepreneur</option>
+                                <option value="Pengelola Sistem Informasi">6. Pengelola Sistem Informasi</option>
+                                <option value="Tidak Ada">7. Tidak Ada</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Keterangan Tambahan</label>
+                            <textarea name="keterangan" class="form-control" rows="2" placeholder="Tuliskan keterangan detail di sini..."></textarea>
                         </div>
                     </div>
                     <div class="modal-footer bg-light border-top-0 rounded-bottom-4">
@@ -395,7 +665,7 @@
         </div>
     </div>
 
-    {{-- Modal Tambah Laporan --}}
+    {{-- 4. Modal Tambah Laporan Bulanan Wakasek --}}
     <div class="modal fade" id="modalLaporan" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content border-0 shadow rounded-4">
@@ -436,9 +706,7 @@
                                 </select>
                             </div>
                         </div>
-                        
                         <p class="small text-muted mb-3 border-bottom pb-2">Masukkan Tautan (Link) Google Drive untuk masing-masing bidang. Kosongkan jika belum ada.</p>
-                        
                         <div class="row g-3">
                             <div class="col-md-6">
                                 <label class="form-label small fw-bold">Link Laporan Kurikulum</label>
@@ -467,73 +735,7 @@
         </div>
     </div>
 
-    {{-- Modal Update Link Dokumen Master --}}
-    <div class="modal fade" id="modalDokumenMaster" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-lg">
-            <div class="modal-content border-0 shadow rounded-4">
-                <div class="modal-header border-bottom-0">
-                    <h1 class="modal-title fs-5 font-headline fw-bold">Update Link Dokumen Master</h1>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <form action="{{ route('school.update_links', $school->id) }}" method="POST">
-                    @csrf
-                    <div class="modal-body p-4 pt-0">
-                        <p class="small text-muted mb-4">Masukkan tautan (link) Google Drive untuk memperbarui data kelengkapan administrasi sekolah.</p>
-                        
-                        <h6 class="fw-bold small text-primary border-bottom pb-2 mb-3">Modul 1: Administrasi</h6>
-                        <div class="row g-3 mb-4">
-                            <div class="col-md-6">
-                                <label class="form-label small fw-bold">Link Izin Operasional (IJOP)</label>
-                                <input type="url" name="ijop_link" class="form-control" value="{{ $school->ijop_link }}" placeholder="https://drive.google.com/...">
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label small fw-bold">Link KSP (Kurikulum)</label>
-                                <input type="url" name="ksp_link" class="form-control form-control-sm" value="{{ $school->ksp_link }}">
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label small fw-bold">Link Sertifikat Akreditasi</label>
-                                <input type="url" name="akreditasi_link" class="form-control form-control-sm" value="{{ $school->akreditasi_link }}">
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label small fw-bold">Link Data GTK</label>
-                                <input type="url" name="gtk_link" class="form-control form-control-sm" value="{{ $school->gtk_link }}">
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label small fw-bold">Link Data Peserta Didik</label>
-                                <input type="url" name="pd_link" class="form-control" value="{{ $school->pd_link }}" placeholder="https://drive.google.com/...">
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label small fw-bold">Link Data SARPRAS</label>
-                                <input type="url" name="sarpras_link" class="form-control" value="{{ $school->sarpras_link }}" placeholder="https://drive.google.com/...">
-                            </div>
-                        </div>
-
-                        <h6 class="fw-bold small text-primary border-bottom pb-2 mb-3">Modul 2 & 4: KBM dan Rapor</h6>
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <label class="form-label small fw-bold">Link RPP / Modul Ajar</label>
-                                <input type="url" name="rpp_link" class="form-control" value="{{ $school->rpp_link }}" placeholder="https://drive.google.com/...">
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label small fw-bold">Link Dokumentasi Ekskul</label>
-                                <input type="url" name="ekskul_link" class="form-control" value="{{ $school->ekskul_link }}" placeholder="https://drive.google.com/...">
-                            </div>
-                            <div class="col-md-12">
-                                <label class="form-label small fw-bold">Link Rapor Pendidikan</label>
-                                <input type="url" name="rapor_link" class="form-control" value="{{ $school->rapor_link }}" placeholder="https://drive.google.com/...">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal-footer bg-light border-top-0 rounded-bottom-4">
-                        <button type="button" class="btn btn-outline-secondary btn-sm fw-bold" data-bs-dismiss="modal">Batal</button>
-                        <button type="submit" class="btn btn-primary btn-sm fw-bold">Simpan Perubahan</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    {{-- SCRIPT: Reusable Search (Teks) + Sliding Pagination Dinamis --}}
+    {{-- SCRIPT: Reusable Search + Sliding Pagination Dinamis --}}
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             
@@ -548,7 +750,6 @@
                 let currentPage = 1;
                 let rowsPerPage = entriesSelect ? parseInt(entriesSelect.value) : defaultRowsPerPage; 
 
-                // Event Listener ganti jumlah Tampilkan Data
                 if (entriesSelect) {
                     entriesSelect.addEventListener('change', function(e) {
                         const selectedValue = parseInt(e.target.value);
@@ -568,7 +769,6 @@
                 function renderTable() {
                     const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
                     
-                    // Filter berdasarkan ketikan (teks biasa)
                     const filteredRows = rows.filter(row => {
                         return row.textContent.toLowerCase().includes(searchTerm);
                     });
@@ -642,7 +842,6 @@
                     });
                 }
 
-                // Event Listener untuk input teks biasa (keyup agar langsung jalan saat ngetik)
                 if (searchInput) {
                     searchInput.addEventListener('keyup', function() {
                         currentPage = 1; 
@@ -653,7 +852,8 @@
                 renderTable();
             }
 
-            // Eksekusi untuk ke-2 tabel
+            // Eksekusi JS interaktif untuk KETIGA tabel
+            initTableFeatures('.kbm-row', 'kbmPageInfo', 'kbmPagination', 'searchKbm', 'notFoundKbm', 'entriesKbm', 5);
             initTableFeatures('.absensi-row', 'absensiPageInfo', 'absensiPagination', 'searchAbsensi', 'notFoundAbsensi', 'entriesAbsensi', 5);
             initTableFeatures('.laporan-row', 'laporanPageInfo', 'laporanPagination', 'searchLaporan', 'notFoundLaporan', 'entriesLaporan', 5);
         });

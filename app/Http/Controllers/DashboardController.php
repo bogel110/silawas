@@ -29,8 +29,8 @@ class DashboardController extends Controller
             if ($school->pd_link) $filledLinks++;
             if ($school->sarpras_link) $filledLinks++;
             if ($school->rapor_link) $filledLinks++;
-            if ($school->rpp_link) $filledLinks++;
-            if ($school->ekskul_link) $filledLinks++;
+            if ($school->rkt_link) $filledLinks++;
+            if ($school->rkas_link) $filledLinks++;
 
             $school->score = ($filledLinks / 9) * 100;
 
