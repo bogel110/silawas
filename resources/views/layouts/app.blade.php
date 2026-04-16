@@ -96,6 +96,18 @@
                     <span class="material-symbols-outlined me-3">dashboard</span> Dashboard
                 </a>
             </li>
+           <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('jurnal.index') ? 'active' : '' }}" href="{{ route('jurnal.index') }}">
+                        <span class="material-symbols-outlined me-3">book</span>
+                        Jurnal HARIAN KEPSEK
+                </a>
+            </li>
+            <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('kbm.index') ? 'active' : '' }}" href="{{ route('kbm.index') }}">
+                        <span class="material-symbols-outlined me-3">dashboard</span>
+                        PERANGKAT KBM
+                </a>
+            </li>
             @if(auth()->user()->role === 'pengawas')
                 <li class="nav-item">
                     <a class="nav-link {{ request()->routeIs('admin.users.*') ? 'active fw-bold' : '' }}" href="{{ route('admin.users.index') }}">

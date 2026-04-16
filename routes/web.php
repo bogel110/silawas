@@ -27,9 +27,6 @@ Route::middleware(['auth'])->group(function () {
     // Route BARU khusus Pengawas untuk menyimpan catatan evaluasi
     Route::post('/school/{id}/catatan', [SchoolController::class, 'updateCatatan'])->name('school.update_catatan');
 
-    // Route untuk menghapus absensi harian
-    Route::delete('/attendance/{id}', [SchoolController::class, 'destroyAttendance'])->name('attendance.destroy');
-
     // Route untuk Update dan Hapus Laporan Bulanan (Modul 3)
     Route::put('/monthly-report/{id}', [SchoolController::class, 'updateMonthlyReport'])->name('school.update_monthly_report');
     Route::delete('/monthly-report/{id}', [SchoolController::class, 'destroyMonthlyReport'])->name('school.destroy_monthly_report');
@@ -62,17 +59,23 @@ Route::middleware(['auth'])->group(function () {
     //Download excel rekap kehadiran kepala sekolah
     Route::get('/school/{id}/export-attendance', [App\Http\Controllers\SchoolController::class, 'exportAttendanceExcel'])->name('school.export_attendance');
     
+    // Menampilkan Halaman Utama Modul KBM
+    Route::get('/kbm', [App\Http\Controllers\KbmController::class, 'index'])->name('kbm.index');
     //Modul KBM
     Route::post('/school/{id}/kbm', [SchoolController::class, 'storeKbm'])->name('school.store_kbm');
-
     //Edit KBM
     Route::put('/school/kbm/{id}', [App\Http\Controllers\SchoolController::class, 'updateKbm'])->name('school.update_kbm');
-
     //Delete Kontrol KBM
     Route::delete('/school/kbm/{id}', [App\Http\Controllers\SchoolController::class, 'destroyKbm'])->name('school.destroy_kbm');
 
-    
-});
+    //Menu Jurnal KBM
+    Route::get('/jurnal-kepsek', [App\Http\Controllers\AttendanceController::class, 'index'])->name('jurnal.index');
+    // Route untuk menghapus absensi harian
+    Route::delete('/attendance/{id}', [SchoolController::class, 'destroyAttendance'])->name('attendance.destroy');
+
+
+    }
+);
 
 // Memuat route bawaan otentikasi Laravel (Login, Register, Logout)
  require __DIR__.'/auth.php';

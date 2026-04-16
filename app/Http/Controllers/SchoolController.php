@@ -324,7 +324,7 @@ class SchoolController extends Controller
     }
 
     public function storeKbm(Request $request, $id)
-{
+    {
     $request->validate([
         'tahun_pelajaran' => 'required|string',
         'intra_link'      => 'nullable|url',

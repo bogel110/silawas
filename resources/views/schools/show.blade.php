@@ -130,7 +130,7 @@
             </div>
         </div>
 
-        {{-- MODUL BARU: KEGIATAN BELAJAR MENGAJAR (KBM) --}}
+        {{-- MODUL BARU: KEGIATAN BELAJAR MENGAJAR (KBM)
         <div class="col-lg-12">
             <div class="card border-0 shadow-sm rounded-4 mb-4">
                 <div class="card-header bg-white border-bottom-0 pt-4 pb-0 px-4 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
@@ -193,24 +193,24 @@
                                        <td class="text-center">
                                             @if(auth()->user()->role === 'pengawas' || (auth()->user()->role === 'admin_sekolah' && auth()->user()->school_id == $school->id))
                                                 <div class="d-flex justify-content-center gap-2">
-                                                    {{-- Tombol Edit --}}
+                                                    {{-- Tombol Edit
                                                      @if(auth()->user()->role !== 'pengawas' || (auth()->user()->role === 'admin_sekolah' && auth()->user()->school_id == $school->id))
                                                     <button class="btn btn-link text-primary p-0" data-bs-toggle="modal" data-bs-target="#editModalKbm{{ $kbm->id }}" title="Edit Data">
                                                         <span class="material-symbols-outlined fs-6">edit</span>
                                                     </button>
                                                     @endif
                                                     {{-- Tombol Hapus --}}
-                                                    <form action="{{ route('school.destroy_kbm', $kbm->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data KBM Tahun Pelajaran {{ $kbm->tahun_pelajaran }}?')">
+                                                    {{-- <form action="{{ route('school.destroy_kbm', $kbm->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data KBM Tahun Pelajaran {{ $kbm->tahun_pelajaran }}?')">
                                                         @csrf
                                                         @method('DELETE')
                                                         <button type="submit" class="btn btn-link text-danger p-0" title="Hapus Data">
                                                             <span class="material-symbols-outlined fs-6">delete</span>
                                                         </button>
                                                     </form>
-                                                </div>
+                                                </div> --}}
 
                                                 {{-- MODAL EDIT KBM (Spesifik per ID data) --}}
-                                                <div class="modal fade" id="editModalKbm{{ $kbm->id }}" tabindex="-1" aria-hidden="true">
+                                                {{-- <div class="modal fade" id="editModalKbm{{ $kbm->id }}" tabindex="-1" aria-hidden="true">
                                                     <div class="modal-dialog modal-dialog-centered">
                                                         <div class="modal-content border-0 shadow rounded-4 text-start">
                                                             <form action="{{ route('school.update_kbm', $kbm->id) }}" method="POST">
@@ -263,17 +263,17 @@
                                     </tr>
                                 </tbody>
                             </table>
-                        </div>
-                    </div>
+                        </div> --}}
+                    {{-- </div>
                     <div class="p-3 bg-light bg-opacity-25 border-top d-flex justify-content-between align-items-center rounded-bottom-4">
                         <small class="text-muted fw-semibold" id="kbmPageInfo">Menampilkan data...</small>
                         <nav id="kbmPagination"></nav>
                     </div>
                 </div>
             </div>
-        </div>
+        </div> --}}
 
-        {{-- MODUL 4: JURNAL KEPSEK --}}
+        {{-- MODUL 4: JURNAL KEPSEK
         <div class="col-lg-12">
             <div class="card border-0 shadow-sm rounded-4 mb-4">
                 <div class="card-header bg-white border-bottom-0 pt-4 pb-0 px-4 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
@@ -368,14 +368,14 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div> --}}
 
         {{-- MODUL 5: LAPORAN KINERJA WAKASEK --}}
         <div class="col-lg-12">
             <div class="card border-0 shadow-sm rounded-4 mb-4">
                 <div class="card-header bg-white border-bottom-0 pt-4 pb-0 px-4 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
                     <div class="d-flex align-items-center gap-3">
-                        <h5 class="font-headline fw-bold mb-0">5. Laporan Wakasek</h5>
+                        <h5 class="font-headline fw-bold mb-0">3. Laporan Wakasek</h5>
                         @if(auth()->user()->role !== 'pengawas' || (auth()->user()->role === 'admin_sekolah' && auth()->user()->school_id == $school->id))
                             <button type="button" class="btn btn-sm btn-primary fw-bold" data-bs-toggle="modal" data-bs-target="#modalLaporan">
                                 + Tambah Laporan
@@ -602,63 +602,6 @@
                     <div class="modal-footer bg-light border-top-0 rounded-bottom-4">
                         <button type="button" class="btn btn-outline-secondary btn-sm fw-bold" data-bs-dismiss="modal">Batal</button>
                         <button type="submit" class="btn btn-primary btn-sm fw-bold">Simpan Laporan KBM</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    {{-- 3. Modal Absensi & Jurnal Kepsek --}}
-    <div class="modal fade" id="modalAbsensi" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-0 shadow rounded-4">
-                <div class="modal-header border-bottom-0">
-                    <h1 class="modal-title fs-5 font-headline fw-bold">Input Jurnal Kepsek</h1>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <form action="{{ route('school.store_attendance', $school->id) }}" method="POST">
-                    @csrf
-                    <div class="modal-body p-4 pt-0">
-                        <p class="small text-muted mb-4">Silakan masukkan data kehadiran & jurnal untuk hari ini ({{ now()->format('d M Y') }}).</p>
-                        
-                        <div class="row g-3 mb-3">
-                            <div class="col-6">
-                                <label class="form-label small fw-bold">Jumlah Siswa Hadir</label>
-                                <input type="number" name="siswa_hadir" class="form-control" required min="0" placeholder="Contoh: 345">
-                            </div>
-                            <div class="col-6">
-                                <label class="form-label small fw-bold">Jumlah Guru Hadir</label>
-                                <input type="number" name="guru_hadir" class="form-control" required min="0" placeholder="Contoh: 42">
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label small fw-bold">Kehadiran Kepala Sekolah</label>
-                            <select name="kepsek_hadir" class="form-select" required>
-                                <option value="1">Hadir (Ada di tempat)</option>
-                                <option value="0">Tidak Hadir (Dinas Luar / Izin)</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label small fw-bold">Tupoksi Kepsek</label>
-                            <select name="tupoksi" class="form-select" required>
-                                <option value="">-- Pilih Tupoksi --</option>
-                                <option value="Manajerial">1. Manajerial</option>
-                                <option value="Educator">2. Educator</option>
-                                <option value="Supervisor">3. Supervisor</option>
-                                <option value="Leader">4. Leader</option>
-                                <option value="Entrepreneur">5. Entrepreneur</option>
-                                <option value="Pengelola Sistem Informasi">6. Pengelola Sistem Informasi</option>
-                                <option value="Tidak Ada">7. Tidak Ada</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label small fw-bold">Keterangan Tambahan</label>
-                            <textarea name="keterangan" class="form-control" rows="2" placeholder="Tuliskan keterangan detail di sini..."></textarea>
-                        </div>
-                    </div>
-                    <div class="modal-footer bg-light border-top-0 rounded-bottom-4">
-                        <button type="button" class="btn btn-outline-secondary btn-sm fw-bold" data-bs-dismiss="modal">Batal</button>
-                        <button type="submit" class="btn btn-primary btn-sm fw-bold">Simpan Data</button>
                     </div>
                 </form>
             </div>
