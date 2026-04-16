@@ -34,4 +34,22 @@ class School extends Model
         // orderBy digunakan agar tahun pelajaran terbaru selalu muncul di atas
         return $this->hasMany(KbmReport::class)->orderBy('tahun_pelajaran', 'desc');
     }
+    public function getSkorPerformaAttribute()
+    {
+        $filledLinks = 0;
+        
+        // Cek 9 kolom dokumen, jika ada isinya maka poin bertambah
+        if (!empty($this->ijop_link)) $filledLinks++;
+        if (!empty($this->ksp_link)) $filledLinks++;
+        if (!empty($this->akreditasi_link)) $filledLinks++;
+        if (!empty($this->gtk_link)) $filledLinks++;
+        if (!empty($this->pd_link)) $filledLinks++;
+        if (!empty($this->sarpras_link)) $filledLinks++;
+        if (!empty($this->rapor_link)) $filledLinks++;
+        if (!empty($this->rkt_link)) $filledLinks++;
+        if (!empty($this->rkas_link)) $filledLinks++;
+
+        // Hitung persentase dan bulatkan angkanya (0 - 100)
+        return round(($filledLinks / 9) * 100, 2);
+    }
 }

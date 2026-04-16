@@ -77,6 +77,13 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/profile/password', [App\Http\Controllers\ProfileController::class, 'editPassword'])->name('profile.password.edit');
     Route::put('/profile/password', [App\Http\Controllers\ProfileController::class, 'updatePassword'])->name('profile.password.update');
 
+    // Modul Siklus & Strategi Pengawas
+    Route::get('/siklus-strategi', [App\Http\Controllers\CycleStrategyController::class, 'index'])->name('strategy.index');
+    Route::post('/siklus-strategi', [App\Http\Controllers\CycleStrategyController::class, 'store'])->name('strategy.store');
+    Route::put('/siklus-strategi/{id}', [App\Http\Controllers\CycleStrategyController::class, 'update'])->name('strategy.update');
+    Route::delete('/siklus-strategi/{id}', [App\Http\Controllers\CycleStrategyController::class, 'destroy'])->name('strategy.destroy');
+    Route::get('/siklus-strategi/export', [App\Http\Controllers\CycleStrategyController::class, 'export'])->name('strategy.export');
+
     }
 );
 

@@ -4,8 +4,8 @@
 
 @section('content')
     <div class="mb-4">
-        <h2 class="display-6 fw-extrabold font-headline mb-0">Modul KBM (Kurikulum)</h2>
-        <p class="text-muted small mb-0">Pantau kelengkapan dokumen Kegiatan Belajar Mengajar sekolah binaan.</p>
+        <h2 class="display-6 fw-extrabold font-headline mb-0">PERANGKAT KBM (Kurikulum)</h2>
+        <p class="text-muted small mb-0">Kelengkapan dokumen Kegiatan Belajar Mengajar.</p>
     </div>
 
     @if(session('success'))

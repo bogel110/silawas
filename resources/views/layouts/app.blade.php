@@ -109,6 +109,14 @@
                 </a>
             </li>
             @if(auth()->user()->role === 'pengawas')
+                <li class="nav-item">        
+                    <a class="nav-link {{ request()->routeIs('strategy.*') ? 'active' : '' }}" href="{{ route('strategy.index') }}">
+                        <span class="material-symbols-outlined me-3">model_training</span>
+                        Siklus & Strategi
+                    </a>
+                </li>
+            @endif
+            @if(auth()->user()->role === 'pengawas')
                 <li class="nav-item">
                     <a class="nav-link {{ request()->routeIs('admin.users.*') ? 'active fw-bold' : '' }}" href="{{ route('admin.users.index') }}">
                         <span class="material-symbols-outlined me-3">manage_accounts</span> Administrator
