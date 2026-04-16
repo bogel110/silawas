@@ -72,7 +72,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/jurnal-kepsek', [App\Http\Controllers\AttendanceController::class, 'index'])->name('jurnal.index');
     // Route untuk menghapus absensi harian
     Route::delete('/attendance/{id}', [SchoolController::class, 'destroyAttendance'])->name('attendance.destroy');
-
+    
+    //Menu Ubah Password
+    Route::get('/profile/password', [App\Http\Controllers\ProfileController::class, 'editPassword'])->name('profile.password.edit');
+    Route::put('/profile/password', [App\Http\Controllers\ProfileController::class, 'updatePassword'])->name('profile.password.update');
 
     }
 );

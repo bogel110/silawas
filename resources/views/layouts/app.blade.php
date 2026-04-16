@@ -115,6 +115,13 @@
                     </a>
                 </li>
             @endif
+            <li class="nav-item">
+                 {{-- Menu Ubah Password --}}
+                    <a class="nav-link {{ request()->routeIs('profile.password.edit') ? 'active' : '' }}" href="{{ route('profile.password.edit') }}">
+                            <span class="material-symbols-outlined me-3">lock_person</span>
+                        Ubah Password
+                    </a>
+            </li>
         </ul>
     </aside>
 

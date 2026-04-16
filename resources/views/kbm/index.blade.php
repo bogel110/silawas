@@ -41,229 +41,267 @@
         </div>
     @endif
 
-    {{-- TAMPILAN DATA KBM --}}
-    <div class="card border-0 shadow-sm rounded-4 mb-4">
-        <div class="card-header bg-white border-bottom-0 pt-4 pb-0 px-4 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
-            <div class="d-flex align-items-center gap-3">
-                <h5 class="font-headline fw-bold mb-0">
-                    @if(auth()->user()->role === 'pengawas')
-                        @if($selectedSchool)
+    {{-- TAMPILAN DATA & REKAP KBM (Muncul Jika Admin Login ATAU Pengawas Sudah Memilih Sekolah) --}}
+    @if($selectedSchool)
+        
+        {{-- ==========================================
+        {{-- PANEL REKAPITULASI DOKUMEN KBM --}}
+        {{-- ========================================== --}}
+        {{-- @php
+            $totalKbm = $kbms->count();
+            $intraCount = $kbms->filter(function($kbm) { return !empty($kbm->intra_link); })->count();
+            $koCount = $kbms->filter(function($kbm) { return !empty($kbm->ko_link); })->count();
+            $extraCount = $kbms->filter(function($kbm) { return !empty($kbm->extra_link); })->count();
+        @endphp
+        
+        @if($totalKbm > 0)
+            <div class="row g-3 mb-4">
+                <div class="col-6 col-md-3">
+                    <div class="card border-0 shadow-sm rounded-4 p-3 bg-white border-bottom border-4 border-dark">
+                        <small class="text-muted fw-bold text-uppercase" style="font-size: 0.65rem;">Total Tahun Ajaran</small>
+                        <h4 class="fw-bold mb-0 text-dark">{{ $totalKbm }} Data</h4>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="card border-0 shadow-sm rounded-4 p-3 bg-white border-bottom border-4 border-primary">
+                        <small class="text-muted fw-bold text-uppercase" style="font-size: 0.65rem;">Intrakurikuler Terisi</small>
+                        <h4 class="fw-bold mb-0 text-primary">{{ $intraCount }} / {{ $totalKbm }}</h4>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="card border-0 shadow-sm rounded-4 p-3 bg-white border-bottom border-4 border-success">
+                        <small class="text-muted fw-bold text-uppercase" style="font-size: 0.65rem;">Kokurikuler Terisi</small>
+                        <h4 class="fw-bold mb-0 text-success">{{ $koCount }} / {{ $totalKbm }}</h4>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="card border-0 shadow-sm rounded-4 p-3 bg-white border-bottom border-4 border-info">
+                        <small class="text-muted fw-bold text-uppercase" style="font-size: 0.65rem;">Ekstrakurikuler Terisi</small>
+                        <h4 class="fw-bold mb-0 text-info">{{ $extraCount }} / {{ $totalKbm }}</h4>
+                    </div>
+                </div>
+            </div>
+        @endif --}}
+
+        {{-- TABEL DATA KBM --}}
+        <div class="card border-0 shadow-sm rounded-4 mb-4">
+            <div class="card-header bg-white border-bottom-0 pt-4 pb-0 px-4 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+                <div class="d-flex align-items-center gap-3">
+                    <h5 class="font-headline fw-bold mb-0">
+                        @if(auth()->user()->role === 'pengawas')
                             Dokumen KBM: <span class="text-primary">{{ $selectedSchool->name }}</span>
                         @else
-                            Semua Dokumen KBM
+                            Dokumen KBM Sekolah
                         @endif
-                    @else
-                        Dokumen KBM Sekolah
+                    </h5>
+                    
+                    {{-- Tombol Tambah KBM (Hanya Admin Sekolah) --}}
+                    @if(auth()->user()->role === 'admin_sekolah' && auth()->user()->school_id == $selectedSchool->id)
+                        <button type="button" class="btn btn-sm btn-primary fw-bold" data-bs-toggle="modal" data-bs-target="#modalKbm">
+                            + Input Link KBM
+                        </button>
                     @endif
-                </h5>
-                
-                {{-- Tombol Tambah KBM (Hanya Admin Sekolah) --}}
-                @if(auth()->user()->role === 'admin_sekolah' && $selectedSchool && auth()->user()->school_id == $selectedSchool->id)
-                    <button type="button" class="btn btn-sm btn-primary fw-bold" data-bs-toggle="modal" data-bs-target="#modalKbm">
-                        + Input Link KBM
-                    </button>
-                @endif
-            </div>
-
-            <div class="d-flex flex-column flex-sm-row gap-2 align-items-sm-center">
-                <div class="d-flex align-items-center gap-2">
-                    <span class="small text-muted fw-bold d-none d-md-inline">Tampilkan</span>
-                    <select id="entriesKbm" class="form-select form-select-sm bg-light border-0 shadow-sm" style="width: auto; cursor: pointer;">
-                        <option value="5">5</option>
-                        <option value="10">10</option>
-                        <option value="25">25</option>
-                        <option value="50">50</option>
-                    </select>
                 </div>
-                <div class="input-group input-group-sm shadow-sm" style="max-width: 200px;">
-                    <span class="input-group-text bg-white border-end-0">
-                        <span class="material-symbols-outlined fs-6 text-muted">search</span>
-                    </span>
-                    <input type="text" id="searchKbm" class="form-control border-start-0 ps-0" placeholder="Cari data...">
+
+                <div class="d-flex flex-column flex-sm-row gap-2 align-items-sm-center">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="small text-muted fw-bold d-none d-md-inline">Tampilkan</span>
+                        <select id="entriesKbm" class="form-select form-select-sm bg-light border-0 shadow-sm" style="width: auto; cursor: pointer;">
+                            <option value="5">5</option>
+                            <option value="10" selected>10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                        </select>
+                    </div>
+                    <div class="input-group input-group-sm shadow-sm" style="max-width: 200px;">
+                        <span class="input-group-text bg-white border-end-0">
+                            <span class="material-symbols-outlined fs-6 text-muted">search</span>
+                        </span>
+                        <input type="text" id="searchKbm" class="form-control border-start-0 ps-0" placeholder="Cari data...">
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div class="card-body p-0">
-            <div class="p-4 pt-3">
-                @if(isset($_GET['school_id']) != '')
-                <div class="table-responsive">
-                    <table class="table table-sm align-middle mb-0" id="kbmTable">
-                        <thead class="bg-light text-muted small">
-                            <tr>
-                                <th class="ps-2 cursor-pointer sortable user-select-none hover-bg-light" title="Klik untuk mengurutkan Tahun">
-                                    <div class="d-flex align-items-center gap-1">
-                                        Tahun Pelajaran <span class="material-symbols-outlined fs-6 sort-icon text-primary">unfold_more</span>
-                                    </div>
-                                </th>
-                                
-                                @if(auth()->user()->role === 'pengawas' && !$selectedSchool)
-                                    <th>Nama Sekolah</th>
-                                @endif
-                                
-                                <th>Intrakurikuler</th>
-                                <th>Kokurikuler</th>
-                                <th>Ekstrakurikuler</th>
-                                
-                                {{-- Aksi hanya untuk Admin Sekolah --}}
-                                @if(auth()->user()->role === 'admin_sekolah' && $selectedSchool && auth()->user()->school_id == $selectedSchool->id)
-                                    <th class="text-center">Aksi</th>
-                                @endif
-                            </tr>
-                        </thead>
-                        <tbody id="kbmTableBody">
-                            @forelse($kbms as $kbm)
-                            <tr class="kbm-row small">
-                                <td class="fw-bold ps-2">{{ $kbm->tahun_pelajaran }}</td>
-                                
-                                @if(auth()->user()->role === 'pengawas' && !$selectedSchool)
-                                    <td class="text-primary fw-bold">{{ $kbm->school->name ?? 'Sekolah Dihapus' }}</td>
-                                @endif
-                                
-                                <td>
-                                    @if($kbm->intra_link) <a href="{{ $kbm->intra_link }}" target="_blank" class="badge bg-success text-decoration-none">Cek Berkas</a>
-                                    @else <span class="badge bg-danger">Kosong</span> @endif
-                                </td>
-                                <td>
-                                    @if($kbm->ko_link) <a href="{{ $kbm->ko_link }}" target="_blank" class="badge bg-success text-decoration-none">Cek Berkas</a>
-                                    @else <span class="badge bg-danger">Kosong</span> @endif
-                                </td>
-                                <td>
-                                    @if($kbm->extra_link) <a href="{{ $kbm->extra_link }}" target="_blank" class="badge bg-success text-decoration-none">Cek Berkas</a>
-                                    @else <span class="badge bg-danger">Kosong</span> @endif
-                                </td>
-                                
-                                {{-- Kolom Aksi (Edit & Hapus) --}}
-                                @if(auth()->user()->role === 'admin_sekolah' && $selectedSchool && auth()->user()->school_id == $selectedSchool->id)
-                                    <td class="text-center">
-                                        <div class="d-flex justify-content-center gap-2">
-                                            <button class="btn btn-link text-primary p-0" data-bs-toggle="modal" data-bs-target="#editModalKbm{{ $kbm->id }}" title="Edit Data">
-                                                <span class="material-symbols-outlined fs-6">edit</span>
-                                            </button>
-                                            <form action="{{ route('school.destroy_kbm', $kbm->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data KBM Tahun Pelajaran {{ $kbm->tahun_pelajaran }}?')">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn btn-link text-danger p-0" title="Hapus Data">
-                                                    <span class="material-symbols-outlined fs-6">delete</span>
-                                                </button>
-                                            </form>
+            <div class="card-body p-0">
+                <div class="p-4 pt-3">
+                    <div class="table-responsive">
+                        <table class="table table-sm align-middle mb-0" id="kbmTable">
+                            <thead class="bg-light text-muted small">
+                                <tr>
+                                    <th class="ps-2 cursor-pointer sortable user-select-none hover-bg-light" title="Klik untuk mengurutkan Tahun">
+                                        <div class="d-flex align-items-center gap-1">
+                                            Tahun Pelajaran <span class="material-symbols-outlined fs-6 sort-icon text-primary">unfold_more</span>
                                         </div>
+                                    </th>
+                                    <th>Intrakurikuler</th>
+                                    <th>Kokurikuler</th>
+                                    <th>Ekstrakurikuler</th>
+                                    
+                                    {{-- Kolom Aksi Hanya untuk Admin Sekolah --}}
+                                    @if(auth()->user()->role === 'admin_sekolah' && auth()->user()->school_id == $selectedSchool->id)
+                                        <th class="text-center">Aksi</th>
+                                    @endif
+                                </tr>
+                            </thead>
+                            <tbody id="kbmTableBody">
+                                @forelse($kbms as $kbm)
+                                <tr class="kbm-row small">
+                                    <td class="fw-bold ps-2">{{ $kbm->tahun_pelajaran }}</td>
+                                    
+                                    <td>
+                                        @if($kbm->intra_link) <a href="{{ $kbm->intra_link }}" target="_blank" class="badge bg-success text-decoration-none">Cek Berkas</a>
+                                        @else <span class="badge bg-danger">Kosong</span> @endif
+                                    </td>
+                                    <td>
+                                        @if($kbm->ko_link) <a href="{{ $kbm->ko_link }}" target="_blank" class="badge bg-success text-decoration-none">Cek Berkas</a>
+                                        @else <span class="badge bg-danger">Kosong</span> @endif
+                                    </td>
+                                    <td>
+                                        @if($kbm->extra_link) <a href="{{ $kbm->extra_link }}" target="_blank" class="badge bg-success text-decoration-none">Cek Berkas</a>
+                                        @else <span class="badge bg-danger">Kosong</span> @endif
+                                    </td>
+                                    
+                                    {{-- Aksi (Edit & Hapus) --}}
+                                    @if(auth()->user()->role === 'admin_sekolah' && auth()->user()->school_id == $selectedSchool->id)
+                                        <td class="text-center">
+                                            <div class="d-flex justify-content-center gap-2">
+                                                <button class="btn btn-link text-primary p-0" data-bs-toggle="modal" data-bs-target="#editModalKbm{{ $kbm->id }}" title="Edit Data">
+                                                    <span class="material-symbols-outlined fs-6">edit</span>
+                                                </button>
+                                                <form action="{{ route('school.destroy_kbm', $kbm->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data KBM Tahun Pelajaran {{ $kbm->tahun_pelajaran }}?')">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="btn btn-link text-danger p-0" title="Hapus Data">
+                                                        <span class="material-symbols-outlined fs-6">delete</span>
+                                                    </button>
+                                                </form>
+                                            </div>
 
-                                        {{-- MODAL EDIT KBM --}}
-                                        <div class="modal fade" id="editModalKbm{{ $kbm->id }}" tabindex="-1" aria-hidden="true">
-                                            <div class="modal-dialog modal-dialog-centered">
-                                                <div class="modal-content border-0 shadow rounded-4 text-start">
-                                                    <form action="{{ route('school.update_kbm', $kbm->id) }}" method="POST">
-                                                        @csrf
-                                                        @method('PUT')
-                                                        <div class="modal-header border-bottom-0">
-                                                            <h1 class="modal-title fs-5 font-headline fw-bold">Edit Link KBM</h1>
-                                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                                        </div>
-                                                        <div class="modal-body p-4 pt-0">
-                                                            <div class="mb-3">
-                                                                <label class="small fw-bold">Pilih Tahun Pelajaran</label>
-                                                                <select name="tahun_pelajaran" class="form-select" required>
-                                                                    <option value="2023/2024" {{ $kbm->tahun_pelajaran == '2023/2024' ? 'selected' : '' }}>2023/2024</option>
-                                                                    <option value="2024/2025" {{ $kbm->tahun_pelajaran == '2024/2025' ? 'selected' : '' }}>2024/2025</option>
-                                                                    <option value="2025/2026" {{ $kbm->tahun_pelajaran == '2025/2026' ? 'selected' : '' }}>2025/2026</option>
-                                                                    <option value="2026/2027" {{ $kbm->tahun_pelajaran == '2026/2027' ? 'selected' : '' }}>2026/2027</option>
-                                                                </select>
+                                            {{-- MODAL EDIT KBM --}}
+                                            <div class="modal fade" id="editModalKbm{{ $kbm->id }}" tabindex="-1" aria-hidden="true">
+                                                <div class="modal-dialog modal-dialog-centered">
+                                                    <div class="modal-content border-0 shadow rounded-4 text-start">
+                                                        <form action="{{ route('school.update_kbm', $kbm->id) }}" method="POST">
+                                                            @csrf
+                                                            @method('PUT')
+                                                            <div class="modal-header border-bottom-0">
+                                                                <h1 class="modal-title fs-5 font-headline fw-bold">Edit Link KBM</h1>
+                                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                                             </div>
-                                                            <div class="mb-3">
-                                                                <label class="small fw-bold">1. Intrakurikuler (RPP/Modul Ajar)</label>
-                                                                <input type="url" name="intra_link" class="form-control" value="{{ $kbm->intra_link }}">
+                                                            <div class="modal-body p-4 pt-0">
+                                                                <div class="mb-3">
+                                                                    <label class="small fw-bold">Pilih Tahun Pelajaran</label>
+                                                                    <select name="tahun_pelajaran" class="form-select" required>
+                                                                        <option value="2023/2024" {{ $kbm->tahun_pelajaran == '2023/2024' ? 'selected' : '' }}>2023/2024</option>
+                                                                        <option value="2024/2025" {{ $kbm->tahun_pelajaran == '2024/2025' ? 'selected' : '' }}>2024/2025</option>
+                                                                        <option value="2025/2026" {{ $kbm->tahun_pelajaran == '2025/2026' ? 'selected' : '' }}>2025/2026</option>
+                                                                        <option value="2026/2027" {{ $kbm->tahun_pelajaran == '2026/2027' ? 'selected' : '' }}>2026/2027</option>
+                                                                    </select>
+                                                                </div>
+                                                                <div class="mb-3">
+                                                                    <label class="small fw-bold">1. Intrakurikuler (RPP/Modul Ajar)</label>
+                                                                    <input type="url" name="intra_link" class="form-control" value="{{ $kbm->intra_link }}">
+                                                                </div>
+                                                                <div class="mb-3">
+                                                                    <label class="small fw-bold">2. Kokurikuler</label>
+                                                                    <input type="url" name="ko_link" class="form-control" value="{{ $kbm->ko_link }}">
+                                                                </div>
+                                                                <div class="mb-3">
+                                                                    <label class="small fw-bold">3. Ekstrakurikuler</label>
+                                                                    <input type="url" name="extra_link" class="form-control" value="{{ $kbm->extra_link }}">
+                                                                </div>
                                                             </div>
-                                                            <div class="mb-3">
-                                                                <label class="small fw-bold">2. Kokurikuler</label>
-                                                                <input type="url" name="ko_link" class="form-control" value="{{ $kbm->ko_link }}">
+                                                            <div class="modal-footer bg-light border-top-0 rounded-bottom-4">
+                                                                <button type="button" class="btn btn-outline-secondary btn-sm fw-bold" data-bs-dismiss="modal">Batal</button>
+                                                                <button type="submit" class="btn btn-primary btn-sm fw-bold">Simpan Perubahan</button>
                                                             </div>
-                                                            <div class="mb-3">
-                                                                <label class="small fw-bold">3. Ekstrakurikuler</label>
-                                                                <input type="url" name="extra_link" class="form-control" value="{{ $kbm->extra_link }}">
-                                                            </div>
-                                                        </div>
-                                                        <div class="modal-footer bg-light border-top-0 rounded-bottom-4">
-                                                            <button type="button" class="btn btn-outline-secondary btn-sm fw-bold" data-bs-dismiss="modal">Batal</button>
-                                                            <button type="submit" class="btn btn-primary btn-sm fw-bold">Simpan Perubahan</button>
-                                                        </div>
-                                                    </form>
+                                                        </form>
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    </td>
-                                @endif
-                            </tr>
-                            @empty
-                            <tr id="emptyKbmRow"><td colspan="6" class="text-center small text-muted py-5">Belum ada data KBM.</td></tr>
-                            @endforelse
-                @endif
-                            <tr id="notFoundKbm" style="display: none;">
-                                <td colspan="6" class="text-center small text-muted py-3">Data tidak ditemukan.</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            @if(isset($_GET['school_id']) != '')
-            <div class="p-3 bg-light bg-opacity-25 border-top d-flex justify-content-between align-items-center rounded-bottom-4">
-                <small class="text-muted fw-semibold" id="kbmPageInfo">Menampilkan data...</small>
-                <nav id="kbmPagination"></nav>
-            </div>
-            @endif
-        </div>
-    </div>
+                                        </td>
+                                    @endif
+                                </tr>
+                                @empty
+                                <tr id="emptyKbmRow"><td colspan="5" class="text-center small text-muted py-5">Belum ada data KBM untuk sekolah ini.</td></tr>
+                                @endforelse
 
-    {{-- MODAL TAMBAH KBM BARU (Hanya Admin Sekolah) --}}
-    @if(auth()->user()->role === 'admin_sekolah' && $selectedSchool && auth()->user()->school_id == $selectedSchool->id)
-        <div class="modal fade" id="modalKbm" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content border-0 shadow rounded-4 text-start">
-                    {{-- Pastikan route ini sesuai dengan route aksi simpan KBM Anda sebelumnya --}}
-                    <form action="{{ route('school.store_kbm', $selectedSchool->id) }}" method="POST">
-                        @csrf
-                        <div class="modal-header border-bottom-0">
-                            <h1 class="modal-title fs-5 font-headline fw-bold">Input Link KBM Baru</h1>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                        </div>
-                        <div class="modal-body p-4 pt-0">
-                            <div class="mb-3">
-                                <label class="small fw-bold">Pilih Tahun Pelajaran</label>
-                                <select name="tahun_pelajaran" class="form-select" required>
-                                    <option value="">-- Pilih Tahun --</option>
-                                    <option value="2023/2024">2023/2024</option>
-                                    <option value="2024/2025">2024/2025</option>
-                                    <option value="2025/2026">2025/2026</option>
-                                    <option value="2026/2027">2026/2027</option>
-                                </select>
-                            </div>
-                            <div class="mb-3">
-                                <label class="small fw-bold">1. Intrakurikuler (Link G-Drive)</label>
-                                <input type="url" name="intra_link" class="form-control" placeholder="https://drive.google.com/...">
-                            </div>
-                            <div class="mb-3">
-                                <label class="small fw-bold">2. Kokurikuler (Link G-Drive)</label>
-                                <input type="url" name="ko_link" class="form-control">
-                            </div>
-                            <div class="mb-3">
-                                <label class="small fw-bold">3. Ekstrakurikuler (Link G-Drive)</label>
-                                <input type="url" name="extra_link" class="form-control">
-                            </div>
-                        </div>
-                        <div class="modal-footer bg-light border-top-0 rounded-bottom-4">
-                            <button type="button" class="btn btn-outline-secondary btn-sm fw-bold" data-bs-dismiss="modal">Batal</button>
-                            <button type="submit" class="btn btn-primary btn-sm fw-bold">Simpan Data</button>
-                        </div>
-                    </form>
+                                <tr id="notFoundKbm" style="display: none;">
+                                    <td colspan="5" class="text-center small text-muted py-3">Data tidak ditemukan.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="p-3 bg-light bg-opacity-25 border-top d-flex justify-content-between align-items-center rounded-bottom-4">
+                    <small class="text-muted fw-semibold" id="kbmPageInfo">Menampilkan data...</small>
+                    <nav id="kbmPagination"></nav>
                 </div>
             </div>
+        </div>
+
+        {{-- MODAL TAMBAH KBM BARU (Hanya Admin Sekolah) --}}
+        @if(auth()->user()->role === 'admin_sekolah' && auth()->user()->school_id == $selectedSchool->id)
+            <div class="modal fade" id="modalKbm" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content border-0 shadow rounded-4 text-start">
+                        <form action="{{ route('school.store_kbm', $selectedSchool->id) }}" method="POST">
+                            @csrf
+                            <div class="modal-header border-bottom-0">
+                                <h1 class="modal-title fs-5 font-headline fw-bold">Input Link KBM Baru</h1>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body p-4 pt-0">
+                                <div class="mb-3">
+                                    <label class="small fw-bold">Pilih Tahun Pelajaran</label>
+                                    <select name="tahun_pelajaran" class="form-select" required>
+                                        <option value="">-- Pilih Tahun --</option>
+                                        <option value="2023/2024">2023/2024</option>
+                                        <option value="2024/2025">2024/2025</option>
+                                        <option value="2025/2026">2025/2026</option>
+                                        <option value="2026/2027">2026/2027</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="small fw-bold">1. Intrakurikuler (Link G-Drive)</label>
+                                    <input type="url" name="intra_link" class="form-control" placeholder="https://drive.google.com/...">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="small fw-bold">2. Kokurikuler (Link G-Drive)</label>
+                                    <input type="url" name="ko_link" class="form-control">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="small fw-bold">3. Ekstrakurikuler (Link G-Drive)</label>
+                                    <input type="url" name="extra_link" class="form-control">
+                                </div>
+                            </div>
+                            <div class="modal-footer bg-light border-top-0 rounded-bottom-4">
+                                <button type="button" class="btn btn-outline-secondary btn-sm fw-bold" data-bs-dismiss="modal">Batal</button>
+                                <button type="submit" class="btn btn-primary btn-sm fw-bold">Simpan Data</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        @endif
+
+    @elseif(auth()->user()->role === 'pengawas')
+        {{-- ========================================== --}}
+        {{-- EMPTY STATE (Jika Pengawas Belum Pilih Sekolah) --}}
+        {{-- ========================================== --}}
+        <div class="text-center py-5">
+            <span class="material-symbols-outlined display-1 text-muted opacity-25 mb-3">auto_stories</span>
+            <h5 class="fw-bold text-muted">Belum Ada Sekolah yang Dipilih</h5>
+            <p class="small text-muted">Silakan gunakan menu dropdown di atas untuk melihat dokumen KBM sekolah binaan Anda.</p>
         </div>
     @endif
 
-    {{-- SCRIPT: SEARCH, PAGINATION & SORTING KBM --}}
+    {{-- SCRIPT: SEARCH, PAGINATION & SORTING --}}
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const tbody = document.getElementById('kbmTableBody');
+            if(!tbody) return; // Mencegah error jika tbody tidak ter-render (saat empty state)
+            
             let rows = Array.from(document.querySelectorAll('.kbm-row'));
             const paginationControls = document.getElementById('kbmPagination');
             const pageInfo = document.getElementById('kbmPageInfo');
