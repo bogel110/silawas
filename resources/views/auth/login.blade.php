@@ -1,193 +1,273 @@
-<x-guest-layout>
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>Masuk | SILAWAS</title>
+
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
-    
-    <script id="tailwind-config">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+
+    <script>
         tailwind.config = {
-          darkMode: "class",
-          theme: {
-            extend: {
-              "colors": {
-                      "surface-dim": "#10141a",
-                      "primary-fixed": "#9cf0ff",
-                      "primary": "#c3f5ff",
-                      "surface-variant": "#31353c",
-                      "on-surface": "#dfe2eb",
-                      "on-surface-variant": "#bac9cc",
-                      "primary-fixed-dim": "#00daf3",
-                      "surface": "#10141a",
-                      "primary-container": "#00e5ff",
-                      "surface-container-highest": "#31353c",
-                      "on-primary-fixed": "#001f24",
-                      "on-primary": "#00363d",
-                      "outline": "#849396",
-                      "background": "#10141a",
-                      "outline-variant": "#3b494c",
-              },
-              "fontFamily": {
-                      "headline": ["Space Grotesk"],
-                      "body": ["Inter"],
-                      "label": ["Inter"]
-              }
+            theme: {
+                extend: {
+                    fontFamily: {
+                        body: ['Inter', 'sans-serif'],
+                        headline: ['Manrope', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#e9f7f8',
+                            100: '#d4eff2',
+                            200: '#a7dce2',
+                            300: '#77c6d1',
+                            400: '#4aaeba',
+                            500: '#2c94a1',
+                            600: '#1d7784',
+                            700: '#155c67',
+                            800: '#114b54',
+                            900: '#0b333a',
+                        },
+                    },
+                    boxShadow: {
+                        soft: '0 24px 60px rgba(11, 51, 58, 0.14)',
+                        panel: '0 18px 40px rgba(11, 51, 58, 0.08)',
+                    },
+                },
             },
-          },
-        }
+        };
     </script>
-    
+
     <style>
-        body {
-            min-height: max(884px, 100dvh);
-            background-color: #10141a;
-            color: #dfe2eb;
-            font-family: 'Inter', sans-serif;
-            margin: 0;
+        :root {
+            color-scheme: light;
         }
+
+        html, body {
+            min-height: 100%;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background:
+                radial-gradient(circle at top left, rgba(44, 148, 161, 0.18), transparent 28%),
+                radial-gradient(circle at 80% 20%, rgba(244, 162, 97, 0.16), transparent 22%),
+                linear-gradient(180deg, #f5f9fb 0%, #eef4f6 100%);
+            color: #16333a;
+        }
+
         .material-symbols-outlined {
             font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
         }
-        .glass-panel {
-            background: rgba(49, 53, 60, 0.7);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
+
+        .login-panel {
+            background: rgba(255, 255, 255, 0.88);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border: 1px solid rgba(255, 255, 255, 0.78);
+            box-shadow: 0 28px 70px rgba(11, 51, 58, 0.12);
         }
-        .cyan-glow {
-            box-shadow: 0 0 15px rgba(0, 229, 255, 0.15);
+
+        .brand-tile {
+            background:
+                radial-gradient(circle at top right, rgba(244, 162, 97, 0.22), transparent 28%),
+                linear-gradient(145deg, rgba(11, 51, 58, 0.96), rgba(17, 75, 84, 0.96));
         }
-        .active-pulse {
-            position: absolute;
-            top: 0;
-            left: 0;
-            height: 2px;
-            width: 30%;
-            background: #00e5ff;
-            box-shadow: 0 0 10px #00e5ff;
+
+        .brand-mark {
+            width: 64px;
+            height: 64px;
+            border-radius: 22px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #2c94a1, #155c67);
+            color: #fff;
+            box-shadow: 0 18px 30px rgba(44, 148, 161, 0.28);
         }
-        
-        /* Tambahan untuk menghilangkan background autofill browser yang merusak tema gelap */
-        input:-webkit-autofill,
-        input:-webkit-autofill:hover, 
-        input:-webkit-autofill:focus, 
-        input:-webkit-autofill:active{
-            -webkit-box-shadow: 0 0 0 30px transparent inset !important;
-            -webkit-text-fill-color: #dfe2eb !important;
-            transition: background-color 5000s ease-in-out 0s;
+
+        .field-shell {
+            background: rgba(255, 255, 255, 0.92);
+            border: 1px solid rgba(22, 51, 58, 0.08);
+            box-shadow: 0 10px 24px rgba(11, 51, 58, 0.05);
+        }
+
+        .field-shell:focus-within {
+            border-color: rgba(44, 148, 161, 0.28);
+            box-shadow: 0 0 0 4px rgba(44, 148, 161, 0.08);
+        }
+
+        .login-input {
+            background: transparent;
+            border: 0;
+            outline: 0;
+            box-shadow: none !important;
+            color: #16333a;
+        }
+
+        .login-input::placeholder {
+            color: #8da2a8;
+        }
+
+        .login-btn {
+            background: linear-gradient(135deg, #155c67, #2c94a1);
+            box-shadow: 0 18px 30px rgba(21, 92, 103, 0.22);
+        }
+
+        .login-btn:hover {
+            filter: brightness(1.04);
+        }
+
+        .tiny-label {
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            font-size: 0.7rem;
+            font-weight: 800;
+        }
+
+        .frost-line {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.45), transparent);
         }
     </style>
-
-    <header class="fixed top-0 w-full z-50">
-        {{-- <div class="flex items-center text-center h-16 px-6 w-full bg-transparent">
-            <div class="flex items-center gap-2">
-                <h1 class="text-2xl items-center font-bold tracking-tighter text-cyan-400 font-headline uppercase tracking-widest">SILAWAS</h1>
-            </div>
-        </div> --}}
-    </header>
-
-    <main class="flex-grow flex items-center justify-center px-6 relative h-screen">
-        
-        <div class="absolute inset-0 z-0 pointer-events-none">
-            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary-container/5 rounded-full blur-[120px]"></div>
-            <img alt="Deep space nebula with digital connections" class="w-full h-full object-cover opacity-10 grayscale mix-blend-screen" src="https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?q=80&w=2070"/>
-        </div>
-
-        <div class="z-10 w-full max-w-md">
-            
-            <x-auth-session-status class="mb-4 text-center text-[10px] font-label font-bold text-error uppercase tracking-[0.2em]" :status="session('status')" />
-            
-            @if($errors->any())
-                <div class="mb-4 text-center text-[10px] font-label font-bold text-red-400 uppercase tracking-[0.2em]">
-                    Identitas tidak valid. Silakan coba lagi.
-                </div>
-            @endif
-
-            <div class="glass-panel rounded-xl overflow-hidden relative cyan-glow border border-white/5">
-                
-                <div class="active-pulse"></div>
-                
-                <div class="p-8 sm:p-10 flex flex-col gap-8">
-                    <div class="space-y-2">
-                        <h2 class="text-3xl font-headline font-bold text-primary tracking-tight">SILAWAS SYSTEM ACCESS</h2>
-                        <p class="text-on-surface-variant text-[10px] sm:text-sm font-label uppercase tracking-widest">Sistem Laporan dan Pengawasan Sekolah</p>
+</head>
+<body class="font-body">
+    <main class="min-h-screen px-4 py-6 sm:px-6 lg:px-8">
+        <div class="mx-auto flex min-h-[calc(100vh-3rem)] w-full max-w-6xl items-center">
+            <div class="grid w-full overflow-hidden rounded-[2rem] login-panel lg:grid-cols-[1.05fr_0.95fr]">
+                <section class="relative hidden overflow-hidden brand-tile p-10 text-white lg:flex lg:min-h-[760px] lg:flex-col lg:justify-between">
+                    <div class="absolute inset-0 opacity-20">
+                        <div class="absolute left-10 top-10 h-64 w-64 rounded-full bg-white/20 blur-3xl"></div>
+                        <div class="absolute bottom-10 right-10 h-72 w-72 rounded-full bg-brand-300/30 blur-3xl"></div>
                     </div>
 
-                    <form method="POST" action="{{ route('login') }}" class="space-y-6">
-                        @csrf
-
-                        <div class="space-y-1">
-                            <label class="text-[10px] font-label font-bold text-primary-fixed-dim uppercase tracking-[0.2em] px-1" for="email">Email (Identifier) </label>
-                            <div class="relative group">
-                                <input id="email" name="email" value="{{ old('email') }}" type="email" required autofocus
-                                    class="w-full bg-transparent border-t-0 border-x-0 border-b border-outline-variant py-3 px-1 text-on-surface placeholder:text-outline focus:ring-0 focus:border-primary transition-all duration-300 outline-none font-mono text-sm" 
-                                    placeholder="username" autocomplete="username"/>
-                                <div class="absolute bottom-0 left-0 h-[1px] w-0 bg-primary group-focus-within:w-full transition-all duration-500 shadow-[0_0_8px_#c3f5ff]"></div>
+                    <div class="relative z-10">
+                        <div class="mb-8 flex items-center gap-4">
+                            <div class="brand-mark">
+                                <span class="material-symbols-outlined text-[30px]">shield_person</span>
+                            </div>
+                            <div>
+                                <div class="font-headline text-3xl font-extrabold tracking-tight">SILAWAS</div>
+                                <div class="tiny-label text-white/70">School Supervision System</div>
                             </div>
                         </div>
 
-                        <div class="space-y-1">
-                            <label class="text-[10px] font-label font-bold text-primary-fixed-dim uppercase tracking-[0.2em] px-1" for="password">Security Key</label>
-                            <div class="relative group flex items-center border-b border-outline-variant focus-within:border-transparent transition-colors">
-                                <input id="password" name="password" type="password" required autocomplete="current-password"
-                                    class="w-full bg-transparent border-none py-3 px-1 text-on-surface placeholder:text-outline focus:ring-0 outline-none font-mono text-sm" 
-                                    placeholder="password"/>
-                                
-                                <button type="button" id="togglePassword" class="text-outline hover:text-primary transition-colors px-2 focus:outline-none" tabindex="-1">
-                                    <span class="material-symbols-outlined text-[20px]" id="toggleIcon">visibility_off</span>
+                        <div class="max-w-lg">
+                            <div class="tiny-label mb-4 text-white/65">Login Portal</div>
+                            <h1 class="font-headline text-4xl font-extrabold leading-tight">
+                                Ruang masuk yang rapi untuk mengelola supervisi sekolah.
+                            </h1>
+                            <p class="mt-5 text-sm leading-7 text-white/75">
+                                Akses dashboard, jurnal kepsek, KBM, dan administrasi sekolah melalui satu pintu yang lebih tenang, bersih, dan profesional.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="relative z-10 grid gap-4 sm:grid-cols-3">
+                        <div class="rounded-2xl border border-white/10 bg-white/10 p-4 backdrop-blur">
+                            <div class="tiny-label text-white/60">Dashboard</div>
+                            <div class="mt-2 text-sm font-semibold text-white">Pantau performa sekolah</div>
+                        </div>
+                        <div class="rounded-2xl border border-white/10 bg-white/10 p-4 backdrop-blur">
+                            <div class="tiny-label text-white/60">Jurnal</div>
+                            <div class="mt-2 text-sm font-semibold text-white">Catatan harian lebih cepat</div>
+                        </div>
+                        <div class="rounded-2xl border border-white/10 bg-white/10 p-4 backdrop-blur">
+                            <div class="tiny-label text-white/60">Laporan</div>
+                            <div class="mt-2 text-sm font-semibold text-white">Dokumen tersusun rapi</div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="relative flex items-center justify-center p-6 sm:p-10 lg:p-12">
+                    <div class="absolute left-6 top-6 h-24 w-24 rounded-full bg-brand-100/80 blur-2xl"></div>
+                    <div class="absolute bottom-6 right-6 h-28 w-28 rounded-full bg-orange-100/70 blur-2xl"></div>
+
+                    <div class="relative z-10 w-full max-w-md">
+                        <div class="mb-6 flex items-center justify-between gap-4 lg:hidden">
+                            <div class="flex items-center gap-3">
+                                <div class="brand-mark h-14 w-14 rounded-2xl">
+                                    <span class="material-symbols-outlined">shield_person</span>
+                                </div>
+                                <div>
+                                    <div class="font-headline text-2xl font-extrabold">SILAWAS</div>
+                                    <div class="tiny-label text-brand-700">School Supervision System</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-6">
+                            <div class="tiny-label text-brand-700">Masuk Akun</div>
+                            <h2 class="mt-2 font-headline text-3xl font-extrabold text-slate-900">Selamat datang kembali</h2>
+                            <p class="mt-2 text-sm leading-6 text-slate-500">
+                                Masukkan email dan kata sandi untuk melanjutkan ke panel SILAWAS.
+                            </p>
+                        </div>
+
+                        <x-auth-session-status class="mb-4 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700" :status="session('status')" />
+
+                        @if($errors->any())
+                            <div class="mb-4 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                                {{ $errors->first('email') ?: 'Identitas tidak valid. Silakan coba lagi.' }}
+                            </div>
+                        @endif
+
+                        <div class="rounded-[1.75rem] bg-white/85 p-6 shadow-panel ring-1 ring-white/80">
+                            <form method="POST" action="{{ route('login') }}" class="space-y-5">
+                                @csrf
+
+                                <div>
+                                    <label class="tiny-label mb-2 block text-slate-700" for="email">Email</label>
+                                    <div class="field-shell flex items-center gap-3 rounded-2xl px-4 py-3">
+                                        <span class="material-symbols-outlined text-slate-400">mail</span>
+                                        <input id="email" name="email" value="{{ old('email') }}" type="email" required autofocus autocomplete="username" placeholder="nama@email.com" class="login-input w-full text-sm" />
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label class="tiny-label mb-2 block text-slate-700" for="password">Password</label>
+                                    <div class="field-shell flex items-center gap-3 rounded-2xl px-4 py-3">
+                                        <span class="material-symbols-outlined text-slate-400">lock</span>
+                                        <input id="password" name="password" type="password" required autocomplete="current-password" placeholder="Masukkan password" class="login-input w-full text-sm" />
+                                        <button type="button" id="togglePassword" class="text-slate-400 transition hover:text-brand-700" tabindex="-1">
+                                            <span class="material-symbols-outlined" id="toggleIcon">visibility_off</span>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="flex items-center justify-between gap-3">
+                                    <label for="remember_me" class="flex items-center gap-2 text-sm text-slate-600">
+                                        <input id="remember_me" type="checkbox" name="remember" class="h-4 w-4 rounded border-slate-300 text-brand-700 focus:ring-brand-700">
+                                        <span>Ingat saya</span>
+                                    </label>
+
+                                    @if (Route::has('password.request'))
+                                        <a class="text-sm font-semibold text-brand-700 hover:text-brand-900" href="{{ route('password.request') }}">
+                                            Lupa password?
+                                        </a>
+                                    @endif
+                                </div>
+
+                                <button type="submit" class="login-btn inline-flex w-full items-center justify-center rounded-2xl px-5 py-3.5 text-sm font-bold text-white transition">
+                                    Masuk ke Sistem
                                 </button>
-                                
-                                <div class="absolute bottom-0 left-0 h-[1px] w-0 bg-primary group-focus-within:w-full transition-all duration-500 shadow-[0_0_8px_#c3f5ff]"></div>
-                            </div>
+                            </form>
                         </div>
 
-                        <div class="pt-4 flex flex-col gap-4">
-                            <button type="submit" class="w-full py-4 rounded-lg bg-gradient-to-br from-primary to-primary-container text-on-primary-fixed font-label font-bold text-sm uppercase tracking-[0.15em] hover:brightness-110 transition-all active:scale-[0.98] shadow-lg shadow-primary-container/10">
-                                Authorize
-                            </button>
-                            
-                            <div class="flex justify-between items-center pt-2">
-                                <label for="remember_me" class="inline-flex items-center cursor-pointer group">
-                                    <input id="remember_me" type="checkbox" name="remember" class="w-3 h-3 rounded-sm border-outline  text-primary focus:ring-primary focus:ring-offset-0 opacity-50 group-hover:opacity-100 transition-opacity">
-                                    <span class="ms-2 text-[10px] font-label  group-hover:text-cyan-400   uppercase">Remember me</span>
-                                </label>
-
-                                @if (Route::has('password.request'))
-                                    <a class="text-[10px] font-label  hover:text-cyan-400 uppercase" href="{{ route('password.request') }}">Reset Password?</a>
-                                @endif
-                            </div>
+                        <div class="mt-6 flex items-center justify-between text-[11px] uppercase tracking-[0.18em] text-slate-400">
+                            <span>Secure access</span>
+                            <span>v2.6.0</span>
+                            <span>Daily supervision</span>
                         </div>
-                    </form>
-                </div>
-            </div>
-
-            <div class="mt-8 flex justify-center items-center gap-8 sm:gap-12 opacity-40">
-                <div class="flex flex-col items-center">
-                    <span class="text-[9px] font-label text-primary uppercase tracking-tighter">Status</span>
-                    <span class="text-[10px] font-headline font-bold text-on-surface">NOMINAL</span>
-                </div>
-                <div class="h-8 w-[1px] bg-outline-variant/30"></div>
-                <div class="flex flex-col items-center">
-                    <span class="text-[9px] font-label text-primary uppercase tracking-tighter">Uptime</span>
-                    <span class="text-[10px] font-headline font-bold text-on-surface">99.98%</span>
-                </div>
-                <div class="h-8 w-[1px] bg-outline-variant/30"></div>
-                <div class="flex flex-col items-center">
-                    <span class="text-[9px] font-label text-primary uppercase tracking-tighter">Protocol</span>
-                    <span class="text-[10px] font-headline font-bold text-on-surface">v2.6.0-S</span>
-                </div>
+                    </div>
+                </section>
             </div>
         </div>
     </main>
-
-    <footer class="fixed bottom-0 w-full z-50">
-        <div class="flex flex-col md:flex-row justify-between items-center px-6 md:px-12 py-6 w-full bg-transparent opacity-80">
-            <div class="text-slate-500 font-['Inter'] text-[9px] md:text-[10px] tracking-[0.1em] uppercase mb-4 md:mb-0 text-center">
-                © 2026 SILAWAS SYSTEM. ALL RIGHTS RESERVED.
-            </div>
-            <div class="flex gap-6 md:gap-8">
-                <a class="text-slate-600 hover:text-cyan-400 transition-all font-['Inter'] text-[9px] md:text-[10px] tracking-[0.1em] uppercase" href="#">SECURITY</a>
-                <a class="text-slate-600 hover:text-cyan-400 transition-all font-['Inter'] text-[9px] md:text-[10px] tracking-[0.1em] uppercase" href="#">SYSTEM STATUS</a>
-            </div>
-        </div>
-    </footer>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -195,14 +275,17 @@
             const passwordInput = document.getElementById('password');
             const toggleIcon = document.getElementById('toggleIcon');
 
+            if (!togglePassword || !passwordInput || !toggleIcon) {
+                return;
+            }
+
             togglePassword.addEventListener('click', function () {
                 const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
                 passwordInput.setAttribute('type', type);
-                
-                // Ubah teks menjadi ikon mata dari Material Symbols
                 toggleIcon.textContent = type === 'password' ? 'visibility_off' : 'visibility';
-                this.setAttribute('title', type === 'password' ? 'Tampilkan Security Key' : 'Sembunyikan Security Key');
+                this.setAttribute('title', type === 'password' ? 'Tampilkan password' : 'Sembunyikan password');
             });
         });
     </script>
-</x-guest-layout>
+</body>
+</html>
