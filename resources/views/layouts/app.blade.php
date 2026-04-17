@@ -217,7 +217,9 @@
             padding: 0.6rem;
             border: 1px solid rgba(15, 107, 125, 0.08);
             border-radius: 18px;
+            background: #ffffff;
             box-shadow: 0 18px 36px rgba(24, 50, 58, 0.12);
+            z-index: 1090;
         }
 
         .profile-menu .dropdown-item,
@@ -499,6 +501,28 @@
         .pagination .page-item.active .page-link {
             background: linear-gradient(135deg, var(--brand-800), var(--brand-700));
             color: #fff;
+        }
+
+        .modal {
+            z-index: 1080;
+        }
+
+        .modal-backdrop {
+            --bs-backdrop-zindex: 1070;
+            --bs-backdrop-bg: #173a43;
+            --bs-backdrop-opacity: 0.52;
+        }
+
+        .modal-backdrop.show {
+            backdrop-filter: blur(3px);
+        }
+
+        .modal-content {
+            background-color: rgba(255, 255, 255, 0.98);
+        }
+
+        .dropdown-menu {
+            --bs-dropdown-zindex: 1090;
         }
 
         .sidebar-overlay {
