@@ -53,6 +53,6 @@ class DashboardController extends Controller
 
         $avgCompletion = $totalSchools > 0 ? $schools->avg('score') : 0;
 
-        return view('dashboard', compact('totalSchools', 'schools', 'avgCompletion'));
+        return view('Dashboard', compact('totalSchools', 'schools', 'avgCompletion'));
     }
 }
