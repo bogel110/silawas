@@ -58,7 +58,13 @@
 
         @media (max-width: 575.98px) {
             .journal-modal .modal-dialog {
-                margin: 0.75rem;
+                margin: 0.5rem;
+                max-width: calc(100vw - 1rem);
+                min-height: calc(100vh - 1rem);
+            }
+
+            .journal-modal .modal-content {
+                max-height: calc(100vh - 1rem);
             }
 
             .journal-modal .modal-header,
@@ -70,6 +76,28 @@
 
             .journal-modal .modal-title {
                 font-size: 1.3rem;
+            }
+
+            .journal-modal .modal-body {
+                padding-bottom: 5.5rem;
+            }
+
+            .journal-modal .modal-footer {
+                position: sticky;
+                bottom: 0;
+                z-index: 2;
+                display: flex;
+                justify-content: space-between;
+                gap: 0.75rem;
+                padding-top: 0.85rem;
+                padding-bottom: calc(0.85rem + env(safe-area-inset-bottom, 0px));
+                background: rgba(245, 248, 251, 0.96);
+                box-shadow: 0 -10px 24px rgba(24, 50, 58, 0.08);
+            }
+
+            .journal-modal .modal-footer .btn {
+                flex: 1 1 0;
+                min-height: 44px;
             }
         }
     </style>
