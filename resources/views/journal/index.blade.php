@@ -2,6 +2,79 @@
 
 @section('title', 'Jurnal Kepala Sekolah')
 
+@push('styles')
+    <style>
+        .journal-modal .modal-dialog {
+            max-width: 760px;
+        }
+
+        .journal-modal .modal-content {
+            overflow: hidden;
+            border: 1px solid rgba(15, 107, 125, 0.08);
+            border-radius: 28px;
+            box-shadow: 0 24px 60px rgba(24, 50, 58, 0.18);
+        }
+
+        .journal-modal .modal-header {
+            padding: 1.5rem 1.5rem 0.75rem;
+            background:
+                radial-gradient(circle at top right, rgba(244, 162, 97, 0.18), transparent 28%),
+                linear-gradient(180deg, rgba(245, 248, 251, 0.96), rgba(255, 255, 255, 0.98));
+        }
+
+        .journal-modal .modal-title {
+            font-size: 1.55rem;
+            line-height: 1.2;
+        }
+
+        .journal-modal .modal-body {
+            padding: 0 1.5rem 1.5rem;
+        }
+
+        .journal-modal .modal-intro {
+            margin-bottom: 1.25rem;
+            padding: 1rem 1.1rem;
+            border-radius: 18px;
+            background: rgba(15, 107, 125, 0.05);
+            color: #516970;
+        }
+
+        .journal-modal .modal-section {
+            padding: 1.1rem;
+            border: 1px solid rgba(15, 107, 125, 0.08);
+            border-radius: 20px;
+            background: #fbfdfe;
+        }
+
+        .journal-modal textarea.form-control {
+            min-height: 132px;
+            resize: vertical;
+        }
+
+        .journal-modal .modal-footer {
+            padding: 1rem 1.5rem 1.5rem;
+            background: rgba(245, 248, 251, 0.8);
+        }
+
+        @media (max-width: 575.98px) {
+            .journal-modal .modal-dialog {
+                margin: 0.75rem;
+            }
+
+            .journal-modal .modal-header,
+            .journal-modal .modal-body,
+            .journal-modal .modal-footer {
+                padding-left: 1rem;
+                padding-right: 1rem;
+            }
+
+            .journal-modal .modal-title {
+                font-size: 1.3rem;
+            }
+        }
+    </style>
+@endpush
+
 @section('content')
     <div class="mb-4">
         <h2 class="display-6 fw-extrabold font-headline mb-0">Jurnal Kepala Sekolah</h2>
@@ -193,50 +266,63 @@
         
         {{-- MODAL ISI JURNAL --}}
         @if(auth()->user()->role === 'admin_sekolah' && auth()->user()->school_id == $selectedSchool->id)
-            <div class="modal fade" id="modalAbsensi" tabindex="-1" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered">
-                    <div class="modal-content border-0 shadow rounded-4">
-                        <div class="modal-header border-bottom-0">
-                            <h1 class="modal-title fs-5 font-headline fw-bold">Input Jurnal Kepsek</h1>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                        </div>
+            <div class="modal fade journal-modal" id="modalAbsensi" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+                    <div class="modal-content border-0">
                         <form action="{{ route('school.store_attendance', $selectedSchool->id) }}" method="POST">
                             @csrf
-                            <div class="modal-body p-4 pt-0">
-                                <p class="small text-muted mb-4">Silakan masukkan data kehadiran & jurnal untuk hari ini ({{ now()->format('d M Y') }}).</p>
-                                
-                                <div class="row g-3 mb-3">
-                                    <div class="col-6">
-                                        <label class="form-label small fw-bold">Siswa Hadir</label>
-                                        <input type="number" name="siswa_hadir" class="form-control" placeholder="Contoh: 360" required min="0">
+                            <div class="modal-header border-bottom-0 align-items-start">
+                                <div class="pe-3">
+                                    <div class="eyebrow-muted mb-2">Input Harian</div>
+                                    <h1 class="modal-title font-headline fw-bold mb-2">Input Jurnal Kepsek</h1>
+                                    <p class="text-soft small mb-0">Masukkan data kehadiran dan aktivitas kepala sekolah untuk hari ini.</p>
+                                </div>
+                                <button type="button" class="btn-close mt-1" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="modal-intro small">
+                                    Silakan masukkan data kehadiran dan jurnal untuk tanggal <strong>{{ now()->format('d M Y') }}</strong>.
+                                </div>
+
+                                <div class="modal-section mb-3">
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <label class="form-label small fw-bold">Siswa Hadir</label>
+                                            <input type="number" name="siswa_hadir" class="form-control" placeholder="Contoh: 360" required min="0">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label small fw-bold">Guru Hadir</label>
+                                            <input type="number" name="guru_hadir" class="form-control" placeholder="Contoh: 50" required min="0">
+                                        </div>
                                     </div>
-                                    <div class="col-6">
-                                        <label class="form-label small fw-bold">Guru Hadir</label>
-                                        <input type="number" name="guru_hadir" class="form-control" placeholder="Contoh: 50" required min="0">
+                                </div>
+
+                                <div class="row g-3">
+                                    <div class="col-12">
+                                        <label class="form-label small fw-bold">Kehadiran Kepsek</label>
+                                        <select name="kepsek_hadir" class="form-select" required>
+                                            <option value="1">Hadir (Ada di tempat)</option>
+                                            <option value="0">Tidak Hadir (Dinas Luar / Izin)</option>
+                                        </select>
                                     </div>
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label small fw-bold">Kehadiran Kepsek</label>
-                                    <select name="kepsek_hadir" class="form-select" required>
-                                        <option value="1">Hadir (Ada di tempat)</option>
-                                        <option value="0">Tidak Hadir (Dinas Luar / Izin)</option>
-                                    </select>
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label small fw-bold">Tupoksi Kepsek</label>
-                                    <select name="tupoksi" class="form-select" required>
-                                        <option value="">-- Pilih Tupoksi --</option>
-                                        <option value="Manajerial">1. Manajerial</option>
-                                        <option value="Educator">2. Educator</option>
-                                        <option value="Supervisor">3. Supervisor</option>
-                                        <option value="Leader">4. Leader</option>
-                                        <option value="Entrepreneur">5. Entrepreneur</option>
-                                        <option value="Pengelola Sistem Informasi">6. Pengelola Sistem Informasi</option>
-                                    </select>
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label small fw-bold">Keterangan</label>
-                                    <textarea name="keterangan" class="form-control" rows="2"></textarea>
+
+                                    <div class="col-12">
+                                        <label class="form-label small fw-bold">Tupoksi Kepsek</label>
+                                        <select name="tupoksi" class="form-select" required>
+                                            <option value="">-- Pilih Tupoksi --</option>
+                                            <option value="Manajerial">1. Manajerial</option>
+                                            <option value="Educator">2. Educator</option>
+                                            <option value="Supervisor">3. Supervisor</option>
+                                            <option value="Leader">4. Leader</option>
+                                            <option value="Entrepreneur">5. Entrepreneur</option>
+                                            <option value="Pengelola Sistem Informasi">6. Pengelola Sistem Informasi</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="col-12">
+                                        <label class="form-label small fw-bold">Keterangan</label>
+                                        <textarea name="keterangan" class="form-control" rows="4" placeholder="Tulis ringkasan kegiatan, agenda, atau catatan penting hari ini..."></textarea>
+                                    </div>
                                 </div>
                             </div>
                             <div class="modal-footer bg-light border-top-0 rounded-bottom-4">
