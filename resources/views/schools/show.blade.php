@@ -565,7 +565,7 @@
         </div>
     </div>
 
-    {{-- 2. Modal Input KBM --}}
+    {{-- 2. Modal Input KBM
     <div class="modal fade" id="modalKbm" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 shadow rounded-4">
@@ -606,7 +606,7 @@
                 </form>
             </div>
         </div>
-    </div>
+    </div> --}}
 
     {{-- 4. Modal Tambah Laporan Bulanan Wakasek --}}
     <div class="modal fade" id="modalLaporan" tabindex="-1" aria-hidden="true">
