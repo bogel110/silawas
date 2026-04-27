@@ -6,20 +6,17 @@
         <p class="text-muted small mb-0">Grafik dan rekapitulasi pencapaian sekolah binaan.</p>
     </div>
 
-    {{-- KOTAK FILTER PILIH SEKOLAH (Menggunakan Choices.js seperti sebelumnya) --}}
+    {{-- KOTAK FILTER PILIH SEKOLAH (Dibuat otomatis submit tanpa tombol) --}}
     <div class="card border-0 shadow-sm rounded-4 mb-4 bg-primary bg-opacity-10 border-start border-4 border-primary">
         <div class="card-body p-4">
-            <form action="{{ route('achievement.pengawas') }}" method="GET" class="d-flex flex-column flex-md-row align-items-md-end gap-3">
-                <div class="flex-grow-1">
-                    <label class="form-label small fw-bold text-primary">Pilih Sekolah Binaan</label>
-                    <select name="school_id" id="schoolSelect" class="form-select border-primary" required>
-                        <option value="">-- Ketik Nama Sekolah --</option>
-                        @foreach($schools as $s)
-                            <option value="{{ $s->id }}" {{ request('school_id') == $s->id ? 'selected' : '' }}>{{ $s->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <button type="submit" class="btn btn-primary fw-bold px-4 shadow-sm">Tampilkan Rekap</button>
+            <form action="{{ route('achievement.pengawas') }}" method="GET" id="formPilihSekolah">
+                <label class="form-label small fw-bold text-primary mb-2">Pilih Sekolah Binaan</label>
+                <select name="school_id" id="schoolSelect" class="form-select border-primary" onchange="document.getElementById('formPilihSekolah').submit();" required>
+                    <option value="">-- Ketik atau Pilih Nama Sekolah --</option>
+                    @foreach($schools as $s)
+                        <option value="{{ $s->id }}" {{ request('school_id') == $s->id ? 'selected' : '' }}>{{ $s->name }}</option>
+                    @endforeach
+                </select>
             </form>
         </div>
     </div>
@@ -92,7 +89,6 @@
             </div>
         </div>
 
-        {{-- TABEL DATA BAWAHNYA --}}
         {{-- TABEL DATA BAWAHNYA --}}
         <div class="card border-0 shadow-sm rounded-4 mb-4">
             {{-- Header Tabel & Tombol --}}
@@ -231,6 +227,7 @@
                 updateTable();
             });
         </script>
+        
         {{-- SCRIPT UNTUK MEMUNCULKAN GRAFIK CHART.JS --}}
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <script>
@@ -264,13 +261,65 @@
         </div>
     @endif
     
-    {{-- SCRIPT CHOICES.JS SEPERTI MENU SIKLUS --}}
+    {{-- ========================================================================= --}}
+    {{-- SCRIPT: CHOICES.JS (Gaya Lega, Pencarian Akurat, Kotak Full & Blok Biru) --}}
+    {{-- ========================================================================= --}}
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
     <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+    
+    <style>
+        .choices { font-size: 1rem; }
+        .choices__inner {
+            background-color: #fff;
+            border: 1px solid #0d6efd;
+            border-radius: 0.5rem;
+            padding: 0.5rem 1rem;
+            min-height: calc(2.5em + 0.75rem + 2px);
+            box-shadow: 0 .125rem .25rem rgba(0,0,0,.075);
+            display: flex;
+            align-items: center;
+        }
+        .choices[data-type*="select-one"] .choices__input {
+            border: 1px solid #dee2e6; /* Border jelas */
+            margin-bottom: 8px;
+            padding: 0.6rem;
+            font-size: 1rem;
+            background-color: #f8f9fa;
+            border-radius: 0.375rem;
+            width: 100% !important; /* Kotak pencarian full memanjang */
+            max-width: 100% !important;
+            box-sizing: border-box;
+        }
+        .choices__list--dropdown .choices__list { max-height: 350px; }
+        .choices__list--dropdown .choices__item {
+            padding: 12px 16px;
+            font-size: 1rem;
+            border-bottom: 1px solid #f8f9fa;
+            transition: all 0.2s ease-in-out;
+        }
+        .choices__list--dropdown .choices__item--selectable.is-highlighted {
+            background-color: #0d6efd !important; /* Tambahkan !important di sini */
+            color: #ffffff !important;            /* Tambahkan !important di sini */
+            font-weight: 600 !important;
+        }
+    </style>
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            new Choices(document.getElementById('schoolSelect'), { searchEnabled: true });
+            const schoolSelect = document.getElementById('schoolSelect');
+            if (schoolSelect) {
+                new Choices(schoolSelect, { 
+                    searchEnabled: true,
+                    searchPlaceholderValue: 'Ketik nama sekolah yang dicari...',
+                    itemSelectText: 'Klik untuk memilih',
+                    noResultsText: 'Sekolah tidak ditemukan',
+                    noChoicesText: 'Tidak ada pilihan tersisa',
+                    shouldSort: false,
+                    searchFuzzy: false,       // Mematikan pencarian samar agar akurat
+                    searchFields: ['label'],  // Hanya cari berdasarkan nama sekolah
+                    searchResultLimit: 15
+                });
+            }
         });
     </script>
-    <style>.choices__inner { border-radius: 0.375rem; border: 1px solid #0d6efd; background: #fff; }</style>
 @endsection

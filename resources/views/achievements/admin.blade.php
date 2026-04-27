@@ -216,6 +216,7 @@
                         <div class="col-md-6">
                             <label class="small fw-bold text-muted mb-1">Peringkat</label>
                             <select name="peringkat" class="form-select bg-light border-0" required>
+                                <option value="">-- Pilih Juara--</option>
                                 <option value="Juara 1">Juara 1</option>
                                 <option value="Juara 2">Juara 2</option>
                                 <option value="Juara 3">Juara 3</option>
@@ -228,6 +229,7 @@
                         <div class="col-md-4">
                             <label class="small fw-bold text-muted mb-1">Tingkat</label>
                             <select name="tingkat" class="form-select bg-light border-0" required>
+                                <option value="">-- Pilih Tingkat --</option>
                                 <option value="Kota/Kabupaten">Kota/Kabupaten</option>
                                 <option value="Provinsi">Provinsi</option>
                                 <option value="Nasional">Nasional</option>
@@ -237,6 +239,7 @@
                         <div class="col-md-4">
                             <label class="small fw-bold text-muted mb-1">Kategori</label>
                             <select name="kategori" class="form-select bg-light border-0" required>
+                                <option value="">-- Pilih Kategori --</option>
                                 <option value="Individu">Individu</option>
                                 <option value="Tim">Tim/Kelompok</option>
                             </select>
@@ -244,6 +247,7 @@
                         <div class="col-md-4">
                             <label class="small fw-bold text-muted mb-1">Tipe Peserta</label>
                             <select name="tipe_peserta" class="form-select bg-light border-0" required>
+                                <option value="">-- Pilih Tipe Peserta --</option>
                                 <option value="Siswa">Siswa</option>
                                 <option value="Guru">Guru</option>
                                 <option value="Tendik">Tendik</option>

@@ -63,7 +63,7 @@
         <div class="row g-3 mb-4">
             <div class="col-12 col-md-3">
                 <div class="card border-0 shadow-sm rounded-4 p-4 bg-dark h-100 d-flex justify-content-center">
-                    <small class="text-cyan-400 fw-bold text-uppercase tracking-widest" style="font-size: 0.65rem;">Total Intervensi</small>
+                    <small class="text-cyan-400 fw-bold text-uppercase tracking-widest text-white" style="font-size: 0.65rem;">Total Intervensi</small>
                     <h2 class="display-5 fw-bold mb-0 text-white">{{ $recap['total'] }}</h2>
                 </div>
             </div>
@@ -254,16 +254,65 @@
         </div>
     @endif
 
-    {{-- SCRIPT: CHOICES.JS, PENCARIAN & PAGINATION --}}
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
     <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
-    <style>.choices__inner { border-radius: 0.375rem; border: 1px solid #0d6efd; background: #fff; }</style>
+    
+    <style>
+        /* Membesarkan ukuran dropdown Choices.js agar nyaman di HP/Tablet */
+        .choices { font-size: 1rem; }
+        .choices__inner {
+            background-color: #fff;
+            border: 1px solid #0d6efd;
+            border-radius: 0.5rem;
+            padding: 0.5rem 1rem;
+            min-height: calc(2.5em + 0.75rem + 2px);
+            box-shadow: 0 .125rem .25rem rgba(0,0,0,.075);
+            display: flex;
+            align-items: center;
+        }
+        .choices[data-type*="select-one"] .choices__input {
+            border: 1px solid #dee2e6; /* Ubah jadi border penuh agar lebih jelas bentuk kotaknya */
+            margin-bottom: 8px;
+            padding: 0.6rem;
+            font-size: 1rem;
+            background-color: #f8f9fa;
+            border-radius: 0.375rem;
+            
+            /* TAMBAHAN AGAR KOTAK PENCARIAN MAKSIMAL PANJANGNYA */
+            width: 100% !important;
+            max-width: 100% !important;
+            box-sizing: border-box;
+        }
+        .choices__list--dropdown .choices__list { max-height: 350px; }
+        .choices__list--dropdown .choices__item {
+            padding: 12px 16px;
+            font-size: 1rem;
+            border-bottom: 1px solid #f8f9fa;
+        }
+        .choices__list--dropdown .choices__item--selectable.is-highlighted {
+            background-color: #0d6efd !important; /* Tambahkan !important di sini */
+            color: #ffffff !important;            /* Tambahkan !important di sini */
+            font-weight: 600 !important;
+        }
+    </style>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Inisiasi Dropdown Pencarian
+            // Inisiasi Dropdown Pencarian Akurat & Besar
             const schoolSelect = document.getElementById('schoolSelect');
-            if (schoolSelect) new Choices(schoolSelect, { searchEnabled: true });
+            if (schoolSelect) {
+                new Choices(schoolSelect, { 
+                    searchEnabled: true,
+                    searchPlaceholderValue: 'Ketik nama sekolah...',
+                    itemSelectText: 'Klik untuk memilih',
+                    noResultsText: 'Sekolah tidak ditemukan',
+                    noChoicesText: 'Tidak ada pilihan tersisa',
+                    shouldSort: false,
+                    searchFuzzy: false,        // Pencarian spesifik
+                    searchFields: ['label'],   // Abaikan ID saat mencari
+                    searchResultLimit: 15
+                });
+            }
 
             // Inisiasi Paginasi & Pencarian Tabel
             const tableBody = document.getElementById('strategyTableBody');

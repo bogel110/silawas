@@ -8,24 +8,58 @@
         <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
         
         <style>
-            /* Menyesuaikan gaya Choices.js agar serasi dengan tema Bootstrap aplikasi kita */
-            .choices__inner {
-                background-color: #fff;
-                border: 1px solid #0d6efd; /* border-primary */
-                border-radius: 0.375rem;
-                padding: 0.375rem 0.75rem;
-                min-height: calc(1.5em + 1rem + 2px);
-                box-shadow: 0 .125rem .25rem rgba(0,0,0,.075); /* shadow-sm */
-            }
-            .choices[data-type*="select-one"] .choices__input {
-                border-bottom: 1px solid #eee;
-                margin-bottom: 5px;
-            }
-            .choices__list--dropdown .choices__item--selectable.is-highlighted {
-                background-color: #e7f1ff; /* bg-primary bg-opacity-10 */
-                color: #0d6efd;
-            }
-        </style>
+                /* Menyesuaikan gaya Choices.js agar serasi dengan tema Bootstrap dan LEBIH BESAR */
+                
+                /* 1. Membesarkan ukuran teks dasar */
+                .choices {
+                    font-size: 1rem; 
+                }
+
+                /* 2. Membesarkan kotak utama (yang tampil sebelum diklik) */
+                .choices__inner {
+                    background-color: #fff;
+                    border: 1px solid #0d6efd; /* border-primary */
+                    border-radius: 0.5rem; /* Dibuat sedikit lebih membulat */
+                    padding: 0.5rem 1rem; /* Padding diperbesar agar kotak lebih tinggi */
+                    min-height: calc(2.5em + 0.75rem + 2px); 
+                    box-shadow: 0 .125rem .25rem rgba(0,0,0,.075);
+                    display: flex;
+                    align-items: center;
+                }
+
+                /* 3. Membesarkan kotak input tempat mengetik pencarian */
+                .choices[data-type*="select-one"] .choices__input {
+                    border-bottom: 1px solid #dee2e6;
+                    margin-bottom: 8px;
+                    padding: 0.5rem; 
+                    font-size: 1rem; 
+                    background-color: #f8f9fa; /* Memberi warna latar sedikit abu agar jelas */
+                    border-radius: 0.25rem;
+
+                    width: 100% !important;
+                    max-width: 100% !important;
+                    box-sizing: border-box;
+                }
+
+                /* 4. Memperpanjang daftar *dropdown* ke bawah */
+                .choices__list--dropdown .choices__list {
+                    max-height: 350px; /* Daftar sekolah yang tampil ke bawah lebih banyak */
+                }
+
+                /* 5. Membesarkan area klik untuk masing-masing nama sekolah */
+                .choices__list--dropdown .choices__item {
+                    padding: 12px 16px; /* Jarak diperbesar agar sangat nyaman diklik di HP/Tablet */
+                    font-size: 1rem;
+                    border-bottom: 1px solid #f8f9fa; /* Garis pemisah tipis antar sekolah */
+                }
+
+                /* 6. Warna saat sekolah disorot/di-hover */
+                .choices__list--dropdown .choices__item--selectable.is-highlighted {
+                    background-color: #0d6efd !important; /* Tambahkan !important di sini */
+                    color: #ffffff !important;            /* Tambahkan !important di sini */
+                    font-weight: 600 !important;
+                }
+            </style>
 
         <script>
             document.addEventListener('DOMContentLoaded', function() {
@@ -34,11 +68,18 @@
                 if (schoolSelect) {
                     new Choices(schoolSelect, {
                         searchEnabled: true,
-                        searchPlaceholderValue: 'Ketik nama sekolah untuk mencari...',
+                        searchPlaceholderValue: 'Ketik nama sekolah yang spesifik...',
                         itemSelectText: 'Klik untuk memilih',
                         noResultsText: 'Sekolah tidak ditemukan',
                         noChoicesText: 'Tidak ada pilihan tersisa',
-                        shouldSort: false, // Biarkan urutan sesuai dengan alfabet dari Controller
+                        shouldSort: false, // Biarkan urutan sesuai alfabet dari Controller
+                        
+                        // ==========================================
+                        // TAMBAHAN AGAR PENCARIAN SANGAT SPESIFIK
+                        // ==========================================
+                        searchFuzzy: false,        // Mematikan pencarian samar (fuzzy) agar lebih presisi
+                        searchFields: ['label'],   // HANYA mencari berdasarkan nama teks, mengabaikan ID (value)
+                        searchResultLimit: 15,     // Menampilkan hingga 15 hasil pencarian (bawaan pabrik kadang dibatasi hanya 4)
                     });
                 }
             });
@@ -60,7 +101,7 @@
     <div class="card border-0 shadow-sm rounded-4 mb-4 bg-primary bg-opacity-10 border-start border-4 border-primary">
         <div class="card-body p-4">
             {{-- Tambahkan ID pada form --}}
-            <form action="{{ route('mentoring.index') }}" method="GET" id="formPilihSekolah">
+            <form action="{{ route('mentoring.index') }}" method="GET" id="formPilihSekolah" >
                 <label class="form-label small fw-bold text-primary mb-2">Pilih Sekolah Binaan</label>
                 
                 {{-- Tambahkan trigger onchange untuk melakukan submit otomatis --}}
@@ -82,24 +123,30 @@
         {{-- PANEL REKAPITULASI --}}
         <div class="row g-3 mb-4">
             <div class="col-6 col-md-3">
+                <div class="card border-0 shadow-sm rounded-4 p-4 bg-dark h-100 d-flex justify-content-center">
+                    <small class="text-cyan-400 fw-bold text-uppercase tracking-widest text-white" style="font-size: 0.65rem;">Total Intervensi</small>
+                    <h2 class="display-5 fw-bold mb-0 text-white">{{ $recap['total'] }}</h2>
+                </div>
+            </div>
+            <div class="col-6 col-md-2">
                 <div class="card border-0 shadow-sm rounded-4 p-3 bg-white border-bottom border-4 border-info">
                     <small class="text-muted fw-bold text-uppercase" style="font-size: 0.65rem;">1. Perencanaan</small>
                     <h4 class="fw-bold mb-0 text-info">{{ $recap['perencanaan'] }} <span class="small text-muted fs-6">Aktivitas</span></h4>
                 </div>
             </div>
-            <div class="col-6 col-md-3">
+            <div class="col-6 col-md-2">
                 <div class="card border-0 shadow-sm rounded-4 p-3 bg-white border-bottom border-4 border-warning">
                     <small class="text-muted fw-bold text-uppercase" style="font-size: 0.65rem;">2. Pend. Perencanaan</small>
                     <h4 class="fw-bold mb-0 text-warning">{{ $recap['perencanaan_prog'] }} <span class="small text-muted fs-6">Aktivitas</span></h4>
                 </div>
             </div>
-            <div class="col-6 col-md-3">
+            <div class="col-6 col-md-2">
                 <div class="card border-0 shadow-sm rounded-4 p-3 bg-white border-bottom border-4 border-primary">
                     <small class="text-muted fw-bold text-uppercase" style="font-size: 0.65rem;">3. Pend. Pelaksanaan</small>
                     <h4 class="fw-bold mb-0 text-primary">{{ $recap['pelaksanaan_prog'] }} <span class="small text-muted fs-6">Aktivitas</span></h4>
                 </div>
             </div>
-            <div class="col-6 col-md-3">
+            <div class="col-6 col-md-2">
                 <div class="card border-0 shadow-sm rounded-4 p-3 bg-white border-bottom border-4 border-success">
                     <small class="text-muted fw-bold text-uppercase" style="font-size: 0.65rem;">4. Pelaporan</small>
                     <h4 class="fw-bold mb-0 text-success">{{ $recap['pelaporan'] }} <span class="small text-muted fs-6">Aktivitas</span></h4>
