@@ -88,15 +88,96 @@
                                 <span class="badge bg-primary bg-opacity-10 text-primary border border-primary-subtle">{{ $ach->tipe_peserta }}</span>
                             </td>
                             <td class="small text-muted">{{ $ach->keterangan }}</td>
+                            
+                            {{-- MULAI PERBAIKAN AKSI DAN MODAL EDIT --}}
                             <td class="text-center">
                                 <div class="d-flex justify-content-center gap-2">
-                                    <button class="btn btn-link text-primary p-0" data-bs-toggle="modal" data-bs-target="#editModal{{ $ach->id }}"><span class="material-symbols-outlined fs-6">edit</span></button>
+                                    <button type="button" class="btn btn-link text-primary p-0" data-bs-toggle="modal" data-bs-target="#editModal{{ $ach->id }}">
+                                        <span class="material-symbols-outlined fs-6">edit</span>
+                                    </button>
+                                    
                                     <form action="{{ route('achievement.destroy', $ach->id) }}" method="POST" onsubmit="return confirm('Hapus data prestasi?')">
                                         @csrf @method('DELETE')
-                                        <button type="submit" class="btn btn-link text-danger p-0"><span class="material-symbols-outlined fs-6">delete</span></button>
+                                        <button type="submit" class="btn btn-link text-danger p-0">
+                                            <span class="material-symbols-outlined fs-6">delete</span>
+                                        </button>
                                     </form>
                                 </div>
+
+                                {{-- MODAL EDIT PRESTASI --}}
+                                <div class="modal fade text-start" id="editModal{{ $ach->id }}" tabindex="-1" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered modal-lg">
+                                        <form action="{{ route('achievement.update', $ach->id) }}" method="POST" class="modal-content border-0 shadow">
+                                            @csrf 
+                                            @method('PUT')
+                                            
+                                            <div class="modal-header pt-4 px-4 border-0">
+                                                <div>
+                                                    <span class="badge bg-warning bg-opacity-10 text-warning mb-2">Edit Data</span>
+                                                    <h4 class="modal-title font-headline fw-bold mb-0">Edit Prestasi Sekolah</h4>
+                                                </div>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                            </div>
+                                            
+                                            <div class="modal-body px-4">
+                                                <div class="row g-3">
+                                                    <div class="col-md-6">
+                                                        <label class="small fw-bold text-muted mb-1">Tanggal Perolehan</label>
+                                                        <input type="date" name="tanggal" class="form-control bg-light border-0" value="{{ $ach->tanggal }}" required>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <label class="small fw-bold text-muted mb-1">Peringkat</label>
+                                                        <select name="peringkat" class="form-select bg-light border-0" required>
+                                                            <option value="Juara 1" {{ $ach->peringkat == 'Juara 1' ? 'selected' : '' }}>Juara 1</option>
+                                                            <option value="Juara 2" {{ $ach->peringkat == 'Juara 2' ? 'selected' : '' }}>Juara 2</option>
+                                                            <option value="Juara 3" {{ $ach->peringkat == 'Juara 3' ? 'selected' : '' }}>Juara 3</option>
+                                                            <option value="Juara Harapan 1" {{ $ach->peringkat == 'Juara Harapan 1' ? 'selected' : '' }}>Juara Harapan 1</option>
+                                                            <option value="Juara Harapan 2" {{ $ach->peringkat == 'Juara Harapan 2' ? 'selected' : '' }}>Juara Harapan 2</option>
+                                                            <option value="Juara Harapan 3" {{ $ach->peringkat == 'Juara Harapan 3' ? 'selected' : '' }}>Juara Harapan 3</option>
+                                                            <option value="Juara Favorit" {{ $ach->peringkat == 'Juara Favorit' ? 'selected' : '' }}>Juara Favorit</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <label class="small fw-bold text-muted mb-1">Tingkat</label>
+                                                        <select name="tingkat" class="form-select bg-light border-0" required>
+                                                            <option value="Kota/Kabupaten" {{ $ach->tingkat == 'Kota/Kabupaten' ? 'selected' : '' }}>Kota/Kabupaten</option>
+                                                            <option value="Provinsi" {{ $ach->tingkat == 'Provinsi' ? 'selected' : '' }}>Provinsi</option>
+                                                            <option value="Nasional" {{ $ach->tingkat == 'Nasional' ? 'selected' : '' }}>Nasional</option>
+                                                            <option value="Internasional" {{ $ach->tingkat == 'Internasional' ? 'selected' : '' }}>Internasional</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <label class="small fw-bold text-muted mb-1">Kategori</label>
+                                                        <select name="kategori" class="form-select bg-light border-0" required>
+                                                            <option value="Individu" {{ $ach->kategori == 'Individu' ? 'selected' : '' }}>Individu</option>
+                                                            <option value="Tim" {{ $ach->kategori == 'Tim' ? 'selected' : '' }}>Tim/Kelompok</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <label class="small fw-bold text-muted mb-1">Tipe Peserta</label>
+                                                        <select name="tipe_peserta" class="form-select bg-light border-0" required>
+                                                            <option value="Siswa" {{ $ach->tipe_peserta == 'Siswa' ? 'selected' : '' }}>Siswa</option>
+                                                            <option value="Guru" {{ $ach->tipe_peserta == 'Guru' ? 'selected' : '' }}>Guru</option>
+                                                            <option value="Tendik" {{ $ach->tipe_peserta == 'Tendik' ? 'selected' : '' }}>Tendik</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-12">
+                                                        <label class="small fw-bold text-muted mb-1">Keterangan Lomba & Nama Peserta</label>
+                                                        <textarea name="keterangan" class="form-control bg-light border-0" rows="3" required>{{ $ach->keterangan }}</textarea>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="modal-footer bg-light border-0 px-4 py-3 rounded-bottom-4">
+                                                <button type="button" class="btn btn-outline-secondary btn-sm fw-bold" data-bs-dismiss="modal">Batal</button>
+                                                <button type="submit" class="btn btn-primary btn-sm fw-bold px-4">Update Data</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
                             </td>
+                            {{-- AKHIR PERBAIKAN AKSI DAN MODAL EDIT --}}
+
                         </tr>
                         @empty
                         <tr id="emptyRow"><td colspan="5" class="text-center py-5 text-muted small">Belum ada data prestasi.</td></tr>
@@ -138,6 +219,9 @@
                                 <option value="Juara 1">Juara 1</option>
                                 <option value="Juara 2">Juara 2</option>
                                 <option value="Juara 3">Juara 3</option>
+                                <option value="Juara Harapan 1">Juara Harapan 1</option>
+                                <option value="Juara Harapan 2">Juara Harapan 2</option>
+                                <option value="Juara Harapan 3">Juara Harapan 3</option>
                                 <option value="Juara Favorit">Juara Favorit</option>
                             </select>
                         </div>
