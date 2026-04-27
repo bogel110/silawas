@@ -8,21 +8,30 @@ use App\Models\CycleStrategy;
 
 class CycleStrategyController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {  
-    // Pastikan HANYA PENGAWAS yang bisa mengakses
+        // Pastikan HANYA PENGAWAS yang bisa mengakses
         if (auth()->user()->role !== 'pengawas') {
             abort(403, 'Akses Ditolak: Modul ini khusus untuk Pengawas Sekolah.');
         }
 
         $schools = School::orderBy('name', 'asc')->get();
         
-        //==========================================================
+        // Tangkap data sekolah yang dipilih dari Dropdown (URL GET)
+        $selectedSchoolId = $request->get('school_id');
+        $selectedSchool = $selectedSchoolId ? School::find($selectedSchoolId) : null;
 
-        // Ambil semua riwayat strategi yang sudah diinput
-        $strategies = CycleStrategy::with('school')->latest()->get();
+        // Jika sekolah dipilih, ambil data strateginya. Jika tidak, jadikan array kosong.
+        if ($selectedSchool) {
+            $strategies = CycleStrategy::with('school')
+                            ->where('school_id', $selectedSchoolId)
+                            ->latest()
+                            ->get();
+        } else {
+            $strategies = collect(); // Koleksi kosong agar halaman tidak error
+        }
 
-        // Siapkan Data Rekapitulasi
+        // Siapkan Data Rekapitulasi (Angka akan otomatis menyesuaikan sekolah yang dipilih)
         $recap = [
             'total' => $strategies->count(),
             'seeding' => $strategies->where('strategy', 'Penyemaian Perubahan (Seeding Change)')->count(),
@@ -33,7 +42,8 @@ class CycleStrategyController extends Controller
             'sustainable' => $strategies->where('strategy', 'Perubahan Berkelanjutan (Sustainable Change)')->count(),
         ];
 
-        return view('strategy.index', compact('schools', 'strategies', 'recap'));
+        // Pastikan variabel $selectedSchool ikut dikirim ke View (compact)
+        return view('strategy.index', compact('schools', 'selectedSchool', 'strategies', 'recap'));
     }
 
     public function store(Request $request)
@@ -62,11 +72,22 @@ class CycleStrategyController extends Controller
         return back()->with('success', 'Data strategi berhasil dihapus!');
     }
 
-    public function export()
+    // Tambahkan parameter Request untuk menangkap filter sekolah saat Export
+    public function export(Request $request) 
     {
-        // Ambil semua data strategi beserta relasi sekolahnya
-        $strategies = CycleStrategy::with('school')->latest()->get();
-        $filename = "Rekap_Siklus_Strategi_" . date('Y-m-d') . ".csv";
+        $schoolId = $request->get('school_id');
+        $query = CycleStrategy::with('school');
+
+        // Jika sedang memilih sekolah tertentu, export khusus data sekolah itu
+        if ($schoolId) {
+            $query->where('school_id', $schoolId);
+            $schoolName = School::find($schoolId)->name;
+        } else {
+            $schoolName = "Semua_Sekolah";
+        }
+
+        $strategies = $query->latest()->get();
+        $filename = "Rekap_Siklus_Strategi_" . str_replace(' ', '_', $schoolName) . "_" . date('Y-m-d') . ".csv";
 
         $headers = [
             "Content-type"        => "text/csv",

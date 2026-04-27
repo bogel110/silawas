@@ -10,7 +10,6 @@ class SchoolController extends Controller
 {
     public function show($id)
     {
-
         $user = Auth::user();
 
         // Mencari data sekolah beserta relasi absensi dan laporan bulanannya
@@ -25,7 +24,7 @@ class SchoolController extends Controller
         }
 
         $filledLinks = 0;
-        // Cek semua 9 kolom link
+        // Cek semua 10 kolom link (Sudah termasuk Contact Link)
         if ($school->ijop_link) $filledLinks++;
         if ($school->ksp_link) $filledLinks++;
         if ($school->akreditasi_link) $filledLinks++;
@@ -35,16 +34,30 @@ class SchoolController extends Controller
         if ($school->rapor_link) $filledLinks++;
         if ($school->rkt_link) $filledLinks++;
         if ($school->rkas_link) $filledLinks++;
+        if ($school->contact_link) $filledLinks++; // Tambahan ke-10
 
-        // Pembagi harus sama yaitu 9
-        $school->score = ($filledLinks / 9) * 100;
+        // Pembagi sekarang diubah menjadi 10
+        $school->score = ($filledLinks / 10) * 100;
 
         return view('schools.show', compact('school'));
+    }
+
+    public function updateDriveLink(Request $request, $id)
+    {
+        $school = School::findOrFail($id);
+
+        if (auth()->user()->role === 'admin_sekolah' && auth()->user()->school_id !== $school->id) {
+            abort(403, 'Akses ditolak.');
+        }
+
+        $request->validate(['drive_link' => 'nullable|url']);
+        $school->update(['drive_link' => $request->drive_link]);
+
+        return redirect()->back()->with('success', 'Link Contact & Drive Sekolah berhasil diperbarui!');
     }
     
     public function storeAttendance(Request $request, $id)
     {
-        // 1. Validasi Inputan
         $request->validate([
             'siswa_hadir'  => 'required|integer|min:0',
             'guru_hadir'   => 'required|integer|min:0',
@@ -53,15 +66,11 @@ class SchoolController extends Controller
             'keterangan'   => 'nullable|string',
         ]);
 
-        // 2. Simpan (Create) atau Ubah (Update) Data
         \App\Models\Attendance::updateOrCreate(
-            // Array Pertama: Kondisi Pencarian
-            // Mencari data absensi untuk sekolah ini pada tanggal hari ini
             [
                 'school_id' => $id,
                 'tanggal'   => now()->format('Y-m-d'),
             ],
-            // Array Kedua: Data yang akan diisi/diubah
             [
                 'siswa_hadir'  => $request->siswa_hadir,
                 'guru_hadir'   => $request->guru_hadir,
@@ -71,13 +80,11 @@ class SchoolController extends Controller
             ]
         );
 
-        // 3. Kembali ke halaman detail dengan pesan sukses
         return redirect()->back()->with('success', 'Data Jurnal Kepsek berhasil disimpan / diperbarui!');
     }
 
     public function storeMonthlyReport(Request $request, $id)
     {
-        // 1. Validasi Input (Pastikan formatnya adalah URL/Link)
         $request->validate([
             'bulan' => 'required|integer|min:1|max:12',
             'tahun_pelajaran' => 'required|string',
@@ -87,12 +94,11 @@ class SchoolController extends Controller
             'humas_link' => 'nullable',
         ]);
 
-        // 2. Simpan atau Update Laporan di bulan dan tahun yang dipilih
         \App\Models\MonthlyReport::updateOrCreate(
             [
                 'school_id' => $id,
                 'bulan' => $request->bulan,
-                'tahun' => date('Y'), // Tahun berjalan otomatis
+                'tahun' => date('Y'), 
             ],
             [
                 'tahun_pelajaran' => $request->tahun_pelajaran,
@@ -108,10 +114,8 @@ class SchoolController extends Controller
 
     public function updateLinks(Request $request, $id)
     {
-        // 1. Cari data sekolah
-        $school = \App\Models\School::findOrFail($id);
+        $school = School::findOrFail($id);
 
-        // 2. Validasi input (Pastikan semuanya berupa URL jika diisi)
         $request->validate([
             'ijop_link' => 'nullable|url',
             'ksp_link' => 'nullable|url', 
@@ -120,13 +124,13 @@ class SchoolController extends Controller
             'pd_link' => 'nullable|url',
             'sarpras_link' => 'nullable|url',
             'rapor_link' => 'nullable|url',
-            'rkt_link'        => 'nullable|url', // Tambahan baru
-            'rkas_link'       => 'nullable|url', // Tambahan baru
+            'rkt_link'        => 'nullable|url', 
+            'rkas_link'       => 'nullable|url', 
+            'contact_link'    => 'nullable|url', 
         ]);
 
-        // 3. Update data ke database
         $school->update($request->only([
-            'ijop_link', 'ksp_link', 'akreditasi_link','gtk_link', 'pd_link', 'sarpras_link', 'rapor_link', 'rkt_link', 'rkas_link'
+            'ijop_link', 'ksp_link', 'akreditasi_link','gtk_link', 'pd_link', 'sarpras_link', 'rapor_link', 'rkt_link', 'rkas_link', 'contact_link',
         ]));
 
         return redirect()->back()->with('success', 'Tautan dokumen master berhasil diperbarui!');
@@ -134,17 +138,15 @@ class SchoolController extends Controller
 
     public function updateCatatan(Request $request, $id)
     {
-        // Pastikan hanya pengawas yang bisa melakukan ini (keamanan ekstra)
         if (auth()->user()->role !== 'pengawas') {
             abort(403, 'Anda tidak memiliki akses untuk memberikan catatan.');
         }
 
-        // Validasi dan simpan data
         $request->validate([
             'catatan_pengawas' => 'nullable|string',
         ]);
 
-        $school = \App\Models\School::findOrFail($id);
+        $school = School::findOrFail($id);
         $school->update(['catatan_pengawas' => $request->catatan_pengawas]);
 
         return redirect()->back()->with('success', 'Catatan evaluasi Pengawas berhasil disimpan!');
@@ -154,7 +156,6 @@ class SchoolController extends Controller
     {
         $attendance = \App\Models\Attendance::findOrFail($id);
         
-        // Keamanan: Pastikan hanya admin sekolah pemilik data atau pengawas yang bisa hapus
         if (auth()->user()->role === 'pengawas' || auth()->user()->school_id === $attendance->school_id) {
             $attendance->delete();
             return redirect()->back()->with('success', 'Data kehadiran berhasil dihapus!');
@@ -183,7 +184,6 @@ class SchoolController extends Controller
     {
         $report = \App\Models\MonthlyReport::findOrFail($id);
         
-        // Proteksi: Hanya admin sekolah bersangkutan atau pengawas
         if (auth()->user()->role === 'pengawas' || auth()->user()->school_id === $report->school_id) {
             $report->delete();
             return redirect()->back()->with('success', 'Laporan bulanan berhasil dihapus!');
@@ -194,9 +194,7 @@ class SchoolController extends Controller
 
     public function destroy($id)
     {
-        $school = \App\Models\School::findOrFail($id);
-        
-        // Hapus sekolah
+        $school = School::findOrFail($id);
         $school->delete();
 
         return redirect()->back()->with('success', 'Data sekolah berhasil dihapus!');
@@ -204,8 +202,7 @@ class SchoolController extends Controller
 
     public function exportExcel()
     {
-        // Ambil semua data sekolah
-        $schools = \App\Models\School::all(); 
+        $schools = School::all(); 
         $filename = "Data_Performa_Sekolah_Binaan_" . date('Ymd') . ".csv";
 
         $headers = [
@@ -216,23 +213,19 @@ class SchoolController extends Controller
             "Expires"             => "0"
         ];
 
-        // Tambahkan kolom nomor (No.) agar lebih rapi
         $columns = ['No.', 'Nama Sekolah', 'Level', 'Status', 'Skor Performa'];
 
         $callback = function() use($schools, $columns) {
             $file = fopen('php://output', 'w');
             
-            // 1. BOM untuk UTF-8 (agar karakter rapi di Excel)
             fputs($file, $bom =( chr(0xEF) . chr(0xBB) . chr(0xBF) ));
-
-            // 2. Tulis Header dengan separator titik koma (;)
             fputcsv($file, $columns, ';');
 
             $nomor = 1;
 
             foreach ($schools as $school) {
                 
-                // MENGHITUNG SKOR SECARA DINAMIS (Sama seperti di fungsi show)
+                // SKOR JUGA DIUBAH DI SINI MENJADI 10
                 $filledLinks = 0;
                 if ($school->ijop_link) $filledLinks++;
                 if ($school->ksp_link) $filledLinks++;
@@ -241,11 +234,13 @@ class SchoolController extends Controller
                 if ($school->pd_link) $filledLinks++;
                 if ($school->sarpras_link) $filledLinks++;
                 if ($school->rapor_link) $filledLinks++;
+                if ($school->rkt_link) $filledLinks++;
+                if ($school->rkas_link) $filledLinks++;
+                if ($school->contact_link) $filledLinks++; 
 
                 // Perhitungan skor
-                $calculatedScore = ($filledLinks / 9) * 100;
+                $calculatedScore = ($filledLinks / 10) * 100;
                 
-                // Memformat skor menjadi 1 angka desimal + menambahkan simbol %
                 $formattedScore = number_format($calculatedScore, 1) . '%';
 
                 $row = [
@@ -256,9 +251,7 @@ class SchoolController extends Controller
                     $formattedScore
                 ];
 
-                // Tulis Baris dengan separator titik koma (;)
                 fputcsv($file, $row, ';');
-                
                 $nomor++;
             }
             fclose($file);
@@ -268,83 +261,75 @@ class SchoolController extends Controller
     }
 
     public function exportAttendanceExcel($id)
-{
-    // 1. Ambil data sekolah beserta data absensi yang berelasi
-    $school = \App\Models\School::with(['attendances' => function($query) {
-        $query->orderBy('tanggal', 'desc');
-    }])->findOrFail($id);
+    {
+        $school = School::with(['attendances' => function($query) {
+            $query->orderBy('tanggal', 'desc');
+        }])->findOrFail($id);
 
-    // 2. Format nama file excel agar mengandung nama sekolah
-    $namaSekolah = str_replace(' ', '_', $school->name);
-    $filename = "Rekap_Jurnal_" . $namaSekolah . "_" . date('Ymd') . ".csv";
+        $namaSekolah = str_replace(' ', '_', $school->name);
+        $filename = "Rekap_Jurnal_" . $namaSekolah . "_" . date('Ymd') . ".csv";
 
-    $headers = [
-        "Content-type"        => "text/csv; charset=UTF-8",
-        "Content-Disposition" => "attachment; filename=$filename",
-        "Pragma"              => "no-cache",
-        "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
-        "Expires"             => "0"
-    ];
+        $headers = [
+            "Content-type"        => "text/csv; charset=UTF-8",
+            "Content-Disposition" => "attachment; filename=$filename",
+            "Pragma"              => "no-cache",
+            "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
+            "Expires"             => "0"
+        ];
 
-    // 3. Header kolom Excel (Menambahkan Tupoksi dan Keterangan)
-    $columns = ['No.', 'Tanggal', 'Siswa Hadir', 'Guru Hadir', 'Status Kepsek', 'Tupoksi Kepsek', 'Keterangan'];
+        $columns = ['No.', 'Tanggal', 'Siswa Hadir', 'Guru Hadir', 'Status Kepsek', 'Tupoksi Kepsek', 'Keterangan'];
 
-    $callback = function() use($school, $columns) {
-        $file = fopen('php://output', 'w');
-        
-        // BOM (Byte Order Mark) agar kompatibel dengan Excel (menangani karakter spesial/UTF-8)
-        fputs($file, $bom =( chr(0xEF) . chr(0xBB) . chr(0xBF) ));
-        
-        // Tulis Header menggunakan titik koma (;)
-        fputcsv($file, $columns, ';');
-
-        $nomor = 1;
-        foreach ($school->attendances as $absen) {
-            $statusKepsek = $absen->kepsek_hadir ? 'Hadir' : 'Tidak Hadir';
+        $callback = function() use($school, $columns) {
+            $file = fopen('php://output', 'w');
             
-            // 4. Masukkan data ke dalam baris (Gunakan ?? '-' jika data kosong)
-            $row = [
-                $nomor,
-                $absen->tanggal,
-                $absen->siswa_hadir,
-                $absen->guru_hadir,
-                $statusKepsek,
-                $absen->tupoksi ?? '-',      // Tambahan Kolom Tupoksi
-                $absen->keterangan ?? '-'    // Tambahan Kolom Keterangan
-            ];
+            fputs($file, $bom =( chr(0xEF) . chr(0xBB) . chr(0xBF) ));
+            fputcsv($file, $columns, ';');
 
-            // Tulis baris data menggunakan titik koma (;)
-            fputcsv($file, $row, ';');
-            $nomor++;
-        }
-        fclose($file);
-    };
+            $nomor = 1;
+            foreach ($school->attendances as $absen) {
+                $statusKepsek = $absen->kepsek_hadir ? 'Hadir' : 'Tidak Hadir';
+                
+                $row = [
+                    $nomor,
+                    $absen->tanggal,
+                    $absen->siswa_hadir,
+                    $absen->guru_hadir,
+                    $statusKepsek,
+                    $absen->tupoksi ?? '-',      
+                    $absen->keterangan ?? '-'    
+                ];
 
-    return response()->stream($callback, 200, $headers);
+                fputcsv($file, $row, ';');
+                $nomor++;
+            }
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
     }
 
     public function storeKbm(Request $request, $id)
     {
-    $request->validate([
-        'tahun_pelajaran' => 'required|string',
-        'intra_link'      => 'nullable|url',
-        'ko_link'         => 'nullable|url',
-        'extra_link'      => 'nullable|url',
-    ]);
+        $request->validate([
+            'tahun_pelajaran' => 'required|string',
+            'intra_link'      => 'nullable|url',
+            'ko_link'         => 'nullable|url',
+            'extra_link'      => 'nullable|url',
+        ]);
 
-    \App\Models\KbmReport::updateOrCreate(
-        [
-            'school_id' => $id,
-            'tahun_pelajaran' => $request->tahun_pelajaran,
-        ],
-        [
-            'intra_link' => $request->intra_link,
-            'ko_link'    => $request->ko_link,
-            'extra_link' => $request->extra_link,
-        ]
-    );
+        \App\Models\KbmReport::updateOrCreate(
+            [
+                'school_id' => $id,
+                'tahun_pelajaran' => $request->tahun_pelajaran,
+            ],
+            [
+                'intra_link' => $request->intra_link,
+                'ko_link'    => $request->ko_link,
+                'extra_link' => $request->extra_link,
+            ]
+        );
 
-    return redirect()->back()->with('success', 'Laporan KBM berhasil disimpan!');
+        return redirect()->back()->with('success', 'Laporan KBM berhasil disimpan!');
     }
 
     public function updateKbm(Request $request, $id)
@@ -366,7 +351,8 @@ class SchoolController extends Controller
         ]);
 
         return redirect()->back()->with('success', 'Data rekap KBM berhasil diperbarui!');
-        }
+    }
+
     public function destroyKbm($id)
     {
         $kbm = \App\Models\KbmReport::findOrFail($id);

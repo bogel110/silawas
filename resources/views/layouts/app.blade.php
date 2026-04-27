@@ -74,6 +74,28 @@
             border-radius: 30px;
             box-shadow: var(--shadow-soft);
             backdrop-filter: blur(18px);
+            overflow-y: auto; /* Kunci agar bisa di-scroll ke bawah */
+        }
+        /* ===== INI TAMBAHAN NOMOR 2 MULAI DARI SINI ===== */
+        .sidebar-shell::-webkit-scrollbar {
+            width: 5px;
+        }
+        .sidebar-shell::-webkit-scrollbar-track {
+            background: transparent;
+            margin: 15px 0; 
+        }
+        .sidebar-shell::-webkit-scrollbar-thumb {
+            background-color: rgba(15, 107, 125, 0.15); 
+            border-radius: 10px;
+        }
+        .sidebar-shell:hover::-webkit-scrollbar-thumb {
+            background-color: rgba(15, 107, 125, 0.4); 
+        }
+        /* ===== AKHIR TAMBAHAN NOMOR 2 ===== */
+
+        .sidebar-brand {
+            padding: 0.85rem 0.95rem 1.25rem;
+            border-bottom: 1px solid var(--line);
         }
 
         .sidebar-brand {
@@ -619,11 +641,31 @@
                         <span>Perangkat KBM</span>
                     </a>
                 </li>
+                @if(auth()->user()->role === 'admin_sekolah')
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('achievement.admin') ? 'active' : '' }}" href="{{ route('achievement.admin') }}">
+                            <span class="material-symbols-outlined">emoji_events</span>
+                            <span>Prestasi Sekolah</span>
+                        </a>
+                    </li>
+                @endif
                 @if(auth()->user()->role === 'pengawas')
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('achievement.pengawas') ? 'active' : '' }}" href="{{ route('achievement.pengawas') }}">
+                            <span class="material-symbols-outlined">social_leaderboard</span>
+                            <span>Rekap Prestasi</span>
+                        </a>
+                    </li>
                     <li class="nav-item">
                         <a class="nav-link {{ request()->routeIs('strategy.*') ? 'active' : '' }}" href="{{ route('strategy.index') }}">
                             <span class="material-symbols-outlined">model_training</span>
-                            <span>Siklus & Strategi</span>
+                            <span>Strategi Pendampingan</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('mentoring.*') ? 'active' : '' }}" href="{{ route('mentoring.index') }}">
+                            <div class="sb-nav-link-icon"><span class="material-symbols-outlined fs-6">sync</span></div>
+                            Siklus Pendampingan
                         </a>
                     </li>
                     <li class="nav-item">

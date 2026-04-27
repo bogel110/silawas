@@ -3,242 +3,335 @@
 @section('title', 'Siklus & Strategi Pengawasan')
 
 @section('content')
-    <div class="mb-4 d-flex justify-content-between align-items-end">
-        <div>
-            <h2 class="display-6 fw-extrabold font-headline mb-0">Siklus & Strategi</h2>
-            <p class="text-muted small mb-0">Manajemen pendekatan pengawasan berdasarkan skor performa sekolah.</p>
-        </div>
-        <button type="button" class="btn btn-primary fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#modalStrategi">
-            + Tambah Siklus Strategi
-        </button>
+    <div class="mb-4">
+        <h2 class="display-6 fw-extrabold font-headline mb-0">Strategi Pendampingan</h2>
+        <p class="text-muted small mb-0">Manajemen pendekatan pengawasan berdasarkan skor performa sekolah.</p>
     </div>
 
     @if(session('success'))
-        <div class="alert alert-success alert-dismissible fade show py-2 small mb-4 shadow-sm" role="alert">
+        <div class="alert alert-success alert-dismissible fade show py-2 px-3 small mb-4 shadow-sm border-0" role="alert">
             {{ session('success') }}
             <button type="button" class="btn-close pb-2" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     @endif
 
-    {{-- ========================================== --}}
-    {{-- PANEL REKAPITULASI --}}
-    {{-- ========================================== --}}
-    <div class="row g-3 mb-4">
-        <div class="col-12 col-md-3">
-            <div class="card border-0 shadow-sm rounded-4 p-4 bg-dark h-100 d-flex justify-content-center">
-                <small class="text-cyan-400 fw-bold text-uppercase tracking-widest" style="font-size: 0.65rem;">Total Intervensi</small>
-                <h2 class="display-5 fw-bold mb-0 text-white">{{ $recap['total'] }}</h2>
-            </div>
-        </div>
-        <div class="col-12 col-md-9">
-            <div class="card border-0 shadow-sm rounded-4 p-3 bg-white h-100">
-                <div class="row g-2 text-center align-items-center h-100">
-                    <div class="col-4 col-md-2 border-end">
-                        <h4 class="fw-bold text-primary mb-0">{{ $recap['seeding'] }}</h4>
-                        <small class="text-muted d-block" style="font-size: 0.65rem;">Penyemaian</small>
-                    </div>
-                    <div class="col-4 col-md-2 border-end">
-                        <h4 class="fw-bold text-danger mb-0">{{ $recap['rapid'] }}</h4>
-                        <small class="text-muted d-block" style="font-size: 0.65rem;">Segera</small>
-                    </div>
-                    <div class="col-4 col-md-2 border-end">
-                        <h4 class="fw-bold text-success mb-0">{{ $recap['reinforcing'] }}</h4>
-                        <small class="text-muted d-block" style="font-size: 0.65rem;">Penguatan</small>
-                    </div>
-                    <div class="col-4 col-md-2 border-end">
-                        <h4 class="fw-bold text-warning mb-0">{{ $recap['gradual'] }}</h4>
-                        <small class="text-muted d-block" style="font-size: 0.65rem;">Berangsur</small>
-                    </div>
-                    <div class="col-4 col-md-2 border-end">
-                        <h4 class="fw-bold text-info mb-0">{{ $recap['triggering'] }}</h4>
-                        <small class="text-muted d-block" style="font-size: 0.65rem;">Pemicu</small>
-                    </div>
-                    <div class="col-4 col-md-2">
-                        <h4 class="fw-bold text-secondary mb-0">{{ $recap['sustainable'] }}</h4>
-                        <small class="text-muted d-block" style="font-size: 0.65rem;">Berkelanjutan</small>
-                    </div>
-                </div>
-            </div>
+    {{-- KOTAK FILTER: PILIH SEKOLAH TERLEBIH DAHULU --}}
+    <div class="card border-0 shadow-sm rounded-4 mb-4 bg-primary bg-opacity-10 border-start border-4 border-primary">
+        <div class="card-body p-4">
+            <form action="{{ request()->url() }}" method="GET" id="formPilihSekolah">
+                <label class="form-label small fw-bold text-primary mb-2">Pilih Sekolah Binaan</label>
+                <select name="school_id" id="schoolSelect" class="form-select border-primary" onchange="document.getElementById('formPilihSekolah').submit();">
+                    <option value="">-- Ketik atau Pilih Nama Sekolah --</option>
+                    @foreach($schools as $s)
+                        <option value="{{ $s->id }}" {{ request('school_id') == $s->id ? 'selected' : '' }}>
+                            {{ $s->name }} - (Skor Performa: {{ $s->skor_performa ?? '0' }}%)
+                        </option>
+                    @endforeach
+                </select>
+            </form>
         </div>
     </div>
 
-    {{-- ========================================== --}}
-    {{-- TABEL DATA STRATEGI --}}
-    {{-- ========================================== --}}
-    <div class="card border-0 shadow-sm rounded-4 mb-4">
-        <div class="card-header bg-white border-bottom-0 pt-4 pb-0 px-4 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
-            <h5 class="font-headline fw-bold mb-0">Riwayat Penentuan Strategi</h5>
-            
-            <div class="d-flex flex-column flex-sm-row gap-2 align-items-sm-center">
-            
-                {{-- DROPDOWN ENTRIES (PAGINATION) --}}
-                <div class="d-flex align-items-center gap-2">
-                    <span class="small text-muted fw-bold d-none d-md-inline">Tampil</span>
-                    <select id="entriesStrategy" class="form-select form-select-sm bg-light border-0 shadow-sm" style="width: auto; cursor: pointer;">
-                        <option value="5">5</option>
-                        <option value="10" selected>10</option>
-                        <option value="25">25</option>
-                        <option value="50">50</option>
-                    </select>
+    {{-- KONTEN UTAMA MUNCUL JIKA SEKOLAH SUDAH DIPILIH --}}
+    @if($selectedSchool)
+        
+        {{-- BANNER PROFIL SEKOLAH & TOMBOL TAMBAH STRATEGI --}}
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4 p-4 bg-white rounded-4 shadow-sm border border-light">
+            <div class="d-flex align-items-center gap-3">
+                <div class="icon-box bg-primary bg-opacity-10 text-primary rounded-3 p-3">
+                    <span class="material-symbols-outlined fs-2">school</span>
                 </div>
-                {{-- KOTAK PENCARIAN --}}
-                <div class="input-group input-group-sm shadow-sm" style="max-width: 200px;">
-                    <span class="input-group-text bg-white border-end-0"><span class="material-symbols-outlined fs-6 text-muted">search</span></span>
-                    <input type="text" id="searchStrategy" class="form-control border-start-0 ps-0" placeholder="Cari data...">
+                <div>
+                    <h4 class="font-headline fw-bold mb-1">{{ $selectedSchool->name }}</h4>
+                    @php
+                        $skor = $selectedSchool->skor_performa ?? 0;
+                        $badgeColor = $skor >= 75 ? 'success' : ($skor >= 50 ? 'warning' : 'danger');
+                    @endphp
+                    <span class="badge bg-{{ $badgeColor }} bg-opacity-10 text-{{ $badgeColor }} border border-{{ $badgeColor }} rounded-pill px-3">
+                        Skor Performa: {{ $skor }}%
+                    </span>
                 </div>
-                {{-- TOMBOL EXCEL --}}
-                <a href="{{ route('strategy.export') }}" class="btn btn-success btn-sm fw-bold d-flex align-items-center justify-content-center gap-1 shadow-sm" title="Download Laporan">
-                    <span class="material-symbols-outlined fs-6">download</span> Download Excel
-                </a>
+            </div>
+            <button type="button" class="btn btn-primary fw-bold shadow-sm px-4 py-2" data-bs-toggle="modal" data-bs-target="#modalStrategi">
+                <span class="d-flex align-items-center gap-2">
+                    <span class="material-symbols-outlined fs-5">add_circle</span> Input Strategi Baru
+                </span>
+            </button>
+        </div>
+
+        {{-- PANEL REKAPITULASI (Tetap dipertahankan) --}}
+        <div class="row g-3 mb-4">
+            <div class="col-12 col-md-3">
+                <div class="card border-0 shadow-sm rounded-4 p-4 bg-dark h-100 d-flex justify-content-center">
+                    <small class="text-cyan-400 fw-bold text-uppercase tracking-widest" style="font-size: 0.65rem;">Total Intervensi</small>
+                    <h2 class="display-5 fw-bold mb-0 text-white">{{ $recap['total'] }}</h2>
+                </div>
+            </div>
+            <div class="col-12 col-md-9">
+                <div class="card border-0 shadow-sm rounded-4 p-3 bg-white h-100">
+                    <div class="row g-2 text-center align-items-center h-100">
+                        <div class="col-4 col-md-2 border-end">
+                            <h4 class="fw-bold text-primary mb-0">{{ $recap['seeding'] }}</h4>
+                            <small class="text-muted d-block" style="font-size: 0.65rem;">Penyemaian</small>
+                        </div>
+                        <div class="col-4 col-md-2 border-end">
+                            <h4 class="fw-bold text-danger mb-0">{{ $recap['rapid'] }}</h4>
+                            <small class="text-muted d-block" style="font-size: 0.65rem;">Segera</small>
+                        </div>
+                        <div class="col-4 col-md-2 border-end">
+                            <h4 class="fw-bold text-success mb-0">{{ $recap['reinforcing'] }}</h4>
+                            <small class="text-muted d-block" style="font-size: 0.65rem;">Penguatan</small>
+                        </div>
+                        <div class="col-4 col-md-2 border-end">
+                            <h4 class="fw-bold text-warning mb-0">{{ $recap['gradual'] }}</h4>
+                            <small class="text-muted d-block" style="font-size: 0.65rem;">Berangsur</small>
+                        </div>
+                        <div class="col-4 col-md-2 border-end">
+                            <h4 class="fw-bold text-info mb-0">{{ $recap['triggering'] }}</h4>
+                            <small class="text-muted d-block" style="font-size: 0.65rem;">Pemicu</small>
+                        </div>
+                        <div class="col-4 col-md-2">
+                            <h4 class="fw-bold text-secondary mb-0">{{ $recap['sustainable'] }}</h4>
+                            <small class="text-muted d-block" style="font-size: 0.65rem;">Berkelanjutan</small>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <div class="card-body p-0">
-            <div class="p-4 pt-3 table-responsive">
-                <table class="table table-sm align-middle mb-0" id="strategyTable">
-                    <thead class="bg-light text-muted small">
-                        <tr>
-                            <th class="ps-2">Tanggal</th>
-                            <th>Nama Sekolah</th>
-                            <th>Strategi Pendampingan</th>
-                            <th>Keterangan Tambahan</th>
-                            <th class="text-center">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody id="strategyTableBody">
-                        @forelse($strategies as $str)
-                        <tr class="strategy-row small">
-                            <td class="fw-bold text-nowrap ps-2">{{ $str->created_at->format('d M Y') }}</td>
-                            <td class="text-primary fw-bold">{{ $str->school->name }}</td>
-                            <td><span class="badge bg-dark bg-opacity-10 text-dark border border-dark">{{ $str->strategy }}</span></td>
-                            <td class="text-muted" style="max-width: 300px; white-space: normal;">{{ $str->keterangan ?? '-' }}</td>
-                            <td class="text-center">
-                                <div class="d-flex justify-content-center gap-2">
-                                    <button class="btn btn-link text-primary p-0" data-bs-toggle="modal" data-bs-target="#editModal{{ $str->id }}" title="Edit Data"><span class="material-symbols-outlined fs-6">edit</span></button>
-                                    <form action="{{ route('strategy.destroy', $str->id) }}" method="POST" onsubmit="return confirm('Hapus riwayat strategi ini?')">
-                                        @csrf @method('DELETE')
-                                        <button type="submit" class="btn btn-link text-danger p-0" title="Hapus Data"><span class="material-symbols-outlined fs-6">delete</span></button>
-                                    </form>
-                                </div>
+        {{-- TABEL DATA STRATEGI DENGAN PAGINATION & SEARCH --}}
+        <div class="card border-0 shadow-sm rounded-4 mb-4">
+            <div class="card-header bg-white border-bottom-0 pt-4 pb-3 px-4 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+                <h5 class="font-headline fw-bold mb-0">Riwayat Strategi</h5>
+                
+                <div class="d-flex flex-column flex-sm-row gap-2 align-items-sm-center">
+                    <div class="d-flex align-items-center gap-2">
+                        <select id="entriesStrategy" class="form-select form-select-sm bg-light border-0 shadow-sm" style="width: auto; cursor: pointer;">
+                            <option value="5">5</option>
+                            <option value="10" selected>10</option>
+                            <option value="25">25</option>
+                        </select>
+                    </div>
+                    <div class="input-group input-group-sm shadow-sm" style="max-width: 200px;">
+                        <span class="input-group-text bg-white border-end-0"><span class="material-symbols-outlined fs-6 text-muted">search</span></span>
+                        <input type="text" id="searchStrategy" class="form-control border-start-0 ps-0" placeholder="Cari strategi...">
+                    </div>
+                    <a href="{{ route('strategy.export') }}" class="btn btn-success btn-sm fw-bold d-flex align-items-center gap-1 shadow-sm">
+                        <span class="material-symbols-outlined fs-6">download</span> Excel
+                    </a>
+                </div>
+            </div>
 
-                                {{-- MODAL EDIT --}}
-                                <div class="modal fade" id="editModal{{ $str->id }}" tabindex="-1" aria-hidden="true">
-                                    <div class="modal-dialog modal-dialog-centered">
-                                        <div class="modal-content border-0 shadow rounded-4 text-start">
-                                            <form action="{{ route('strategy.update', $str->id) }}" method="POST">
-                                                @csrf @method('PUT')
-                                                <div class="modal-header border-bottom-0">
-                                                    <h1 class="modal-title fs-5 font-headline fw-bold">Edit Strategi</h1>
-                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                                </div>
-                                                <div class="modal-body p-4 pt-0">
-                                                    <div class="mb-3">
-                                                        <label class="small fw-bold">Sekolah (Skor Performa)</label>
-                                                        <input type="text" class="form-control bg-light" value="{{ $str->school->name }}" disabled>
+            <div class="card-body p-0">
+                <div class="p-4 pt-3 table-responsive">
+                    <table class="table table-sm align-middle mb-0">
+                        <thead class="bg-light text-muted small">
+                            <tr>
+                                <th class="ps-2">Tanggal</th>
+                                <th>Strategi Pendampingan</th>
+                                <th>Keterangan Tambahan</th>
+                                <th class="text-center">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="strategyTableBody">
+                            @forelse($strategies as $str)
+                            <tr class="strategy-row small">
+                                <td class="fw-bold text-nowrap ps-2">{{ $str->created_at->format('d M Y') }}</td>
+                                <td><span class="badge bg-dark bg-opacity-10 text-dark border border-dark">{{ $str->strategy }}</span></td>
+                                <td class="text-muted" style="max-width: 300px; white-space: normal;">{{ $str->keterangan ?? '-' }}</td>
+                                <td class="text-center">
+                                    <div class="d-flex justify-content-center gap-2">
+                                        <button class="btn btn-link text-primary p-0" data-bs-toggle="modal" data-bs-target="#editModal{{ $str->id }}"><span class="material-symbols-outlined fs-6">edit</span></button>
+                                        <form action="{{ route('strategy.destroy', $str->id) }}" method="POST" onsubmit="return confirm('Hapus riwayat strategi ini?')">
+                                            @csrf @method('DELETE')
+                                            <button type="submit" class="btn btn-link text-danger p-0"><span class="material-symbols-outlined fs-6">delete</span></button>
+                                        </form>
+                                    </div>
+
+                                    {{-- MODAL EDIT (Disembunyikan di dalam loop) --}}
+                                    <div class="modal fade" id="editModal{{ $str->id }}" tabindex="-1" aria-hidden="true">
+                                        <div class="modal-dialog modal-dialog-centered text-start">
+                                            <div class="modal-content border-0 shadow rounded-4">
+                                                <form action="{{ route('strategy.update', $str->id) }}" method="POST">
+                                                    @csrf @method('PUT')
+                                                    <div class="modal-header border-bottom-0">
+                                                        <h1 class="modal-title fs-5 font-headline fw-bold">Edit Strategi</h1>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                                     </div>
-                                                    <div class="mb-3">
-                                                        <label class="small fw-bold">Strategi Pendampingan</label>
-                                                        <select name="strategy" class="form-select" required>
-                                                            <option value="Penyemaian Perubahan (Seeding Change)" {{ $str->strategy == 'Penyemaian Perubahan (Seeding Change)' ? 'selected' : '' }}>Penyemaian Perubahan (Seeding Change)</option>
-                                                            <option value="Perubahan Segera (Rapid Change)" {{ $str->strategy == 'Perubahan Segera (Rapid Change)' ? 'selected' : '' }}>Perubahan Segera (Rapid Change)</option>
-                                                            <option value="Penguatan Perubahan (Reinforcing Change)" {{ $str->strategy == 'Penguatan Perubahan (Reinforcing Change)' ? 'selected' : '' }}>Penguatan Perubahan (Reinforcing Change)</option>
-                                                            <option value="Perubahan Berangsur (Gradual Change)" {{ $str->strategy == 'Perubahan Berangsur (Gradual Change)' ? 'selected' : '' }}>Perubahan Berangsur (Gradual Change)</option>
-                                                            <option value="Pemicu Perubahan (Triggering Change)" {{ $str->strategy == 'Pemicu Perubahan (Triggering Change)' ? 'selected' : '' }}>Pemicu Perubahan (Triggering Change)</option>
-                                                            <option value="Perubahan Berkelanjutan (Sustainable Change)" {{ $str->strategy == 'Perubahan Berkelanjutan (Sustainable Change)' ? 'selected' : '' }}>Perubahan Berkelanjutan (Sustainable Change)</option>
-                                                        </select>
+                                                    <div class="modal-body p-4 pt-0">
+                                                        <div class="mb-3">
+                                                            <label class="small fw-bold">Strategi Pendampingan</label>
+                                                            <select name="strategy" class="form-select bg-light" required>
+                                                                <option value="Penyemaian Perubahan (Seeding Change)" {{ $str->strategy == 'Penyemaian Perubahan (Seeding Change)' ? 'selected' : '' }}>Penyemaian Perubahan (Seeding Change)</option>
+                                                                <option value="Perubahan Segera (Rapid Change)" {{ $str->strategy == 'Perubahan Segera (Rapid Change)' ? 'selected' : '' }}>Perubahan Segera (Rapid Change)</option>
+                                                                <option value="Penguatan Perubahan (Reinforcing Change)" {{ $str->strategy == 'Penguatan Perubahan (Reinforcing Change)' ? 'selected' : '' }}>Penguatan Perubahan (Reinforcing Change)</option>
+                                                                <option value="Perubahan Berangsur (Gradual Change)" {{ $str->strategy == 'Perubahan Berangsur (Gradual Change)' ? 'selected' : '' }}>Perubahan Berangsur (Gradual Change)</option>
+                                                                <option value="Pemicu Perubahan (Triggering Change)" {{ $str->strategy == 'Pemicu Perubahan (Triggering Change)' ? 'selected' : '' }}>Pemicu Perubahan (Triggering Change)</option>
+                                                                <option value="Perubahan Berkelanjutan (Sustainable Change)" {{ $str->strategy == 'Perubahan Berkelanjutan (Sustainable Change)' ? 'selected' : '' }}>Perubahan Berkelanjutan (Sustainable Change)</option>
+                                                            </select>
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label class="small fw-bold">Keterangan / Alasan</label>
+                                                            <textarea name="keterangan" class="form-control bg-light" rows="3">{{ $str->keterangan }}</textarea>
+                                                        </div>
                                                     </div>
-                                                    <div class="mb-3">
-                                                        <label class="small fw-bold">Keterangan / Alasan</label>
-                                                        <textarea name="keterangan" class="form-control" rows="3">{{ $str->keterangan }}</textarea>
+                                                    <div class="modal-footer bg-light border-top-0 rounded-bottom-4">
+                                                        <button type="button" class="btn btn-outline-secondary btn-sm fw-bold" data-bs-dismiss="modal">Batal</button>
+                                                        <button type="submit" class="btn btn-primary btn-sm fw-bold">Update Data</button>
                                                     </div>
-                                                </div>
-                                                <div class="modal-footer bg-light border-top-0 rounded-bottom-4">
-                                                    <button type="button" class="btn btn-outline-secondary btn-sm fw-bold" data-bs-dismiss="modal">Batal</button>
-                                                    <button type="submit" class="btn btn-primary btn-sm fw-bold">Update Data</button>
-                                                </div>
-                                            </form>
+                                                </form>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            </td>
-                        </tr>
-                        @empty
-                        <tr id="emptyRow"><td colspan="5" class="text-center small text-muted py-5">Belum ada strategi yang diinputkan.</td></tr>
-                        @endforelse
-                        <tr id="notFoundRow" style="display: none;"><td colspan="5" class="text-center small text-muted py-3">Data tidak ditemukan.</td></tr>
-                    </tbody>
-                </table>
+                                </td>
+                            </tr>
+                            @empty
+                            <tr id="emptyRow"><td colspan="4" class="text-center small text-muted py-5">Belum ada strategi yang diinputkan untuk sekolah ini.</td></tr>
+                            @endforelse
+                            <tr id="notFoundRow" style="display: none;"><td colspan="4" class="text-center small text-muted py-4">Data tidak ditemukan.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                {{-- PAGINATION FOOTER --}}
+                <div class="p-3 bg-light bg-opacity-25 border-top d-flex justify-content-between align-items-center rounded-bottom-4">
+                    <small class="text-muted fw-semibold" id="strategyPageInfo"></small>
+                    <nav id="strategyPagination"></nav>
+                </div>
             </div>
         </div>
-    </div>
 
-    {{-- ========================================== --}}
-    {{-- MODAL TAMBAH DATA BARU --}}
-    {{-- ========================================== --}}
-    <div class="modal fade" id="modalStrategi" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-0 shadow rounded-4 text-start">
-                <form action="{{ route('strategy.store') }}" method="POST">
-                    @csrf
-                    <div class="modal-header border-bottom-0">
-                        <h1 class="modal-title fs-5 font-headline fw-bold">Input Siklus Strategi</h1>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body p-4 pt-0">
-                        <div class="mb-3">
-                            <label class="small fw-bold text-primary">Pilih Sekolah & Skor Performa</label>
-                            <select name="school_id" class="form-select border-primary" required>
-                                <option value="">-- Pilih Sekolah --</option>
-                                @foreach($schools as $s)
-                                    {{-- GANTI "skor_performa" DENGAN NAMA KOLOM ASLI DI DATABASE ANDA JIKA BERBEDA --}}
-                                    <option value="{{ $s->id }}">{{ $s->name }} - (Skor: {{ $s->skor_performa ?? '0'}}%)</option>
-                                @endforeach
-                            </select>
+        {{-- MODAL TAMBAH DATA BARU (SUDAH OTOMATIS TERKUNCI KE SEKOLAH YANG DIPILIH) --}}
+        <div class="modal fade" id="modalStrategi" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content border-0 shadow rounded-4 text-start">
+                    <form action="{{ route('strategy.store') }}" method="POST">
+                        @csrf
+                        {{-- KUNCI INPUTAN KE SEKOLAH YANG SEDANG DIPILIH --}}
+                        <input type="hidden" name="school_id" value="{{ $selectedSchool->id }}">
+                        
+                        <div class="modal-header border-bottom-0">
+                            <h1 class="modal-title fs-5 font-headline fw-bold">Input Siklus Strategi</h1>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                         </div>
-                        <div class="mb-3">
-                            <label class="small fw-bold">Rekomendasi Strategi</label>
-                            <select name="strategy" class="form-select" required>
-                                <option value="">-- Pilih Strategi --</option>
-                                <option value="Penyemaian Perubahan (Seeding Change)">1. Penyemaian Perubahan (Seeding Change)</option>
-                                <option value="Perubahan Segera (Rapid Change)">2. Perubahan Segera (Rapid Change)</option>
-                                <option value="Penguatan Perubahan (Reinforcing Change)">3. Penguatan Perubahan (Reinforcing Change)</option>
-                                <option value="Perubahan Berangsur (Gradual Change)">4. Perubahan Berangsur (Gradual Change)</option>
-                                <option value="Pemicu Perubahan (Triggering Change)">5. Pemicu Perubahan (Triggering Change)</option>
-                                <option value="Perubahan Berkelanjutan (Sustainable Change)">6. Perubahan Berkelanjutan (Sustainable Change)</option>
-                            </select>
+                        <div class="modal-body p-4 pt-0">
+                            <div class="mb-3">
+                                <label class="small fw-bold">Sekolah Binaan</label>
+                                <input type="text" class="form-control bg-light text-muted fw-bold" value="{{ $selectedSchool->name }} (Skor: {{ $skor }}%)" disabled>
+                            </div>
+                            <div class="mb-3">
+                                <label class="small fw-bold">Rekomendasi Strategi</label>
+                                <select name="strategy" class="form-select" required>
+                                    <option value="">-- Pilih Strategi --</option>
+                                    <option value="Penyemaian Perubahan (Seeding Change)">1. Penyemaian Perubahan (Seeding Change)</option>
+                                    <option value="Perubahan Segera (Rapid Change)">2. Perubahan Segera (Rapid Change)</option>
+                                    <option value="Penguatan Perubahan (Reinforcing Change)">3. Penguatan Perubahan (Reinforcing Change)</option>
+                                    <option value="Perubahan Berangsur (Gradual Change)">4. Perubahan Berangsur (Gradual Change)</option>
+                                    <option value="Pemicu Perubahan (Triggering Change)">5. Pemicu Perubahan (Triggering Change)</option>
+                                    <option value="Perubahan Berkelanjutan (Sustainable Change)">6. Perubahan Berkelanjutan (Sustainable Change)</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="small fw-bold">Keterangan / Alasan</label>
+                                <textarea name="keterangan" class="form-control" rows="3" placeholder="Tuliskan alasan mengapa strategi ini dipilih..."></textarea>
+                            </div>
                         </div>
-                        <div class="mb-3">
-                            <label class="small fw-bold">Keterangan / Alasan</label>
-                            <textarea name="keterangan" class="form-control" rows="3" placeholder="Tuliskan alasan mengapa strategi ini dipilih..."></textarea>
+                        <div class="modal-footer bg-light border-top-0 rounded-bottom-4">
+                            <button type="button" class="btn btn-outline-secondary btn-sm fw-bold" data-bs-dismiss="modal">Batal</button>
+                            <button type="submit" class="btn btn-primary btn-sm fw-bold">Simpan Data</button>
                         </div>
-                    </div>
-                    <div class="modal-footer bg-light border-top-0 rounded-bottom-4">
-                        <button type="button" class="btn btn-outline-secondary btn-sm fw-bold" data-bs-dismiss="modal">Batal</button>
-                        <button type="submit" class="btn btn-primary btn-sm fw-bold">Simpan Data</button>
-                    </div>
-                </form>
+                    </form>
+                </div>
             </div>
         </div>
-    </div>
+        
+    @else
+        {{-- TAMPILAN JIKA BELUM ADA SEKOLAH YANG DIPILIH --}}
+        <div class="text-center py-5 mt-4">
+            <span class="material-symbols-outlined display-1 text-muted opacity-25 mb-3">account_tree</span>
+            <h5 class="fw-bold text-muted">Pilih Sekolah Terlebih Dahulu</h5>
+            <p class="small text-muted mb-0">Silakan pilih sekolah pada kotak di atas untuk mulai melihat skor performa dan menginputkan strategi pendampingan.</p>
+        </div>
+    @endif
 
-    {{-- SIMPLE SEARCH SCRIPT --}}
+    {{-- SCRIPT: CHOICES.JS, PENCARIAN & PAGINATION --}}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+    <style>.choices__inner { border-radius: 0.375rem; border: 1px solid #0d6efd; background: #fff; }</style>
+
     <script>
-        document.getElementById('searchStrategy')?.addEventListener('keyup', function() {
-            const term = this.value.toLowerCase();
-            const rows = document.querySelectorAll('.strategy-row');
-            let hasVisible = false;
-            
-            rows.forEach(row => {
-                const text = row.textContent.toLowerCase();
-                if(text.includes(term)) {
-                    row.style.display = '';
-                    hasVisible = true;
+        document.addEventListener('DOMContentLoaded', function() {
+            // Inisiasi Dropdown Pencarian
+            const schoolSelect = document.getElementById('schoolSelect');
+            if (schoolSelect) new Choices(schoolSelect, { searchEnabled: true });
+
+            // Inisiasi Paginasi & Pencarian Tabel
+            const tableBody = document.getElementById('strategyTableBody');
+            if(!tableBody) return;
+
+            let allRows = Array.from(document.querySelectorAll('.strategy-row'));
+            const searchInput = document.getElementById('searchStrategy');
+            const entriesSelect = document.getElementById('entriesStrategy');
+            const pageInfo = document.getElementById('strategyPageInfo');
+            const paginationNav = document.getElementById('strategyPagination');
+            const notFoundRow = document.getElementById('notFoundRow');
+            const emptyRow = document.getElementById('emptyRow');
+
+            let currentPage = 1;
+            let rowsPerPage = parseInt(entriesSelect.value);
+
+            function updateTable() {
+                const searchTerm = searchInput.value.toLowerCase();
+                const filteredRows = allRows.filter(row => row.textContent.toLowerCase().includes(searchTerm));
+
+                const totalRows = filteredRows.length;
+                const totalPages = Math.ceil(totalRows / rowsPerPage);
+
+                if(totalRows === 0) {
+                    if(notFoundRow) notFoundRow.style.display = searchTerm ? '' : 'none';
+                    if(emptyRow && !searchTerm) emptyRow.style.display = '';
+                    pageInfo.textContent = '';
+                    paginationNav.innerHTML = '';
                 } else {
-                    row.style.display = 'none';
+                    if(notFoundRow) notFoundRow.style.display = 'none';
+                    if(emptyRow) emptyRow.style.display = 'none';
                 }
-            });
-            document.getElementById('notFoundRow').style.display = hasVisible || rows.length === 0 ? 'none' : '';
-            if(document.getElementById('emptyRow')) document.getElementById('emptyRow').style.display = term ? 'none' : '';
+
+                allRows.forEach(row => row.style.display = 'none');
+
+                const start = (currentPage - 1) * rowsPerPage;
+                const end = start + rowsPerPage;
+
+                filteredRows.slice(start, end).forEach(row => row.style.display = '');
+
+                if(totalRows > 0) {
+                    pageInfo.textContent = `Menampilkan ${start + 1} - ${Math.min(end, totalRows)} dari ${totalRows} data`;
+                    renderPagination(totalPages);
+                }
+            }
+
+            function renderPagination(totalPages) {
+                if(totalPages <= 1) { paginationNav.innerHTML = ''; return; }
+                let html = '<ul class="pagination pagination-sm mb-0 shadow-sm">';
+                html += `<li class="page-item ${currentPage === 1 ? 'disabled' : ''}"><a class="page-link" href="#" onclick="changePage(${currentPage - 1}, event)">&laquo;</a></li>`;
+                for(let i=1; i<=totalPages; i++) {
+                    html += `<li class="page-item ${i === currentPage ? 'active' : ''}"><a class="page-link" href="#" onclick="changePage(${i}, event)">${i}</a></li>`;
+                }
+                html += `<li class="page-item ${currentPage === totalPages ? 'disabled' : ''}"><a class="page-link" href="#" onclick="changePage(${currentPage + 1}, event)">&raquo;</a></li>`;
+                html += '</ul>';
+                paginationNav.innerHTML = html;
+            }
+
+            window.changePage = function(page, event) {
+                event.preventDefault();
+                currentPage = page;
+                updateTable();
+            };
+
+            searchInput.addEventListener('keyup', () => { currentPage = 1; updateTable(); });
+            entriesSelect.addEventListener('change', (e) => { rowsPerPage = parseInt(e.target.value); currentPage = 1; updateTable(); });
+
+            updateTable();
         });
     </script>
 @endsection

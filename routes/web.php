@@ -84,7 +84,31 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/siklus-strategi/{id}', [App\Http\Controllers\CycleStrategyController::class, 'destroy'])->name('strategy.destroy');
     Route::get('/siklus-strategi/export', [App\Http\Controllers\CycleStrategyController::class, 'export'])->name('strategy.export');
 
-    }
+    // Modul Siklus Pendampingan (Khusus Pengawas)
+    Route::get('/siklus-pendampingan', [App\Http\Controllers\MentoringCycleController::class, 'index'])->name('mentoring.index');
+    Route::post('/siklus-pendampingan', [App\Http\Controllers\MentoringCycleController::class, 'store'])->name('mentoring.store');
+    Route::put('/siklus-pendampingan/{id}', [App\Http\Controllers\MentoringCycleController::class, 'update'])->name('mentoring.update');
+    Route::delete('/siklus-pendampingan/{id}', [App\Http\Controllers\MentoringCycleController::class, 'destroy'])->name('mentoring.destroy');
+    Route::get('/siklus-pendampingan/export', [App\Http\Controllers\MentoringCycleController::class, 'export'])->name('mentoring.export');
+
+        // Rute Prestasi Khusus ADMIN SEKOLAH
+    Route::get('/prestasi', [App\Http\Controllers\AchievementController::class, 'indexAdmin'])->name('achievement.admin');
+    Route::post('/prestasi', [App\Http\Controllers\AchievementController::class, 'store'])->name('achievement.store');
+    Route::put('/prestasi/{id}', [App\Http\Controllers\AchievementController::class, 'update'])->name('achievement.update');
+    Route::delete('/prestasi/{id}', [App\Http\Controllers\AchievementController::class, 'destroy'])->name('achievement.destroy');
+    Route::get('/prestasi/export', [App\Http\Controllers\AchievementController::class, 'exportAdmin'])->name('achievement.export');
+
+
+    // Rute Rekap Prestasi Khusus PENGAWAS
+    Route::get('/rekap-prestasi', [App\Http\Controllers\AchievementController::class, 'indexPengawas'])->name('achievement.pengawas');
+    // 2. Rute Khusus Pengawas
+    Route::get('/rekap-prestasi', [App\Http\Controllers\AchievementController::class, 'indexPengawas'])->name('achievement.pengawas');
+    // Tambahkan rute export ini:
+    Route::get('/rekap-prestasi/export', [App\Http\Controllers\AchievementController::class, 'exportPengawas'])->name('achievement.export.pengawas');
+        
+    Route::put('/schools/{id}/update-drive', [App\Http\Controllers\SchoolController::class, 'updateDriveLink'])->name('schools.updateDrive');
+
+}
 );
 
 // Memuat route bawaan otentikasi Laravel (Login, Register, Logout)

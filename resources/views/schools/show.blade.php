@@ -102,6 +102,11 @@
                             @if($school->rkas_link) <a href="{{ $school->rkas_link }}" target="_blank" class="badge bg-success text-decoration-none small">Lihat Berkas</a>
                             @else <span class="badge bg-danger">Kosong</span> @endif
                         </li>
+                        <li class="list-group-item px-0 d-flex justify-content-between align-items-center border-bottom-0">
+                            <span class="small fw-medium">10. CONTACT </span>
+                            @if($school->contact_link) <a href="{{ $school->contact_link }}" target="_blank" class="badge bg-success text-decoration-none small">Lihat Berkas</a>
+                            @else <span class="badge bg-danger">Kosong</span> @endif
+                        </li>
                     </ul>
                 </div>
             </div>
@@ -375,7 +380,7 @@
             <div class="card border-0 shadow-sm rounded-4 mb-4">
                 <div class="card-header bg-white border-bottom-0 pt-4 pb-0 px-4 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
                     <div class="d-flex align-items-center gap-3">
-                        <h5 class="font-headline fw-bold mb-0">3. Laporan Wakasek</h5>
+                        <h5 class="font-headline fw-bold mb-0">3. Laporan Kegiatan</h5>
                         @if(auth()->user()->role !== 'pengawas' || (auth()->user()->role === 'admin_sekolah' && auth()->user()->school_id == $school->id))
                             <button type="button" class="btn btn-sm btn-primary fw-bold" data-bs-toggle="modal" data-bs-target="#modalLaporan">
                                 + Tambah Laporan
@@ -553,6 +558,15 @@
                             <div class="col-md-6">
                                 <label class="form-label small fw-bold text-primary">9. Link RKAS</label>
                                 <input type="url" name="rkas_link" class="form-control form-control-sm border-primary" value="{{ $school->rkas_link }}" placeholder="https://...">
+                            </div>
+                            <div class="col-md-12 mt-3">
+                                <label class="form-label small fw-bold text-primary">10. Contact Sekolah (WA/Linktree)</label>
+                                <div class="input-group input-group-sm shadow-sm">
+                                    <span class="input-group-text bg-white border-primary border-end-0">
+                                        <span class="material-symbols-outlined fs-6 text-primary">contact_support</span>
+                                    </span>
+                                    <input type="url" name="contact_link" class="form-control border-primary border-start-0 ps-0" value="{{ $school->contact_link }}" placeholder="Contoh: https://wa.me/628123456789">
+                                </div>
                             </div>
                         </div>
                     </div>
