@@ -152,17 +152,18 @@
                             </div>
                             <div>
                                 <div class="font-headline text-3xl font-extrabold tracking-tight">SILAWAS</div>
-                                <div class="tiny-label text-white/70">School Supervision System</div>
+                                <div class="tiny-label text-white/70">Sistem Layanan Pengawasan</div>
+                                <div class="tiny-label text-white/70">dan Pendampingan Sekolah</div>
                             </div>
                         </div>
 
                         <div class="max-w-lg">
                             <div class="tiny-label mb-4 text-white/65">Login Portal</div>
-                            <h1 class="font-headline text-4xl font-extrabold leading-tight">
-                                Ruang masuk yang rapi untuk mengelola supervisi sekolah.
+                            <h1 class="font-headline text-3xl font-extrabold leading-tight">
+                                Layanan administrasi komprehensif yang memberikan rekomendasi pengawasan dan pendampingan satuan pendidikan.
                             </h1>
                             <p class="mt-5 text-sm leading-7 text-white/75">
-                                Akses dashboard, jurnal kepsek, KBM, dan administrasi sekolah melalui satu pintu yang lebih tenang, bersih, dan profesional.
+                                Akses dashboard, jurnal kepsek, KBM, dan administrasi sekolah melalui satu pintu yang holistik, komprehensif dan profesional.
                             </p>
                         </div>
                     </div>
@@ -174,11 +175,11 @@
                         </div>
                         <div class="rounded-2xl border border-white/10 bg-white/10 p-4 backdrop-blur">
                             <div class="tiny-label text-white/60">Jurnal</div>
-                            <div class="mt-2 text-sm font-semibold text-white">Catatan harian lebih cepat</div>
+                            <div class="mt-2 text-sm font-semibold text-white">Catatan harian yang aktual</div>
                         </div>
                         <div class="rounded-2xl border border-white/10 bg-white/10 p-4 backdrop-blur">
                             <div class="tiny-label text-white/60">Laporan</div>
-                            <div class="mt-2 text-sm font-semibold text-white">Dokumen tersusun rapi</div>
+                            <div class="mt-2 text-sm font-semibold text-white">Proyeksi aktivitas sekolah</div>
                         </div>
                     </div>
                 </section>
