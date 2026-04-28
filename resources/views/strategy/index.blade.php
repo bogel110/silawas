@@ -52,11 +52,16 @@
                     </span>
                 </div>
             </div>
+            <div class="d-flex flex-wrap gap-2 align-items-center">
+            <a href="{{ route('strategy.export') }}" class="btn btn-success btn-sm fw-bold d-flex align-items-center gap-1 shadow-sm">
+                        <span class="material-symbols-outlined fs-6">download</span> Download File
+            </a>
             <button type="button" class="btn btn-primary fw-bold shadow-sm px-4 py-2" data-bs-toggle="modal" data-bs-target="#modalStrategi">
                 <span class="d-flex align-items-center gap-2">
-                    <span class="material-symbols-outlined fs-5">add_circle</span> Input Strategi Baru
+                    <span class="material-symbols-outlined fs-5">add_circle</span> Input Strategi
                 </span>
             </button>
+            </div>
         </div>
 
         {{-- PANEL REKAPITULASI (Tetap dipertahankan) --}}
@@ -116,9 +121,6 @@
                         <span class="input-group-text bg-white border-end-0"><span class="material-symbols-outlined fs-6 text-muted">search</span></span>
                         <input type="text" id="searchStrategy" class="form-control border-start-0 ps-0" placeholder="Cari strategi...">
                     </div>
-                    <a href="{{ route('strategy.export') }}" class="btn btn-success btn-sm fw-bold d-flex align-items-center gap-1 shadow-sm">
-                        <span class="material-symbols-outlined fs-6">download</span> Excel
-                    </a>
                 </div>
             </div>
 
@@ -254,45 +256,82 @@
         </div>
     @endif
 
+    {{-- ========================================================================= --}}
+    {{-- SCRIPT: CHOICES.JS (Mobile-First, Pencarian Akurat & Blok Biru) --}}
+    {{-- ========================================================================= --}}
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
     <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
     
     <style>
-        /* Membesarkan ukuran dropdown Choices.js agar nyaman di HP/Tablet */
-        .choices { font-size: 1rem; }
+        /* 1. Pengaturan Dasar */
+        .choices { 
+            font-size: 1rem; 
+            margin-bottom: 0;
+        }
+
         .choices__inner {
-            background-color: #fff;
-            border: 1px solid #0d6efd;
-            border-radius: 0.5rem;
-            padding: 0.5rem 1rem;
-            min-height: calc(2.5em + 0.75rem + 2px);
-            box-shadow: 0 .125rem .25rem rgba(0,0,0,.075);
+            background-color: #fff !important;
+            border: 1px solid #0d6efd !important;
+            border-radius: 0.5rem !important;
+            padding: 0.5rem 1rem !important;
+            min-height: 50px !important;
             display: flex;
             align-items: center;
+            box-shadow: 0 .125rem .25rem rgba(0,0,0,.075);
         }
+
+        /* 2. Kotak Pencarian agar Panjang & Jelas */
         .choices[data-type*="select-one"] .choices__input {
-            border: 1px solid #dee2e6; /* Ubah jadi border penuh agar lebih jelas bentuk kotaknya */
-            margin-bottom: 8px;
-            padding: 0.6rem;
-            font-size: 1rem;
-            background-color: #f8f9fa;
-            border-radius: 0.375rem;
-            
-            /* TAMBAHAN AGAR KOTAK PENCARIAN MAKSIMAL PANJANGNYA */
             width: 100% !important;
             max-width: 100% !important;
-            box-sizing: border-box;
+            background-color: #f8f9fa !important;
+            border: 1px solid #dee2e6 !important;
+            border-radius: 0.375rem !important;
+            padding: 10px !important;
+            margin: 5px 0 10px 0 !important;
+            font-size: 1rem !important;
         }
-        .choices__list--dropdown .choices__list { max-height: 350px; }
+
+        /* 3. Daftar Dropdown (Sangat penting untuk HP) */
+        .choices__list--dropdown {
+            border-radius: 0.5rem !important;
+            box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15) !important;
+            z-index: 1000 !important;
+        }
+
         .choices__list--dropdown .choices__item {
-            padding: 12px 16px;
-            font-size: 1rem;
-            border-bottom: 1px solid #f8f9fa;
+            padding: 15px 20px !important;
+            font-size: 1rem !important;
+            border-bottom: 1px solid #f1f3f5;
         }
+
+        /* 4. Efek Blok Biru Solid saat dipilih */
         .choices__list--dropdown .choices__item--selectable.is-highlighted {
-            background-color: #0d6efd !important; /* Tambahkan !important di sini */
-            color: #ffffff !important;            /* Tambahkan !important di sini */
-            font-weight: 600 !important;
+            background-color: #0d6efd !important;
+            color: #ffffff !important;
+            font-weight: 600;
+        }
+
+        /* 5. KHUSUS TAMPILAN HP (Layar di bawah 768px) */
+        @media (max-width: 768px) {
+            .choices__list--dropdown {
+                position: fixed !important;
+                top: 20% !important;
+                left: 5% !important;
+                right: 5% !important;
+                width: 90% !important;
+                max-height: 60vh !important;
+                border: 1px solid #dee2e6 !important;
+            }
+            
+            /* Menghitamkan latar belakang saat dropdown terbuka agar lebih fokus */
+            .choices.is-open::after {
+                content: "";
+                position: fixed;
+                top: 0; left: 0; right: 0; bottom: 0;
+                background: rgba(0,0,0,0.2);
+                z-index: 999;
+            }
         }
     </style>
 
@@ -302,15 +341,17 @@
             const schoolSelect = document.getElementById('schoolSelect');
             if (schoolSelect) {
                 new Choices(schoolSelect, { 
-                    searchEnabled: true,
-                    searchPlaceholderValue: 'Ketik nama sekolah...',
-                    itemSelectText: 'Klik untuk memilih',
+                    searchEnabled: true, // FITUR CARI TETAP AKTIF DI HP
+                    searchPlaceholderValue: 'Ketik nama sekolah yang dicari...',
+                    itemSelectText: '',
                     noResultsText: 'Sekolah tidak ditemukan',
                     noChoicesText: 'Tidak ada pilihan tersisa',
                     shouldSort: false,
-                    searchFuzzy: false,        // Pencarian spesifik
-                    searchFields: ['label'],   // Abaikan ID saat mencari
-                    searchResultLimit: 15
+                    searchFuzzy: false,       // Mematikan pencarian samar agar akurat
+                    searchFields: ['label'],  // Hanya cari berdasarkan nama sekolah
+                    searchResultLimit: 15,
+                    placeholder: true,
+                    placeholderValue: '-- Ketik atau Pilih Nama Sekolah --'
                 });
             }
 

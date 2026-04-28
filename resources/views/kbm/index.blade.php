@@ -22,7 +22,8 @@
                 <form action="{{ route('kbm.index') }}" method="GET" class="d-flex flex-column flex-md-row align-items-md-end gap-3">
                     <div class="flex-grow-1">
                         <label class="form-label small fw-bold text-primary">Pilih Sekolah Binaan</label>
-                        <select name="school_id" class="form-select border-primary shadow-sm" required>
+                        {{-- PERBAIKAN: Menambahkan id="schoolSelect" --}}
+                        <select name="school_id" id="schoolSelect" class="form-select border-primary shadow-sm" required>
                             <option value="">-- Silakan Pilih Sekolah Terlebih Dahulu --</option>
                             @foreach($schools as $s)
                                 <option value="{{ $s->id }}" {{ request('school_id') == $s->id ? 'selected' : '' }}>
@@ -31,7 +32,7 @@
                             @endforeach
                         </select>
                     </div>
-                    <button type="submit" class="btn btn-primary fw-bold px-4 shadow-sm">
+                    <button type="submit" class="btn btn-primary fw-bold px-4 shadow-sm" style="min-height: 50px;">
                         <span class="d-flex align-items-center gap-1">
                             <span class="material-symbols-outlined fs-6">search</span> Tampilkan Data
                         </span>
@@ -44,45 +45,6 @@
     {{-- TAMPILAN DATA & REKAP KBM (Muncul Jika Admin Login ATAU Pengawas Sudah Memilih Sekolah) --}}
     @if($selectedSchool)
         
-        {{-- ==========================================
-        {{-- PANEL REKAPITULASI DOKUMEN KBM --}}
-        {{-- ========================================== --}}
-        {{-- @php
-            $totalKbm = $kbms->count();
-            $intraCount = $kbms->filter(function($kbm) { return !empty($kbm->intra_link); })->count();
-            $koCount = $kbms->filter(function($kbm) { return !empty($kbm->ko_link); })->count();
-            $extraCount = $kbms->filter(function($kbm) { return !empty($kbm->extra_link); })->count();
-        @endphp
-        
-        @if($totalKbm > 0)
-            <div class="row g-3 mb-4">
-                <div class="col-6 col-md-3">
-                    <div class="card border-0 shadow-sm rounded-4 p-3 bg-white border-bottom border-4 border-dark">
-                        <small class="text-muted fw-bold text-uppercase" style="font-size: 0.65rem;">Total Tahun Ajaran</small>
-                        <h4 class="fw-bold mb-0 text-dark">{{ $totalKbm }} Data</h4>
-                    </div>
-                </div>
-                <div class="col-6 col-md-3">
-                    <div class="card border-0 shadow-sm rounded-4 p-3 bg-white border-bottom border-4 border-primary">
-                        <small class="text-muted fw-bold text-uppercase" style="font-size: 0.65rem;">Intrakurikuler Terisi</small>
-                        <h4 class="fw-bold mb-0 text-primary">{{ $intraCount }} / {{ $totalKbm }}</h4>
-                    </div>
-                </div>
-                <div class="col-6 col-md-3">
-                    <div class="card border-0 shadow-sm rounded-4 p-3 bg-white border-bottom border-4 border-success">
-                        <small class="text-muted fw-bold text-uppercase" style="font-size: 0.65rem;">Kokurikuler Terisi</small>
-                        <h4 class="fw-bold mb-0 text-success">{{ $koCount }} / {{ $totalKbm }}</h4>
-                    </div>
-                </div>
-                <div class="col-6 col-md-3">
-                    <div class="card border-0 shadow-sm rounded-4 p-3 bg-white border-bottom border-4 border-info">
-                        <small class="text-muted fw-bold text-uppercase" style="font-size: 0.65rem;">Ekstrakurikuler Terisi</small>
-                        <h4 class="fw-bold mb-0 text-info">{{ $extraCount }} / {{ $totalKbm }}</h4>
-                    </div>
-                </div>
-            </div>
-        @endif --}}
-
         {{-- TABEL DATA KBM --}}
         <div class="card border-0 shadow-sm rounded-4 mb-4">
             <div class="card-header bg-white border-bottom-0 pt-4 pb-0 px-4 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
@@ -411,6 +373,105 @@
             });
 
             renderTable();
+        });
+    </script>
+
+    {{-- ========================================================================= --}}
+    {{-- SCRIPT: CHOICES.JS (Mobile-First, Pencarian Akurat & Blok Biru) --}}
+    {{-- ========================================================================= --}}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+    
+    <style>
+        /* 1. Pengaturan Dasar */
+        .choices { 
+            font-size: 1rem; 
+            margin-bottom: 0;
+        }
+
+        .choices__inner {
+            background-color: #fff !important;
+            border: 1px solid #0d6efd !important;
+            border-radius: 0.5rem !important;
+            padding: 0.5rem 1rem !important;
+            min-height: 50px !important;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 .125rem .25rem rgba(0,0,0,.075);
+        }
+
+        /* 2. Kotak Pencarian agar Panjang & Jelas */
+        .choices[data-type*="select-one"] .choices__input {
+            width: 100% !important;
+            max-width: 100% !important;
+            background-color: #f8f9fa !important;
+            border: 1px solid #dee2e6 !important;
+            border-radius: 0.375rem !important;
+            padding: 10px !important;
+            margin: 5px 0 10px 0 !important;
+            font-size: 1rem !important;
+        }
+
+        /* 3. Daftar Dropdown (Sangat penting untuk HP) */
+        .choices__list--dropdown {
+            border-radius: 0.5rem !important;
+            box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15) !important;
+            z-index: 1000 !important;
+        }
+
+        .choices__list--dropdown .choices__item {
+            padding: 15px 20px !important;
+            font-size: 1rem !important;
+            border-bottom: 1px solid #f1f3f5;
+        }
+
+        /* 4. Efek Blok Biru Solid saat dipilih */
+        .choices__list--dropdown .choices__item--selectable.is-highlighted {
+            background-color: #0d6efd !important;
+            color: #ffffff !important;
+            font-weight: 600;
+        }
+
+        /* 5. KHUSUS TAMPILAN HP (Layar di bawah 768px) */
+        @media (max-width: 768px) {
+            .choices__list--dropdown {
+                position: fixed !important;
+                top: 20% !important;
+                left: 5% !important;
+                right: 5% !important;
+                width: 90% !important;
+                max-height: 60vh !important;
+                border: 1px solid #dee2e6 !important;
+            }
+            
+            .choices.is-open::after {
+                content: "";
+                position: fixed;
+                top: 0; left: 0; right: 0; bottom: 0;
+                background: rgba(0,0,0,0.2);
+                z-index: 999;
+            }
+        }
+    </style>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const schoolSelect = document.getElementById('schoolSelect');
+            if (schoolSelect) {
+                new Choices(schoolSelect, {
+                    searchEnabled: true,
+                    searchPlaceholderValue: 'Ketik nama sekolah...',
+                    itemSelectText: '',
+                    noResultsText: 'Sekolah tidak ditemukan',
+                    noChoicesText: 'Tidak ada pilihan',
+                    shouldSort: false,
+                    searchFuzzy: false,
+                    searchFields: ['label'],
+                    searchResultLimit: 15,
+                    placeholder: true,
+                    placeholderValue: '-- Silakan Pilih Sekolah Terlebih Dahulu --'
+                });
+            }
         });
     </script>
 @endsection

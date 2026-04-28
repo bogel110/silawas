@@ -15,15 +15,15 @@ class UserController extends Controller
             abort(403, 'Akses Ditolak. Halaman ini khusus Pengawas.');
         }
 
-        // UBAHAN: Hapus filter 'admin_sekolah' agar akun Pengawas juga tampil di tabel
         $users = User::latest()->get();
+        // BARU: Ambil data sekolah untuk ditampilkan di dropdown modal edit
+        $schools = \App\Models\School::orderBy('name', 'asc')->get(); 
         
-        return view('admin.users.index', compact('users'));
+        return view('admin.users.index', compact('users', 'schools'));
     }
 
     public function store(Request $request)
     {
-        // 1. Validasi Akun Dasar (Berlaku untuk SEMUA tipe user)
         $request->validate([
             'name'      => 'required|string|max:255',
             'email'     => 'required|email|unique:users,email',
@@ -31,9 +31,8 @@ class UserController extends Controller
             'role'      => 'required|string',
         ]);
 
-        $school_id = null; // Default null untuk pengawas
+        $school_id = null;
 
-        // 2. Validasi & Simpan Data Sekolah (HANYA JIKA BUKAN PENGAWAS)
         if ($request->role !== 'pengawas') {
             $request->validate([
                 'school_name'   => 'required|string|max:255',
@@ -41,7 +40,6 @@ class UserController extends Controller
                 'school_status' => 'required|string',
             ]);
 
-            // Simpan ke Database Schools (Mencegah duplikat jika nama sekolah sama)
             $school = \App\Models\School::firstOrCreate(
                 ['name' => $request->school_name],
                 [
@@ -49,26 +47,53 @@ class UserController extends Controller
                     'status' => $request->school_status
                 ]
             );
-            
-            // Ambil ID sekolah yang baru dibuat/ditemukan
             $school_id = $school->id;
         }
 
-        // 3. Simpan ke Database Users
         \App\Models\User::create([
             'name'      => $request->name,
             'email'     => $request->email,
             'password'  => Hash::make($request->password),
             'role'      => $request->role,
-            'school_id' => $school_id, // Berisi angka untuk admin sekolah, berisi NULL untuk pengawas
+            'school_id' => $school_id,
         ]);
 
-        // Pesan sukses dinamis
         $pesan = $request->role === 'pengawas' 
                  ? 'Akun Pengawas berhasil ditambahkan!' 
                  : 'Akun Admin dan data Sekolah berhasil ditambahkan!';
 
         return redirect()->back()->with('success', $pesan);
+    }
+
+    // ==========================================
+    // FUNGSI BARU: UPDATE DATA USER
+    // ==========================================
+    public function update(Request $request, $id)
+    {
+        if (auth()->user()->role !== 'pengawas') abort(403);
+
+        $user = User::findOrFail($id);
+
+        $request->validate([
+            'name'  => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,' . $id, // Abaikan email milik dia sendiri
+            'role'  => 'required|string',
+        ]);
+
+        $user->name = $request->name;
+        $user->email = $request->email;
+        $user->role = $request->role;
+
+        // Atur ID Sekolah berdasarkan Role
+        if ($request->role === 'pengawas') {
+            $user->school_id = null; // Pengawas tidak terikat 1 sekolah
+        } else {
+            $user->school_id = $request->school_id;
+        }
+
+        $user->save();
+
+        return redirect()->back()->with('success', 'Data pengguna berhasil diperbarui!');
     }
 
     public function destroy($id)
@@ -81,17 +106,12 @@ class UserController extends Controller
     
     public function resetPassword(Request $request, $id)
     {
-        // Pastikan hanya pengawas yang bisa akses
-        if (auth()->user()->role !== 'pengawas') {
-            abort(403);
-        }
+        if (auth()->user()->role !== 'pengawas') abort(403);
 
-        // Validasi password baru
         $request->validate([
             'password' => 'required|string|min:8',
         ]);
 
-        // Cari user dan perbarui passwordnya
         $user = User::findOrFail($id);
         $user->update([
             'password' => Hash::make($request->password)

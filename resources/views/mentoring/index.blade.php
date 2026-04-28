@@ -8,78 +8,95 @@
         <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
         
         <style>
-                /* Menyesuaikan gaya Choices.js agar serasi dengan tema Bootstrap dan LEBIH BESAR */
+            /* 1. Pengaturan Dasar (Berlaku di semua perangkat) */
+            .choices { 
+                font-size: 1rem; 
+                margin-bottom: 0;
+            }
+
+            .choices__inner {
+                background-color: #fff !important;
+                border: 1px solid #0d6efd !important;
+                border-radius: 0.5rem !important;
+                padding: 0.5rem 1rem !important;
+                min-height: 50px !important;
+                display: flex;
+                align-items: center;
+                box-shadow: 0 .125rem .25rem rgba(0,0,0,.075);
+            }
+
+            /* 2. Kotak Pencarian agar Panjang & Jelas */
+            .choices[data-type*="select-one"] .choices__input {
+                width: 100% !important;
+                max-width: 100% !important;
+                background-color: #f8f9fa !important;
+                border: 1px solid #dee2e6 !important;
+                border-radius: 0.375rem !important;
+                padding: 10px !important;
+                margin: 5px 0 10px 0 !important;
+                font-size: 1rem !important;
+            }
+
+            /* 3. Daftar Dropdown (Sangat penting untuk HP) */
+            .choices__list--dropdown {
+                border-radius: 0.5rem !important;
+                box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15) !important;
+                z-index: 1000 !important;
+            }
+
+            .choices__list--dropdown .choices__item {
+                padding: 15px 20px !important; /* Area klik lebih luas untuk jari */
+                font-size: 1rem !important;
+                border-bottom: 1px solid #f1f3f5;
+            }
+
+            /* 4. Efek Blok Biru Solid (Sesuai keinginan Anda) */
+            .choices__list--dropdown .choices__item--selectable.is-highlighted {
+                background-color: #0d6efd !important;
+                color: #ffffff !important;
+                font-weight: 600;
+            }
+
+            /* 5. KHUSUS TAMPILAN HP (Layar di bawah 768px) */
+            @media (max-width: 768px) {
+                .choices__list--dropdown {
+                    position: fixed !important; /* Terlihat seperti 'popup' modal */
+                    top: 20% !important;
+                    left: 5% !important;
+                    right: 5% !important;
+                    width: 90% !important;
+                    max-height: 60vh !important;
+                    border: 1px solid #dee2e6 !important;
+                }
                 
-                /* 1. Membesarkan ukuran teks dasar */
-                .choices {
-                    font-size: 1rem; 
+                /* Menghitamkan latar belakang saat dropdown terbuka (opsional) */
+                .choices.is-open::after {
+                    content: "";
+                    position: fixed;
+                    top: 0; left: 0; right: 0; bottom: 0;
+                    background: rgba(0,0,0,0.2);
+                    z-index: 999;
                 }
-
-                /* 2. Membesarkan kotak utama (yang tampil sebelum diklik) */
-                .choices__inner {
-                    background-color: #fff;
-                    border: 1px solid #0d6efd; /* border-primary */
-                    border-radius: 0.5rem; /* Dibuat sedikit lebih membulat */
-                    padding: 0.5rem 1rem; /* Padding diperbesar agar kotak lebih tinggi */
-                    min-height: calc(2.5em + 0.75rem + 2px); 
-                    box-shadow: 0 .125rem .25rem rgba(0,0,0,.075);
-                    display: flex;
-                    align-items: center;
-                }
-
-                /* 3. Membesarkan kotak input tempat mengetik pencarian */
-                .choices[data-type*="select-one"] .choices__input {
-                    border-bottom: 1px solid #dee2e6;
-                    margin-bottom: 8px;
-                    padding: 0.5rem; 
-                    font-size: 1rem; 
-                    background-color: #f8f9fa; /* Memberi warna latar sedikit abu agar jelas */
-                    border-radius: 0.25rem;
-
-                    width: 100% !important;
-                    max-width: 100% !important;
-                    box-sizing: border-box;
-                }
-
-                /* 4. Memperpanjang daftar *dropdown* ke bawah */
-                .choices__list--dropdown .choices__list {
-                    max-height: 350px; /* Daftar sekolah yang tampil ke bawah lebih banyak */
-                }
-
-                /* 5. Membesarkan area klik untuk masing-masing nama sekolah */
-                .choices__list--dropdown .choices__item {
-                    padding: 12px 16px; /* Jarak diperbesar agar sangat nyaman diklik di HP/Tablet */
-                    font-size: 1rem;
-                    border-bottom: 1px solid #f8f9fa; /* Garis pemisah tipis antar sekolah */
-                }
-
-                /* 6. Warna saat sekolah disorot/di-hover */
-                .choices__list--dropdown .choices__item--selectable.is-highlighted {
-                    background-color: #0d6efd !important; /* Tambahkan !important di sini */
-                    color: #ffffff !important;            /* Tambahkan !important di sini */
-                    font-weight: 600 !important;
-                }
-            </style>
+            }
+        </style>
 
         <script>
             document.addEventListener('DOMContentLoaded', function() {
-                // Inisialisasi Fitur Pencarian pada Dropdown Pilih Sekolah
                 const schoolSelect = document.getElementById('schoolSelect');
+                
                 if (schoolSelect) {
                     new Choices(schoolSelect, {
-                        searchEnabled: true,
-                        searchPlaceholderValue: 'Ketik nama sekolah yang spesifik...',
-                        itemSelectText: 'Klik untuk memilih',
+                        searchEnabled: true, // FITUR CARI TETAP ADA
+                        searchPlaceholderValue: 'Ketik nama sekolah...',
+                        itemSelectText: '',
                         noResultsText: 'Sekolah tidak ditemukan',
-                        noChoicesText: 'Tidak ada pilihan tersisa',
-                        shouldSort: false, // Biarkan urutan sesuai alfabet dari Controller
-                        
-                        // ==========================================
-                        // TAMBAHAN AGAR PENCARIAN SANGAT SPESIFIK
-                        // ==========================================
-                        searchFuzzy: false,        // Mematikan pencarian samar (fuzzy) agar lebih presisi
-                        searchFields: ['label'],   // HANYA mencari berdasarkan nama teks, mengabaikan ID (value)
-                        searchResultLimit: 15,     // Menampilkan hingga 15 hasil pencarian (bawaan pabrik kadang dibatasi hanya 4)
+                        noChoicesText: 'Tidak ada pilihan',
+                        shouldSort: false,
+                        searchFuzzy: false,       // Pencarian harus akurat
+                        searchFields: ['label'],  // Hanya cari berdasarkan teks
+                        searchResultLimit: 10,
+                        placeholder: true,
+                        placeholderValue: '-- Ketik atau Pilih Nama Sekolah --'
                     });
                 }
             });
@@ -120,6 +137,33 @@
     {{-- MUNCULKAN REKAP & TABEL HANYA JIKA SEKOLAH SUDAH DIPILIH --}}
     @if($selectedSchool)
         
+    {{-- TABEL DATA --}}
+        <div class="card border-0 shadow-sm rounded-4 mb-4">
+            <div class="card-header bg-white border-bottom-0 pt-4 pb-0 px-4 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+                <div>
+                    <h5 class="font-headline fw-bold mb-1">Riwayat: <span class="text-primary">{{ $selectedSchool->name }}</span></h5>
+                    @php
+                        $skor = $selectedSchool->skor_performa ?? 0;
+                        $badgeColor = $skor >= 75 ? 'success' : ($skor >= 40 ? 'warning' : 'danger');
+                    @endphp
+                    <span class="badge bg-{{ $badgeColor }} bg-opacity-10 text-{{ $badgeColor }} border border-{{ $badgeColor }} rounded-pill px-3">
+                        Skor Performa: {{ $skor }}%
+                    </span>
+                </div>
+                <div class="d-flex flex-wrap gap-2 align-items-center">
+                    {{-- Tombol Export --}}
+                    <a href="{{ route('mentoring.export', ['school_id' => $selectedSchool->id]) }}" class="btn btn-success btn-sm fw-bold d-flex align-items-center gap-1 shadow-sm">
+                        <span class="material-symbols-outlined fs-6">download</span> Download File
+                    </a>
+                    <button type="button" class="btn btn-primary btn-sm fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#modalSiklus">
+                    <span class="d-flex align-items-center gap-2">    
+                        <span class="material-symbols-outlined fs-5">add_circle</span> Input Siklus
+                    </span>
+                </button>
+                </div>
+            </div>
+        </div>
+
         {{-- PANEL REKAPITULASI --}}
         <div class="row g-3 mb-4">
             <div class="col-6 col-md-3">
@@ -154,30 +198,7 @@
             </div>
         </div>
 
-        {{-- TABEL DATA --}}
-        <div class="card border-0 shadow-sm rounded-4 mb-4">
-            <div class="card-header bg-white border-bottom-0 pt-4 pb-0 px-4 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
-                <div>
-                    <h5 class="font-headline fw-bold mb-1">Riwayat: <span class="text-primary">{{ $selectedSchool->name }}</span></h5>
-                    @php
-                        $skor = $selectedSchool->skor_performa ?? 0;
-                        $badgeColor = $skor >= 75 ? 'success' : ($skor >= 40 ? 'warning' : 'danger');
-                    @endphp
-                    <span class="badge bg-{{ $badgeColor }} bg-opacity-10 text-{{ $badgeColor }} border border-{{ $badgeColor }} rounded-pill px-3">
-                        Skor Performa: {{ $skor }}%
-                    </span>
-                </div>
-                
-                <div class="d-flex flex-wrap gap-2 align-items-center">
-                    {{-- Tombol Export --}}
-                    <a href="{{ route('mentoring.export', ['school_id' => $selectedSchool->id]) }}" class="btn btn-success btn-sm fw-bold d-flex align-items-center gap-1 shadow-sm">
-                        <span class="material-symbols-outlined fs-6">download</span> Download File
-                    </a>
-                    <button type="button" class="btn btn-primary btn-sm fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#modalSiklus">
-                        + Input Baru
-                    </button>
-                </div>
-            </div>
+        
 
             <div class="card-body p-0">
                 <div class="p-4 pt-3 table-responsive">

@@ -35,11 +35,15 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    
 
     // Rute Khusus Pengawas -> Administrator
     Route::prefix('administrator')->name('admin.')->group(function () {
         Route::get('/users', [UserController::class, 'index'])->name('users.index');
         Route::post('/users', [UserController::class, 'store'])->name('users.store');
+        // DUA RUTE BARU UNTUK EDIT & RESET PASSWORD (Wajib ada)
+        Route::put('/users/{id}', [UserController::class, 'update'])->name('users.update');
+        Route::put('/users/{id}/reset-password', [UserController::class, 'resetPassword'])->name('users.reset_password');
         Route::delete('/users/{id}', [UserController::class, 'destroy'])->name('users.destroy');
     });
 
