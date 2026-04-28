@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Achievement;
 use App\Models\School;
+use Carbon\Carbon;
 
 class AchievementController extends Controller
 {
@@ -13,32 +14,26 @@ class AchievementController extends Controller
     // ==========================================
     public function indexAdmin()
     {
-        // Pengecekan Hak Akses Admin (Kebal huruf besar/kecil)
-        if (strtolower(auth()->user()->role) !== 'admin_sekolah') {
-            abort(403, 'Akses Ditolak: Halaman ini khusus untuk Admin Sekolah.');
-        }
-        
+        if (strtolower(auth()->user()->role) !== 'admin_sekolah') abort(403);
         $schoolId = auth()->user()->school_id;
         $achievements = Achievement::where('school_id', $schoolId)->orderBy('tanggal', 'desc')->get();
-        
         return view('achievements.admin', compact('achievements'));
     }
 
     public function store(Request $request)
     {
         $request->validate([
-            'tanggal' => 'required|date',
-            'peringkat' => 'required|string',
-            'tingkat' => 'required|string',
-            'kategori' => 'required|string',
+            'tanggal'      => 'required|date',
+            'peringkat'    => 'required|string',
+            'tingkat'      => 'required|string',
+            'kategori'     => 'required|string',
             'tipe_peserta' => 'required|string',
-            'keterangan' => 'required|string'
+            'nama_peserta' => 'required|string|max:255', 
+            'keterangan'   => 'required|string'
         ]);
 
         $data = $request->all();
-        // Otomatis mengunci inputan data ke sekolah Admin yang sedang login
         $data['school_id'] = auth()->user()->school_id; 
-        
         Achievement::create($data);
 
         return back()->with('success', 'Data Prestasi berhasil ditambahkan!');
@@ -46,6 +41,16 @@ class AchievementController extends Controller
 
     public function update(Request $request, $id)
     {
+        $request->validate([
+            'tanggal'      => 'required|date',
+            'peringkat'    => 'required|string',
+            'tingkat'      => 'required|string',
+            'kategori'     => 'required|string',
+            'tipe_peserta' => 'required|string',
+            'nama_peserta' => 'required|string|max:255', 
+            'keterangan'   => 'required|string'
+        ]);
+
         $achievement = Achievement::findOrFail($id);
         $achievement->update($request->all());
         
@@ -55,15 +60,12 @@ class AchievementController extends Controller
     public function destroy($id)
     {
         Achievement::findOrFail($id)->delete();
-        
         return back()->with('success', 'Data Prestasi berhasil dihapus!');
     }
 
     public function exportAdmin()
     {
-        if (strtolower(auth()->user()->role) !== 'admin_sekolah') {
-            abort(403, 'Akses Ditolak: Hanya Admin Sekolah yang dapat mengunduh data ini.');
-        }
+        if (strtolower(auth()->user()->role) !== 'admin_sekolah') abort(403);
 
         $schoolId = auth()->user()->school_id;
         $data = Achievement::where('school_id', $schoolId)->latest()->get();
@@ -79,20 +81,18 @@ class AchievementController extends Controller
 
         $callback = function() use($data) {
             $file = fopen('php://output', 'w');
-            // Menambahkan BOM agar file CSV dibaca dengan rapi (UTF-8) di Microsoft Excel
             fputs($file, $bom =(chr(0xEF) . chr(0xBB) . chr(0xBF))); 
             
-            // Baris Judul Kolom
-            fputcsv($file, ['Tanggal', 'Peringkat', 'Tingkat', 'Kategori', 'Peserta', 'Keterangan Lomba'], ';');
+            fputcsv($file, ['Tanggal', 'Peringkat', 'Tingkat', 'Kategori', 'Tipe Peserta', 'Nama Peserta', 'Keterangan Lomba'], ';');
 
-            // Baris Isi Data
             foreach ($data as $row) {
                 fputcsv($file, [
-                    \Carbon\Carbon::parse($row->tanggal)->format('d/m/Y'),
+                    Carbon::parse($row->tanggal)->format('d/m/Y'),
                     $row->peringkat, 
                     $row->tingkat, 
                     $row->kategori, 
                     $row->tipe_peserta, 
+                    $row->nama_peserta, 
                     $row->keterangan
                 ], ';');
             }
@@ -103,11 +103,10 @@ class AchievementController extends Controller
     }
 
     // ==========================================
-    // AREA PENGAWAS (Menampilkan Rekap & Grafik)
+    // AREA PENGAWAS (Menyeluruh & Per Sekolah)
     // ==========================================
     public function indexPengawas(Request $request)
     {
-        // Pengecekan Hak Akses Pengawas (Kebal huruf besar/kecil)
         if (strtolower(auth()->user()->role) !== 'pengawas') {
             abort(403, 'Akses Ditolak: Halaman ini khusus untuk Pengawas Sekolah.');
         }
@@ -116,23 +115,32 @@ class AchievementController extends Controller
         $selectedSchoolId = $request->get('school_id');
         $selectedSchool = $selectedSchoolId ? School::find($selectedSchoolId) : null;
 
-        $achievements = collect();
-        $chartData = [0, 0, 0, 0]; // Urutan: Kota/Kab, Provinsi, Nasional, Internasional
+        // 1. DATA GLOBAL (Untuk Grafik & Kartu Angka di Paling Atas)
+        $allAchievements = Achievement::all();
+        $globalChartData = [
+            $allAchievements->where('tingkat', 'Kota/Kabupaten')->count(),
+            $allAchievements->where('tingkat', 'Provinsi')->count(),
+            $allAchievements->where('tingkat', 'Nasional')->count(),
+            $allAchievements->where('tingkat', 'Internasional')->count(),
+        ];
+        $totalPrestasi = $allAchievements->count();
+        $totalSiswa = $allAchievements->where('tipe_peserta', 'Siswa')->count();
+        $totalGuruTendik = $allAchievements->whereIn('tipe_peserta', ['Guru', 'Tendik'])->count();
 
+        // 2. DATA TABEL (Berdasarkan Pilihan Filter)
         if ($selectedSchool) {
-            $achievements = Achievement::where('school_id', $selectedSchoolId)->orderBy('tanggal', 'desc')->get();
-            
-            // Hitung kalkulasi angka untuk ditampilkan pada Grafik Chart.js
-            $chartData = [
-                $achievements->where('tingkat', 'Kota/Kabupaten')->count(),
-                $achievements->where('tingkat', 'Provinsi')->count(),
-                $achievements->where('tingkat', 'Nasional')->count(),
-                $achievements->where('tingkat', 'Internasional')->count(),
-            ];
+            $achievements = Achievement::with('school')->where('school_id', $selectedSchoolId)->orderBy('tanggal', 'desc')->get();
+        } else {
+            // Jika tidak ada sekolah yang dipilih, tampilkan SEMUA data di tabel
+            $achievements = Achievement::with('school')->orderBy('tanggal', 'desc')->get();
         }
 
-        return view('achievements.pengawas', compact('schools', 'selectedSchool', 'achievements', 'chartData'));
+        return view('achievements.pengawas', compact(
+            'schools', 'selectedSchool', 'achievements',
+            'globalChartData', 'totalPrestasi', 'totalSiswa', 'totalGuruTendik'
+        ));
     }
+
     public function exportPengawas(Request $request)
     {
         if (strtolower(auth()->user()->role) !== 'pengawas') abort(403);
@@ -140,12 +148,12 @@ class AchievementController extends Controller
         $schoolId = $request->get('school_id');
         $query = Achievement::with('school');
 
-        // Jika memilih sekolah tertentu, export khusus sekolah itu. Jika tidak, export semua.
+        // Jika filter sekolah diisi, ambil sekolah tersebut. Jika kosong, export semua.
         if ($schoolId) {
             $query->where('school_id', $schoolId);
             $schoolName = School::find($schoolId)->name;
         } else {
-            $schoolName = "Semua_Sekolah";
+            $schoolName = "Seluruh_Sekolah_Binaan";
         }
 
         $data = $query->orderBy('tanggal', 'desc')->get();
@@ -163,17 +171,17 @@ class AchievementController extends Controller
             $file = fopen('php://output', 'w');
             fputs($file, $bom =(chr(0xEF) . chr(0xBB) . chr(0xBF))); 
             
-            // Perhatikan ada tambahan kolom "Nama Sekolah" untuk pengawas
-            fputcsv($file, ['Tanggal', 'Nama Sekolah', 'Peringkat', 'Tingkat', 'Kategori', 'Peserta', 'Keterangan Lomba'], ';');
+            fputcsv($file, ['Tanggal', 'Nama Sekolah', 'Peringkat', 'Tingkat', 'Kategori', 'Tipe Peserta', 'Nama Peserta', 'Keterangan Lomba'], ';');
 
             foreach ($data as $row) {
                 fputcsv($file, [
-                    \Carbon\Carbon::parse($row->tanggal)->format('d/m/Y'),
+                    Carbon::parse($row->tanggal)->format('d/m/Y'),
                     $row->school->name ?? '-',
                     $row->peringkat, 
                     $row->tingkat, 
                     $row->kategori, 
                     $row->tipe_peserta, 
+                    $row->nama_peserta,
                     $row->keterangan
                 ], ';');
             }

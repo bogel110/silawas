@@ -150,12 +150,12 @@
                                 </div>
                             </td>
                             <td class="text-center">
-                                <div class="fw-bold text-primary">{{ number_format($school->score, 1) }}</div>
+                                <div class="fw-bold text-primary">{{ number_format($school->skor_performa, 1) }}</div>
                                 <div class="text-soft" style="font-size: 0.75rem;">dari 100</div>
                             </td>
                             <td class="text-center">
                                 <span class="badge rounded-pill bg-{{ $school->status_color }}-subtle text-{{ $school->status_color }}">
-                                    {{ $school->status_text }}
+                                    {{ $school->status_label }}
                                 </span>
                             </td>
                             <td class="text-center pe-4">

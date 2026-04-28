@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Models\School;
 use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
@@ -16,8 +17,7 @@ class UserController extends Controller
         }
 
         $users = User::latest()->get();
-        // BARU: Ambil data sekolah untuk ditampilkan di dropdown modal edit
-        $schools = \App\Models\School::orderBy('name', 'asc')->get(); 
+        $schools = School::orderBy('name', 'asc')->get(); 
         
         return view('admin.users.index', compact('users', 'schools'));
     }
@@ -40,7 +40,7 @@ class UserController extends Controller
                 'school_status' => 'required|string',
             ]);
 
-            $school = \App\Models\School::firstOrCreate(
+            $school = School::firstOrCreate(
                 ['name' => $request->school_name],
                 [
                     'level' => $request->school_level,
@@ -50,7 +50,7 @@ class UserController extends Controller
             $school_id = $school->id;
         }
 
-        \App\Models\User::create([
+        User::create([
             'name'      => $request->name,
             'email'     => $request->email,
             'password'  => Hash::make($request->password),

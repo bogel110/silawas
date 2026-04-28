@@ -30,26 +30,62 @@ class School extends Model
     }
     public function kbmReports()
     {
-        // hasMany berarti "Satu sekolah memiliki BANYAK laporan KBM"
-        // orderBy digunakan agar tahun pelajaran terbaru selalu muncul di atas
         return $this->hasMany(KbmReport::class)->orderBy('tahun_pelajaran', 'desc');
     }
+
+    /**
+     * Menghitung skor performa sekolah berdasarkan kelengkapan 10 link dokumen utama.
+     */
     public function getSkorPerformaAttribute()
     {
-        $filledLinks = 0;
-        
-        // Cek 9 kolom dokumen, jika ada isinya maka poin bertambah
-        if (!empty($this->ijop_link)) $filledLinks++;
-        if (!empty($this->ksp_link)) $filledLinks++;
-        if (!empty($this->akreditasi_link)) $filledLinks++;
-        if (!empty($this->gtk_link)) $filledLinks++;
-        if (!empty($this->pd_link)) $filledLinks++;
-        if (!empty($this->sarpras_link)) $filledLinks++;
-        if (!empty($this->rapor_link)) $filledLinks++;
-        if (!empty($this->rkt_link)) $filledLinks++;
-        if (!empty($this->rkas_link)) $filledLinks++;
+        $links = [
+            'ijop_link', 'ksp_link', 'akreditasi_link', 'gtk_link', 'pd_link',
+            'sarpras_link', 'rapor_link', 'rkt_link', 'rkas_link', 'contact_link'
+        ];
 
-        // Hitung persentase dan bulatkan angkanya (0 - 100)
-        return round(($filledLinks / 9) * 100, 2);
+        $filledLinks = 0;
+        foreach ($links as $link) {
+            if (!empty($this->$link)) {
+                $filledLinks++;
+            }
+        }
+
+        return round(($filledLinks / count($links)) * 100, 2);
+    }
+
+    /**
+     * Mendapatkan label status berdasarkan skor performa.
+     */
+    public function getStatusLabelAttribute()
+    {
+        $score = $this->skor_performa;
+
+        if ($score >= 85) {
+            return 'Berkas Lengkap';
+        } elseif ($score >= 60) {
+            return 'Beberapa Berkas Tidak Lengkap';
+        } elseif ($score > 0) {
+            return 'Berkas Kurang Lengkap';
+        } else {
+            return 'Tidak Mengisi';
+        }
+    }
+
+    /**
+     * Mendapatkan warna status (Bootstrap/Tailwind context) berdasarkan skor performa.
+     */
+    public function getStatusColorAttribute()
+    {
+        $score = $this->skor_performa;
+
+        if ($score >= 85) {
+            return 'success';
+        } elseif ($score >= 60) {
+            return 'primary';
+        } elseif ($score > 0) {
+            return 'warning';
+        } else {
+            return 'danger';
+        }
     }
 }

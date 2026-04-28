@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\School;
+use App\Models\Attendance;
+use App\Models\MonthlyReport;
+use App\Models\KbmReport;
 use Illuminate\Support\Facades\Auth;
 
 class SchoolController extends Controller
@@ -15,29 +18,10 @@ class SchoolController extends Controller
         // Mencari data sekolah beserta relasi absensi dan laporan bulanannya
         $school = School::with(['attendances', 'monthlyReports'])->findOrFail($id);
 
-        // PROTEKSI: Jika yang login adalah Admin Sekolah
-        if ($user->role === 'admin_sekolah') {
-            // Bandingkan apakah nama sekolah di URL sama dengan school_name di akunnya
-            if ($school->id !== $user->school_id) {
-                abort(403, 'Anda tidak memiliki hak akses untuk melihat data sekolah lain.');
-            }
+        // Proteksi akses untuk Admin Sekolah
+        if ($user->role === 'admin_sekolah' && $school->id !== $user->school_id) {
+            abort(403, 'Anda tidak memiliki hak akses untuk melihat data sekolah lain.');
         }
-
-        $filledLinks = 0;
-        // Cek semua 10 kolom link (Sudah termasuk Contact Link)
-        if ($school->ijop_link) $filledLinks++;
-        if ($school->ksp_link) $filledLinks++;
-        if ($school->akreditasi_link) $filledLinks++;
-        if ($school->gtk_link) $filledLinks++;
-        if ($school->pd_link) $filledLinks++;
-        if ($school->sarpras_link) $filledLinks++;
-        if ($school->rapor_link) $filledLinks++;
-        if ($school->rkt_link) $filledLinks++;
-        if ($school->rkas_link) $filledLinks++;
-        if ($school->contact_link) $filledLinks++; // Tambahan ke-10
-
-        // Pembagi sekarang diubah menjadi 10
-        $school->score = ($filledLinks / 10) * 100;
 
         return view('schools.show', compact('school'));
     }
@@ -66,7 +50,7 @@ class SchoolController extends Controller
             'keterangan'   => 'nullable|string',
         ]);
 
-        \App\Models\Attendance::updateOrCreate(
+        Attendance::updateOrCreate(
             [
                 'school_id' => $id,
                 'tanggal'   => now()->format('Y-m-d'),
@@ -94,7 +78,7 @@ class SchoolController extends Controller
             'humas_link' => 'nullable',
         ]);
 
-        \App\Models\MonthlyReport::updateOrCreate(
+        MonthlyReport::updateOrCreate(
             [
                 'school_id' => $id,
                 'bulan' => $request->bulan,
@@ -154,7 +138,7 @@ class SchoolController extends Controller
 
     public function destroyAttendance($id)
     {
-        $attendance = \App\Models\Attendance::findOrFail($id);
+        $attendance = Attendance::findOrFail($id);
         
         if (auth()->user()->role === 'pengawas' || auth()->user()->school_id === $attendance->school_id) {
             $attendance->delete();
@@ -166,7 +150,7 @@ class SchoolController extends Controller
 
     public function updateMonthlyReport(Request $request, $id)
     {
-        $report = \App\Models\MonthlyReport::findOrFail($id);
+        $report = MonthlyReport::findOrFail($id);
         
         $request->validate([
             'kurikulum_link' => 'nullable',
@@ -182,7 +166,7 @@ class SchoolController extends Controller
 
     public function destroyMonthlyReport($id)
     {
-        $report = \App\Models\MonthlyReport::findOrFail($id);
+        $report = MonthlyReport::findOrFail($id);
         
         if (auth()->user()->role === 'pengawas' || auth()->user()->school_id === $report->school_id) {
             $report->delete();
@@ -224,31 +208,12 @@ class SchoolController extends Controller
             $nomor = 1;
 
             foreach ($schools as $school) {
-                
-                // SKOR JUGA DIUBAH DI SINI MENJADI 10
-                $filledLinks = 0;
-                if ($school->ijop_link) $filledLinks++;
-                if ($school->ksp_link) $filledLinks++;
-                if ($school->akreditasi_link) $filledLinks++;
-                if ($school->gtk_link) $filledLinks++;
-                if ($school->pd_link) $filledLinks++;
-                if ($school->sarpras_link) $filledLinks++;
-                if ($school->rapor_link) $filledLinks++;
-                if ($school->rkt_link) $filledLinks++;
-                if ($school->rkas_link) $filledLinks++;
-                if ($school->contact_link) $filledLinks++; 
-
-                // Perhitungan skor
-                $calculatedScore = ($filledLinks / 10) * 100;
-                
-                $formattedScore = number_format($calculatedScore, 1) . '%';
-
                 $row = [
                     $nomor,
                     $school->name,
                     $school->level,
                     $school->status,
-                    $formattedScore
+                    $school->skor_performa . '%'
                 ];
 
                 fputcsv($file, $row, ';');
@@ -317,7 +282,7 @@ class SchoolController extends Controller
             'extra_link'      => 'nullable|url',
         ]);
 
-        \App\Models\KbmReport::updateOrCreate(
+        KbmReport::updateOrCreate(
             [
                 'school_id' => $id,
                 'tahun_pelajaran' => $request->tahun_pelajaran,
@@ -334,7 +299,7 @@ class SchoolController extends Controller
 
     public function updateKbm(Request $request, $id)
     {
-        $kbm = \App\Models\KbmReport::findOrFail($id);
+        $kbm = KbmReport::findOrFail($id);
 
         $request->validate([
             'tahun_pelajaran' => 'required|string',
@@ -355,7 +320,7 @@ class SchoolController extends Controller
 
     public function destroyKbm($id)
     {
-        $kbm = \App\Models\KbmReport::findOrFail($id);
+        $kbm = KbmReport::findOrFail($id);
         $kbm->delete();
 
         return redirect()->back()->with('success', 'Data laporan KBM berhasil dihapus!');

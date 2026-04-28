@@ -26,7 +26,7 @@
                 <div class="d-flex flex-wrap gap-2 align-items-center">
                     {{-- Tombol Export Excel --}}
                     <a href="{{ route('achievement.export') }}" class="btn btn-success btn-sm fw-bold d-flex align-items-center gap-1 shadow-sm">
-                        <span class="material-symbols-outlined fs-6">download</span> Export
+                        <span class="material-symbols-outlined fs-6">download</span> Download Excel
                     </a>
                     
                     {{-- Tombol Tambah Data --}}
@@ -70,7 +70,7 @@
                         <tr>
                             <th class="ps-2">Tanggal Perolehan</th>
                             <th>Peringkat & Tingkat</th>
-                            <th>Kategori & Peserta</th>
+                            <th>Peserta & Kategori</th>
                             <th>Keterangan Lomba</th>
                             <th class="text-center">Aksi</th>
                         </tr>
@@ -84,12 +84,13 @@
                                 <small class="text-muted">{{ $ach->tingkat }}</small>
                             </td>
                             <td>
+                                {{-- PERBAIKAN: Menampilkan Nama Lengkap di Tabel --}}
+                                <div class="fw-bold mb-1">{{ $ach->nama_peserta }}</div>
                                 <span class="badge bg-info bg-opacity-10 text-info border border-info-subtle">{{ $ach->kategori }}</span>
                                 <span class="badge bg-primary bg-opacity-10 text-primary border border-primary-subtle">{{ $ach->tipe_peserta }}</span>
                             </td>
                             <td class="small text-muted">{{ $ach->keterangan }}</td>
                             
-                            {{-- MULAI PERBAIKAN AKSI DAN MODAL EDIT --}}
                             <td class="text-center">
                                 <div class="d-flex justify-content-center gap-2">
                                     <button type="button" class="btn btn-link text-primary p-0" data-bs-toggle="modal" data-bs-target="#editModal{{ $ach->id }}">
@@ -161,8 +162,15 @@
                                                             <option value="Tendik" {{ $ach->tipe_peserta == 'Tendik' ? 'selected' : '' }}>Tendik</option>
                                                         </select>
                                                     </div>
+
+                                                    {{-- PERBAIKAN: Input Edit Nama Peserta --}}
                                                     <div class="col-12">
-                                                        <label class="small fw-bold text-muted mb-1">Keterangan Lomba & Nama Peserta</label>
+                                                        <label class="small fw-bold text-muted mb-1">Nama Lengkap (Peraih Juara)</label>
+                                                        <input type="text" name="nama_peserta" class="form-control bg-light border-0" value="{{ $ach->nama_peserta }}" placeholder="Contoh: Andi Wijaya" required>
+                                                    </div>
+
+                                                    <div class="col-12">
+                                                        <label class="small fw-bold text-muted mb-1">Keterangan / Nama Lomba</label>
                                                         <textarea name="keterangan" class="form-control bg-light border-0" rows="3" required>{{ $ach->keterangan }}</textarea>
                                                     </div>
                                                 </div>
@@ -176,8 +184,6 @@
                                     </div>
                                 </div>
                             </td>
-                            {{-- AKHIR PERBAIKAN AKSI DAN MODAL EDIT --}}
-
                         </tr>
                         @empty
                         <tr id="emptyRow"><td colspan="5" class="text-center py-5 text-muted small">Belum ada data prestasi.</td></tr>
@@ -253,9 +259,16 @@
                                 <option value="Tendik">Tendik</option>
                             </select>
                         </div>
+
+                        {{-- PERBAIKAN: Input Tambah Nama Peserta --}}
                         <div class="col-12">
-                            <label class="small fw-bold text-muted mb-1">Keterangan Lomba & Nama Peserta</label>
-                            <textarea name="keterangan" class="form-control bg-light border-0" rows="3" placeholder="Contoh: Juara 1 Lomba Pidato Bahasa Inggris - Andi Wijaya" required></textarea>
+                            <label class="small fw-bold text-muted mb-1">Nama Lengkap (Peraih Juara)</label>
+                            <input type="text" name="nama_peserta" class="form-control bg-light border-0" placeholder="Contoh: Andi Wijaya / Tim Basket" required>
+                        </div>
+
+                        <div class="col-12">
+                            <label class="small fw-bold text-muted mb-1">Keterangan / Nama Lomba</label>
+                            <textarea name="keterangan" class="form-control bg-light border-0" rows="3" placeholder="Contoh: Lomba Pidato Bahasa Inggris Tingkat Provinsi" required></textarea>
                         </div>
                     </div>
                 </div>
@@ -291,7 +304,6 @@
                 const totalRows = filteredRows.length;
                 const totalPages = Math.ceil(totalRows / rowsPerPage);
 
-                // Tampilan jika tidak ditemukan
                 if(totalRows === 0) {
                     if(notFoundRow) notFoundRow.style.display = searchTerm ? '' : 'none';
                     if(emptyRow && !searchTerm) emptyRow.style.display = '';
@@ -302,17 +314,13 @@
                     if(emptyRow) emptyRow.style.display = 'none';
                 }
 
-                // Sembunyikan semua baris
                 allRows.forEach(row => row.style.display = 'none');
 
-                // Hitung batas data yang tampil
                 const start = (currentPage - 1) * rowsPerPage;
                 const end = start + rowsPerPage;
 
-                // Tampilkan data sesuai halaman
                 filteredRows.slice(start, end).forEach(row => row.style.display = '');
 
-                // Update Info & Navigasi
                 if(totalRows > 0) {
                     pageInfo.textContent = `Menampilkan ${start + 1} - ${Math.min(end, totalRows)} dari ${totalRows} data`;
                     renderPagination(totalPages);
@@ -323,15 +331,12 @@
                 if(totalPages <= 1) { paginationNav.innerHTML = ''; return; }
                 let html = '<ul class="pagination pagination-sm mb-0 shadow-sm">';
                 
-                // Prev
                 html += `<li class="page-item ${currentPage === 1 ? 'disabled' : ''}"><a class="page-link" href="#" onclick="changePage(${currentPage - 1}, event)">&laquo;</a></li>`;
                 
-                // Angka
                 for(let i=1; i<=totalPages; i++) {
                     html += `<li class="page-item ${i === currentPage ? 'active' : ''}"><a class="page-link" href="#" onclick="changePage(${i}, event)">${i}</a></li>`;
                 }
                 
-                // Next
                 html += `<li class="page-item ${currentPage === totalPages ? 'disabled' : ''}"><a class="page-link" href="#" onclick="changePage(${currentPage + 1}, event)">&raquo;</a></li>`;
                 html += '</ul>';
                 

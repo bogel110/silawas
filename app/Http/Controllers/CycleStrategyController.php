@@ -21,29 +21,44 @@ class CycleStrategyController extends Controller
         $selectedSchoolId = $request->get('school_id');
         $selectedSchool = $selectedSchoolId ? School::find($selectedSchoolId) : null;
 
-        // Jika sekolah dipilih, ambil data strateginya. Jika tidak, jadikan array kosong.
+        // Jika sekolah dipilih, ambil data strateginya. Jika tidak, ambil SEMUA data strategi.
+        $query = CycleStrategy::with('school');
+        
         if ($selectedSchool) {
-            $strategies = CycleStrategy::with('school')
-                            ->where('school_id', $selectedSchoolId)
-                            ->latest()
-                            ->get();
-        } else {
-            $strategies = collect(); // Koleksi kosong agar halaman tidak error
+            $query->where('school_id', $selectedSchoolId);
         }
 
-        // Siapkan Data Rekapitulasi (Angka akan otomatis menyesuaikan sekolah yang dipilih)
-        $recap = [
-            'total' => $strategies->count(),
-            'seeding' => $strategies->where('strategy', 'Penyemaian Perubahan (Seeding Change)')->count(),
-            'rapid' => $strategies->where('strategy', 'Perubahan Segera (Rapid Change)')->count(),
-            'reinforcing' => $strategies->where('strategy', 'Penguatan Perubahan (Reinforcing Change)')->count(),
-            'gradual' => $strategies->where('strategy', 'Perubahan Berangsur (Gradual Change)')->count(),
-            'triggering' => $strategies->where('strategy', 'Pemicu Perubahan (Triggering Change)')->count(),
-            'sustainable' => $strategies->where('strategy', 'Perubahan Berkelanjutan (Sustainable Change)')->count(),
+        $strategies = $query->latest()->get();
+
+        // Ambil SEMUA data strategi khusus untuk Recap, agar selalu merepresentasikan seluruh sekolah
+        $allStrategies = CycleStrategy::all();
+
+        // Siapkan Data Rekapitulasi Keseluruhan (Semua Sekolah)
+        $recapAll = [
+            'total' => $allStrategies->count(),
+            'seeding' => $allStrategies->where('strategy', 'Penyemaian Perubahan (Seeding Change)')->count(),
+            'rapid' => $allStrategies->where('strategy', 'Perubahan Segera (Rapid Change)')->count(),
+            'reinforcing' => $allStrategies->where('strategy', 'Penguatan Perubahan (Reinforcing Change)')->count(),
+            'gradual' => $allStrategies->where('strategy', 'Perubahan Berangsur (Gradual Change)')->count(),
+            'triggering' => $allStrategies->where('strategy', 'Pemicu Perubahan (Triggering Change)')->count(),
+            'sustainable' => $allStrategies->where('strategy', 'Perubahan Berkelanjutan (Sustainable Change)')->count(),
         ];
 
-        // Pastikan variabel $selectedSchool ikut dikirim ke View (compact)
-        return view('strategy.index', compact('schools', 'selectedSchool', 'strategies', 'recap'));
+        // Siapkan Data Rekapitulasi Khusus Sekolah yang Dipilih (Jika ada)
+        $recapSchool = null;
+        if ($selectedSchool) {
+            $recapSchool = [
+                'total' => $strategies->count(),
+                'seeding' => $strategies->where('strategy', 'Penyemaian Perubahan (Seeding Change)')->count(),
+                'rapid' => $strategies->where('strategy', 'Perubahan Segera (Rapid Change)')->count(),
+                'reinforcing' => $strategies->where('strategy', 'Penguatan Perubahan (Reinforcing Change)')->count(),
+                'gradual' => $strategies->where('strategy', 'Perubahan Berangsur (Gradual Change)')->count(),
+                'triggering' => $strategies->where('strategy', 'Pemicu Perubahan (Triggering Change)')->count(),
+                'sustainable' => $strategies->where('strategy', 'Perubahan Berkelanjutan (Sustainable Change)')->count(),
+            ];
+        }
+
+        return view('strategy.index', compact('schools', 'selectedSchool', 'strategies', 'recapAll', 'recapSchool'));
     }
 
     public function store(Request $request)

@@ -16,7 +16,7 @@
             </div>
             <div class="text-end">
                 <p class="text-muted small mb-1 fw-bold text-uppercase tracking-wider">Progress</p>
-                <h3 class="fw-bold text-primary mb-0">{{ number_format($school->score, 1) }}%</h3>
+                <h3 class="fw-bold text-primary mb-0">{{ number_format($school->skor_performa, 1) }}%</h3>
             </div>
         </div>
     </div>
