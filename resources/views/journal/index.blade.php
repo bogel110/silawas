@@ -181,7 +181,7 @@
                         <input type="text" id="searchAbsensi" class="form-control border-start-0 ps-0" placeholder="Cari data...">
                     </div>
                     <a href="{{ route('school.export_attendance', $selectedSchool->id) }}" class="btn btn-success btn-sm fw-bold d-flex align-items-center justify-content-center gap-1 shadow-sm" title="Download Excel">
-                        <span class="material-symbols-outlined fs-6">download</span> Excel
+                        <span class="material-symbols-outlined fs-6">download</span> Download Excel
                     </a>
                 </div>
             </div>

@@ -688,6 +688,9 @@
                 <div class="fw-bold">{{ auth()->user()->name }}</div>
                 <div class="text-soft small text-uppercase">{{ str_replace('_', ' ', auth()->user()->role) }}</div>
             </div>
+            <div class="sidebar-footer text-soft small text-uppercase">
+                <span>Copyright © SYP_2026</span>
+            </div>
         </div>
     </aside>
 

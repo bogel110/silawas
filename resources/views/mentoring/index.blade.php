@@ -153,7 +153,7 @@
                 <div class="d-flex flex-wrap gap-2 align-items-center">
                     {{-- Tombol Export --}}
                     <a href="{{ route('mentoring.export', ['school_id' => $selectedSchool->id]) }}" class="btn btn-success btn-sm fw-bold d-flex align-items-center gap-1 shadow-sm">
-                        <span class="material-symbols-outlined fs-6">download</span> Download File
+                        <span class="material-symbols-outlined fs-6">download</span> Download File Siklus
                     </a>
                     <button type="button" class="btn btn-primary btn-sm fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#modalSiklus">
                     <span class="d-flex align-items-center gap-2">    

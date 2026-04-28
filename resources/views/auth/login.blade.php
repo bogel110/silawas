@@ -262,7 +262,7 @@
                         <div class="mt-6 flex items-center justify-between text-[11px] uppercase tracking-[0.18em] text-slate-400">
                             <span>Secure access</span>
                             <span>v2.6.0</span>
-                            <span>Daily supervision</span>
+                            <span>Copy Right © SYP_{{date('Y')}}</span>
                         </div>
                     </div>
                 </section>

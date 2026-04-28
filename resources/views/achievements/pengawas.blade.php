@@ -14,13 +14,11 @@
 
         {{-- MENU DOWNLOAD MANDIRI --}}
         <div class="d-flex flex-wrap gap-2">
-            {{-- Tombol Download SEMUA Data (Selalu Ada) --}}
             <a href="{{ route('achievement.export.pengawas') }}" class="btn btn-outline-success fw-bold d-flex align-items-center gap-1 shadow-sm">
                 <span class="material-symbols-outlined fs-6">inventory_2</span> 
                 Export Semua Sekolah
             </a>
 
-            {{-- Tombol Download Sekolah Terpilih (Hanya muncul jika sekolah dipilih) --}}
             @if($selectedSchool)
                 <a href="{{ route('achievement.export.pengawas', ['school_id' => $selectedSchool->id]) }}" class="btn btn-success fw-bold d-flex align-items-center gap-1 shadow-sm">
                     <span class="material-symbols-outlined fs-6">download</span> 
@@ -31,22 +29,19 @@
     </div>
 
     {{-- ========================================== --}}
-    {{-- 1. GRAFIK & STATISTIK GLOBAL --}}
+    {{-- 1. GRAFIK & STATISTIK GLOBAL (Keseluruhan) --}}
     {{-- ========================================== --}}
     <div class="row g-4 mb-4">
-        {{-- BAGIAN GRAFIK --}}
         <div class="col-12 col-lg-5">
-            <div class="card border-0 shadow-sm rounded-4 h-100 p-4 bg-white">
-                <h6 class="font-headline fw-bold mb-4">Sebaran Tingkat Prestasi (Global)</h6>
+            <div class="card border-0 shadow-sm rounded-4 h-100 p-4 bg-white border-top border-4 border-primary">
+                <h6 class="font-headline fw-bold mb-4">Sebaran Tingkat Prestasi <span class="text-primary">(Keseluruhan)</span></h6>
                 <div style="position: relative; height: 250px; width: 100%;">
-                    <canvas id="prestasiChart"></canvas>
+                    <canvas id="globalPrestasiChart"></canvas>
                 </div>
             </div>
         </div>
 
-        {{-- BAGIAN REKAP ANGKA --}}
         <div class="col-12 col-lg-7">
-            {{-- Baris 1: Total & Tipe Peserta --}}
             <div class="row g-3 mb-3">
                 <div class="col-12 col-md-4">
                     <div class="card border-0 shadow-sm rounded-4 p-3 bg-white border-bottom border-4 border-primary h-100">
@@ -68,28 +63,27 @@
                 </div>
             </div>
 
-            {{-- Baris 2: Rincian Berdasarkan Tingkat --}}
             <div class="row g-3">
                 <div class="col-6 col-md-3">
-                    <div class="card border-0 shadow-sm rounded-4 p-3 bg-white border-bottom border-4 h-100" style="border-color: #f4a261 !important;">
+                    <div class="card border-0 shadow-sm rounded-4 p-3 bg-light border-0 h-100">
                         <small class="text-muted fw-bold text-uppercase" style="font-size: 0.65rem;">Kota/Kab</small>
                         <h3 class="fw-bold mb-0 mt-1" style="color: #f4a261;">{{ $globalChartData[0] }}</h3>
                     </div>
                 </div>
                 <div class="col-6 col-md-3">
-                    <div class="card border-0 shadow-sm rounded-4 p-3 bg-white border-bottom border-4 h-100" style="border-color: #2a9d8f !important;">
+                    <div class="card border-0 shadow-sm rounded-4 p-3 bg-light border-0 h-100">
                         <small class="text-muted fw-bold text-uppercase" style="font-size: 0.65rem;">Provinsi</small>
                         <h3 class="fw-bold mb-0 mt-1" style="color: #2a9d8f;">{{ $globalChartData[1] }}</h3>
                     </div>
                 </div>
                 <div class="col-6 col-md-3">
-                    <div class="card border-0 shadow-sm rounded-4 p-3 bg-white border-bottom border-4 h-100" style="border-color: #e76f51 !important;">
+                    <div class="card border-0 shadow-sm rounded-4 p-3 bg-light border-0 h-100">
                         <small class="text-muted fw-bold text-uppercase" style="font-size: 0.65rem;">Nasional</small>
                         <h3 class="fw-bold mb-0 mt-1" style="color: #e76f51;">{{ $globalChartData[2] }}</h3>
                     </div>
                 </div>
                 <div class="col-6 col-md-3">
-                    <div class="card border-0 shadow-sm rounded-4 p-3 bg-white border-bottom border-4 h-100" style="border-color: #e9c46a !important;">
+                    <div class="card border-0 shadow-sm rounded-4 p-3 bg-light border-0 h-100">
                         <small class="text-muted fw-bold text-uppercase" style="font-size: 0.65rem;">Internasional</small>
                         <h3 class="fw-bold mb-0 mt-1" style="color: #e9c46a;">{{ $globalChartData[3] }}</h3>
                     </div>
@@ -104,7 +98,7 @@
     <div class="card border-0 shadow-sm rounded-4 mb-4 bg-primary bg-opacity-10 border-start border-4 border-primary">
         <div class="card-body p-4">
             <form action="{{ route('achievement.pengawas') }}" method="GET" id="formPilihSekolah">
-                <label class="form-label small fw-bold text-primary mb-2">Filter Berdasarkan Sekolah (Pilih untuk melihat detail)</label>
+                <label class="form-label small fw-bold text-primary mb-2">Pilih Sekolah Binaan untuk Melihat Rincian</label>
                 <select name="school_id" id="schoolSelect" class="form-select border-primary" onchange="document.getElementById('formPilihSekolah').submit();">
                     <option value="">-- Menampilkan Semua Sekolah Binaan --</option>
                     @foreach($schools as $s)
@@ -116,18 +110,89 @@
     </div>
 
     {{-- ========================================== --}}
-    {{-- 3. TABEL DATA PRESTASI --}}
+    {{-- 3. STATISTIK KHUSUS SEKOLAH TERPILIH --}}
+    {{-- ========================================== --}}
+    @if($selectedSchool)
+    <div class="card border-0 shadow-sm rounded-4 mb-4 border-top border-4 border-success">
+        <div class="card-header bg-white border-bottom-0 pt-4 pb-0 px-4">
+            <h5 class="font-headline fw-bold mb-0">Statistik Spesifik: <span class="text-success">{{ $selectedSchool->name }}</span></h5>
+        </div>
+        <div class="card-body p-4">
+            <div class="row g-4 align-items-center">
+                {{-- Grafik Spesifik Sekolah --}}
+                <div class="col-12 col-lg-4">
+                    <div style="position: relative; height: 200px; width: 100%;">
+                        <canvas id="schoolPrestasiChart"></canvas>
+                    </div>
+                </div>
+                {{-- Angka Spesifik Sekolah --}}
+                <div class="col-12 col-lg-8">
+                    {{-- Baris 1: Total, Siswa, Guru --}}
+                    <div class="row g-3 mb-3">
+                        <div class="col-12 col-sm-4">
+                            <div class="p-3 bg-light rounded-4 border border-success border-opacity-25 text-center h-100">
+                                <small class="text-muted fw-bold text-uppercase d-block mb-1" style="font-size: 0.65rem;">Total Prestasi</small>
+                                <h3 class="fw-bold text-success mb-0">{{ $schoolTotalPrestasi }}</h3>
+                            </div>
+                        </div>
+                        <div class="col-6 col-sm-4">
+                            <div class="p-3 bg-light rounded-4 text-center h-100">
+                                <small class="text-muted fw-bold text-uppercase d-block mb-1" style="font-size: 0.65rem;">Siswa</small>
+                                <h3 class="fw-bold text-dark mb-0">{{ $schoolTotalSiswa }}</h3>
+                            </div>
+                        </div>
+                        <div class="col-6 col-sm-4">
+                            <div class="p-3 bg-light rounded-4 text-center h-100">
+                                <small class="text-muted fw-bold text-uppercase d-block mb-1" style="font-size: 0.65rem;">Guru/Tendik</small>
+                                <h3 class="fw-bold text-dark mb-0">{{ $schoolTotalGuruTendik }}</h3>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    {{-- PERBAIKAN: Baris 2: Rincian Tingkat (Kab/Prov/Nas/Intl) --}}
+                    <div class="row g-3">
+                        <div class="col-6 col-md-3">
+                            <div class="p-2 bg-light rounded-3 text-center border-bottom border-3" style="border-color: #f4a261 !important;">
+                                <small class="text-muted fw-bold text-uppercase d-block mb-1" style="font-size: 0.65rem;">Kota/Kab</small>
+                                <h4 class="fw-bold mb-0" style="color: #f4a261;">{{ $schoolChartData[0] }}</h4>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="p-2 bg-light rounded-3 text-center border-bottom border-3" style="border-color: #2a9d8f !important;">
+                                <small class="text-muted fw-bold text-uppercase d-block mb-1" style="font-size: 0.65rem;">Provinsi</small>
+                                <h4 class="fw-bold mb-0" style="color: #2a9d8f;">{{ $schoolChartData[1] }}</h4>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="p-2 bg-light rounded-3 text-center border-bottom border-3" style="border-color: #e76f51 !important;">
+                                <small class="text-muted fw-bold text-uppercase d-block mb-1" style="font-size: 0.65rem;">Nasional</small>
+                                <h4 class="fw-bold mb-0" style="color: #e76f51;">{{ $schoolChartData[2] }}</h4>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="p-2 bg-light rounded-3 text-center border-bottom border-3" style="border-color: #e9c46a !important;">
+                                <small class="text-muted fw-bold text-uppercase d-block mb-1" style="font-size: 0.65rem;">Internasional</small>
+                                <h4 class="fw-bold mb-0" style="color: #e9c46a;">{{ $schoolChartData[3] }}</h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
+
+    {{-- ========================================== --}}
+    {{-- 4. TABEL DATA PRESTASI --}}
     {{-- ========================================== --}}
     <div class="card border-0 shadow-sm rounded-4 mb-4">
-        {{-- Header Tabel & Tombol Pencarian --}}
         <div class="card-header bg-white border-bottom-0 pt-4 pb-0 px-4 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
             <h5 class="font-headline fw-bold mb-0">
                 Data Rincian: 
-                <span class="text-primary">{{ $selectedSchool ? $selectedSchool->name : 'Seluruh Sekolah' }}</span>
+                <span class="text-primary">{{ $selectedSchool ? $selectedSchool->name : 'Seluruh Sekolah Binaan' }}</span>
             </h5>
             
             <div class="d-flex flex-wrap gap-2 align-items-center">
-                {{-- Pilihan Entries (Data Entry Tampil) --}}
                 <select id="entriesPrestasi" class="form-select form-select-sm bg-light border-0 shadow-sm" style="width: auto;">
                     <option value="5">5</option>
                     <option value="10" selected>10</option>
@@ -135,7 +200,6 @@
                     <option value="50">50</option>
                 </select>
 
-                {{-- Kotak Pencarian --}}
                 <div class="input-group input-group-sm shadow-sm" style="max-width: 200px;">
                     <span class="input-group-text bg-light border-0"><span class="material-symbols-outlined fs-6 text-muted">search</span></span>
                     <input type="text" id="searchPrestasi" class="form-control border-0 bg-light ps-0" placeholder="Cari data...">
@@ -143,7 +207,6 @@
             </div>
         </div>
 
-        {{-- Isi Tabel --}}
         <div class="card-body p-0">
             <div class="p-4 pt-3 table-responsive">
                 <table class="table table-sm align-middle mb-0">
@@ -152,7 +215,7 @@
                             <th class="ps-2">Tgl</th>
                             <th>Asal Sekolah</th> 
                             <th>Peringkat/Tingkat</th>
-                            <th>Peserta & Kategori</th>
+                            <th>Nama Lengkap Peserta & Kategori</th>
                             <th>Keterangan</th>
                         </tr>
                     </thead>
@@ -179,7 +242,6 @@
                 </table>
             </div>
 
-            {{-- Footer Paginasi --}}
             <div class="p-3 bg-light bg-opacity-25 border-top d-flex justify-content-between align-items-center rounded-bottom-4">
                 <small class="text-muted fw-semibold" id="prestasiPageInfo"></small>
                 <nav id="prestasiPagination"></nav>
@@ -191,13 +253,13 @@
     {{-- SCRIPTS: CHART.JS & CHOICES.JS & LOGIKA PENCARIAN --}}
     {{-- ========================================================================= --}}
     
-    {{-- 1. SCRIPT GRAFIK CHART.JS --}}
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const ctx = document.getElementById('prestasiChart');
-            if(ctx) {
-                new Chart(ctx.getContext('2d'), {
+            // 1. Chart Global (Semua Sekolah)
+            const ctxGlobal = document.getElementById('globalPrestasiChart');
+            if(ctxGlobal) {
+                new Chart(ctxGlobal.getContext('2d'), {
                     type: 'doughnut',
                     data: {
                         labels: ['Kota/Kabupaten', 'Provinsi', 'Nasional', 'Internasional'],
@@ -207,23 +269,34 @@
                             borderWidth: 0
                         }]
                     },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: { position: 'bottom' }
-                        }
-                    }
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
                 });
             }
+
+            // 2. Chart Spesifik Sekolah (Muncul jika ada sekolah dipilih)
+            @if($selectedSchool)
+                const ctxSchool = document.getElementById('schoolPrestasiChart');
+                if(ctxSchool) {
+                    new Chart(ctxSchool.getContext('2d'), {
+                        type: 'doughnut',
+                        data: {
+                            labels: ['Kota/Kab', 'Prov', 'Nas', 'Intl'],
+                            datasets: [{
+                                data: {{ json_encode($schoolChartData) }},
+                                backgroundColor: ['#f4a261', '#2a9d8f', '#e76f51', '#e9c46a'],
+                                borderWidth: 0
+                            }]
+                        },
+                        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right' } } }
+                    });
+                }
+            @endif
         });
     </script>
 
-    {{-- 2. SCRIPT CHOICES.JS (Pencarian Sekolah dengan Gaya Khusus) --}}
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
     <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
     <style>
-        /* Pengaturan Dasar */
         .choices { font-size: 1rem; margin-bottom: 0; }
         .choices__inner {
             background-color: #fff !important; border: 1px solid #0d6efd !important;
@@ -237,8 +310,7 @@
             padding: 10px !important; margin: 5px 0 10px 0 !important; font-size: 1rem !important;
         }
         .choices__list--dropdown {
-            border-radius: 0.5rem !important; box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15) !important;
-            z-index: 1000 !important;
+            border-radius: 0.5rem !important; box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15) !important; z-index: 1000 !important;
         }
         .choices__list--dropdown .choices__item {
             padding: 15px 20px !important; font-size: 1rem !important; border-bottom: 1px solid #f1f3f5;
@@ -246,8 +318,6 @@
         .choices__list--dropdown .choices__item--selectable.is-highlighted {
             background-color: #0d6efd !important; color: #ffffff !important; font-weight: 600;
         }
-
-        /* KHUSUS TAMPILAN HP */
         @media (max-width: 768px) {
             .choices__list--dropdown {
                 position: fixed !important; top: 20% !important; left: 5% !important; right: 5% !important;
@@ -270,19 +340,11 @@
                     noResultsText: 'Sekolah tidak ditemukan',
                     noChoicesText: 'Tidak ada pilihan',
                     shouldSort: false,
-                    searchFuzzy: false,
-                    searchFields: ['label'],
-                    searchResultLimit: 15,
                     placeholder: true,
                     placeholderValue: '-- Menampilkan Semua Sekolah Binaan --'
                 });
             }
-        });
-    </script>
 
-    {{-- 3. SCRIPT TABEL (Pencarian & Pagination) --}}
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
             const tableBody = document.getElementById('prestasiTableBody');
             if(!tableBody) return;
 

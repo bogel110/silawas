@@ -115,7 +115,7 @@ class AchievementController extends Controller
         $selectedSchoolId = $request->get('school_id');
         $selectedSchool = $selectedSchoolId ? School::find($selectedSchoolId) : null;
 
-        // 1. DATA GLOBAL (Untuk Grafik & Kartu Angka di Paling Atas)
+        // 1. DATA GLOBAL (Untuk Grafik & Kartu Angka Paling Atas - Selalu Dihitung)
         $allAchievements = Achievement::all();
         $globalChartData = [
             $allAchievements->where('tingkat', 'Kota/Kabupaten')->count(),
@@ -127,17 +127,35 @@ class AchievementController extends Controller
         $totalSiswa = $allAchievements->where('tipe_peserta', 'Siswa')->count();
         $totalGuruTendik = $allAchievements->whereIn('tipe_peserta', ['Guru', 'Tendik'])->count();
 
-        // 2. DATA TABEL (Berdasarkan Pilihan Filter)
+        // 2. DATA SPESIFIK SEKOLAH & TABEL
+        $schoolChartData = [0, 0, 0, 0];
+        $schoolTotalPrestasi = 0;
+        $schoolTotalSiswa = 0;
+        $schoolTotalGuruTendik = 0;
+
         if ($selectedSchool) {
             $achievements = Achievement::with('school')->where('school_id', $selectedSchoolId)->orderBy('tanggal', 'desc')->get();
+            
+            // Hitung data HANYA untuk sekolah yang dipilih
+            $schoolChartData = [
+                $achievements->where('tingkat', 'Kota/Kabupaten')->count(),
+                $achievements->where('tingkat', 'Provinsi')->count(),
+                $achievements->where('tingkat', 'Nasional')->count(),
+                $achievements->where('tingkat', 'Internasional')->count(),
+            ];
+            $schoolTotalPrestasi = $achievements->count();
+            $schoolTotalSiswa = $achievements->where('tipe_peserta', 'Siswa')->count();
+            $schoolTotalGuruTendik = $achievements->whereIn('tipe_peserta', ['Guru', 'Tendik'])->count();
+
         } else {
-            // Jika tidak ada sekolah yang dipilih, tampilkan SEMUA data di tabel
+            // Jika tidak ada filter, tabel menampilkan semua data
             $achievements = Achievement::with('school')->orderBy('tanggal', 'desc')->get();
         }
 
         return view('achievements.pengawas', compact(
             'schools', 'selectedSchool', 'achievements',
-            'globalChartData', 'totalPrestasi', 'totalSiswa', 'totalGuruTendik'
+            'globalChartData', 'totalPrestasi', 'totalSiswa', 'totalGuruTendik',
+            'schoolChartData', 'schoolTotalPrestasi', 'schoolTotalSiswa', 'schoolTotalGuruTendik'
         ));
     }
 

@@ -70,7 +70,7 @@
                         <tr>
                             <th class="ps-2">Tanggal Perolehan</th>
                             <th>Peringkat & Tingkat</th>
-                            <th>Peserta & Kategori</th>
+                            <th>Nama Lengkap Peserta & Kategori</th>
                             <th>Keterangan Lomba</th>
                             <th class="text-center">Aksi</th>
                         </tr>
