@@ -10,16 +10,13 @@ class MentoringCycleController extends Controller
 {
     public function index(Request $request)
     {
-        // Pastikan hanya pengawas yang bisa mengakses
-        if (auth()->user()->role !== 'pengawas') {
-            abort(403, 'Akses Ditolak: Modul ini khusus untuk Pengawas Sekolah.');
-        }
+        $this->authorizePengawas();
 
         $schools = School::orderBy('name', 'asc')->get();
         
         // Cek apakah pengawas sudah memilih sekolah dari dropdown
         $selectedSchoolId = $request->get('school_id');
-        $selectedSchool = $selectedSchoolId ? School::find($selectedSchoolId) : null;
+        $selectedSchool = $selectedSchoolId ? School::findOrFail($selectedSchoolId) : null;
 
         $cycles = collect();
         $recap = [];
@@ -44,38 +41,52 @@ class MentoringCycleController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
+        $this->authorizePengawas();
+
+        $data = $request->validate([
             'school_id' => 'required|exists:schools,id',
             'siklus' => 'required|string',
             'tanggal' => 'required|date',
             'keterangan' => 'nullable|string'
         ]);
 
-        MentoringCycle::create($request->all());
+        MentoringCycle::create($data);
         return back()->with('success', 'Data Siklus Pendampingan berhasil disimpan!');
     }
 
     public function update(Request $request, $id)
     {
+        $this->authorizePengawas();
+
+        $data = $request->validate([
+            'siklus' => 'required|string',
+            'tanggal' => 'required|date',
+            'keterangan' => 'nullable|string'
+        ]);
+
         $cycle = MentoringCycle::findOrFail($id);
-        $cycle->update($request->all());
+        $cycle->update($data);
         return back()->with('success', 'Data Siklus Pendampingan berhasil diperbarui!');
     }
 
     public function destroy($id)
     {
+        $this->authorizePengawas();
+
         MentoringCycle::findOrFail($id)->delete();
         return back()->with('success', 'Data Siklus Pendampingan berhasil dihapus!');
     }
     public function export(Request $request)
     {
+        $this->authorizePengawas();
+
         $schoolId = $request->get('school_id');
         $query = MentoringCycle::with('school');
         
         // Jika sedang memilih sekolah tertentu, export data sekolah itu saja
         if ($schoolId) {
             $query->where('school_id', $schoolId);
-            $schoolName = \App\Models\School::find($schoolId)->name;
+            $schoolName = School::findOrFail($schoolId)->name;
         } else {
             $schoolName = "Semua_Sekolah";
         }

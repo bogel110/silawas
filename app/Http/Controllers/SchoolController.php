@@ -7,21 +7,15 @@ use App\Models\School;
 use App\Models\Attendance;
 use App\Models\MonthlyReport;
 use App\Models\KbmReport;
-use Illuminate\Support\Facades\Auth;
 
 class SchoolController extends Controller
 {
     public function show($id)
     {
-        $user = Auth::user();
-
         // Mencari data sekolah beserta relasi absensi dan laporan bulanannya
         $school = School::with(['attendances', 'monthlyReports'])->findOrFail($id);
 
-        // Proteksi akses untuk Admin Sekolah
-        if ($user->role === 'admin_sekolah' && $school->id !== $user->school_id) {
-            abort(403, 'Anda tidak memiliki hak akses untuk melihat data sekolah lain.');
-        }
+        $this->authorizeSchoolAccess($school->id);
 
         return view('schools.show', compact('school'));
     }
@@ -29,10 +23,7 @@ class SchoolController extends Controller
     public function updateDriveLink(Request $request, $id)
     {
         $school = School::findOrFail($id);
-
-        if (auth()->user()->role === 'admin_sekolah' && auth()->user()->school_id !== $school->id) {
-            abort(403, 'Akses ditolak.');
-        }
+        $this->authorizeAdminForSchool($school->id);
 
         $request->validate(['drive_link' => 'nullable|url']);
         $school->update(['drive_link' => $request->drive_link]);
@@ -42,6 +33,9 @@ class SchoolController extends Controller
     
     public function storeAttendance(Request $request, $id)
     {
+        $school = School::findOrFail($id);
+        $this->authorizeAdminForSchool($school->id);
+
         $request->validate([
             'siswa_hadir'  => 'required|integer|min:0',
             'guru_hadir'   => 'required|integer|min:0',
@@ -69,6 +63,9 @@ class SchoolController extends Controller
 
     public function storeMonthlyReport(Request $request, $id)
     {
+        $school = School::findOrFail($id);
+        $this->authorizeAdminForSchool($school->id);
+
         $request->validate([
             'bulan' => 'required|integer|min:1|max:12',
             'tahun_pelajaran' => 'required|string',
@@ -99,6 +96,7 @@ class SchoolController extends Controller
     public function updateLinks(Request $request, $id)
     {
         $school = School::findOrFail($id);
+        $this->authorizeAdminForSchool($school->id);
 
         $request->validate([
             'ijop_link' => 'nullable|url',
@@ -122,9 +120,7 @@ class SchoolController extends Controller
 
     public function updateCatatan(Request $request, $id)
     {
-        if (auth()->user()->role !== 'pengawas') {
-            abort(403, 'Anda tidak memiliki akses untuk memberikan catatan.');
-        }
+        $this->authorizePengawas();
 
         $request->validate([
             'catatan_pengawas' => 'nullable|string',
@@ -139,27 +135,26 @@ class SchoolController extends Controller
     public function destroyAttendance($id)
     {
         $attendance = Attendance::findOrFail($id);
-        
-        if (auth()->user()->role === 'pengawas' || auth()->user()->school_id === $attendance->school_id) {
-            $attendance->delete();
-            return redirect()->back()->with('success', 'Data kehadiran berhasil dihapus!');
-        }
+        $this->authorizeSchoolAccess($attendance->school_id);
 
-        abort(403, 'Anda tidak memiliki akses untuk menghapus data ini.');
+        $attendance->delete();
+        return redirect()->back()->with('success', 'Data kehadiran berhasil dihapus!');
     }
 
     public function updateMonthlyReport(Request $request, $id)
     {
         $report = MonthlyReport::findOrFail($id);
+        $this->authorizeSchoolAccess($report->school_id);
         
-        $request->validate([
+        $data = $request->validate([
+            'tahun_pelajaran' => 'required|string',
             'kurikulum_link' => 'nullable',
             'kesiswaan_link' => 'nullable',
             'sarpras_link' => 'nullable',
             'humas_link' => 'nullable',
         ]);
 
-        $report->update($request->only(['tahun_pelajaran','kurikulum_link', 'kesiswaan_link', 'sarpras_link', 'humas_link']));
+        $report->update($data);
 
         return redirect()->back()->with('success', 'Laporan bulanan berhasil diperbarui!');
     }
@@ -167,17 +162,16 @@ class SchoolController extends Controller
     public function destroyMonthlyReport($id)
     {
         $report = MonthlyReport::findOrFail($id);
-        
-        if (auth()->user()->role === 'pengawas' || auth()->user()->school_id === $report->school_id) {
-            $report->delete();
-            return redirect()->back()->with('success', 'Laporan bulanan berhasil dihapus!');
-        }
+        $this->authorizeSchoolAccess($report->school_id);
 
-        abort(403);
+        $report->delete();
+        return redirect()->back()->with('success', 'Laporan bulanan berhasil dihapus!');
     }
 
     public function destroy($id)
     {
+        $this->authorizePengawas();
+
         $school = School::findOrFail($id);
         $school->delete();
 
@@ -186,6 +180,8 @@ class SchoolController extends Controller
 
     public function exportExcel()
     {
+        $this->authorizePengawas();
+
         $schools = School::all(); 
         $filename = "Data_Performa_Sekolah_Binaan_" . date('Ymd') . ".csv";
 
@@ -230,6 +226,7 @@ class SchoolController extends Controller
         $school = School::with(['attendances' => function($query) {
             $query->orderBy('tanggal', 'desc');
         }])->findOrFail($id);
+        $this->authorizeSchoolAccess($school->id);
 
         $namaSekolah = str_replace(' ', '_', $school->name);
         $filename = "Rekap_Jurnal_" . $namaSekolah . "_" . date('Ymd') . ".csv";
@@ -275,6 +272,9 @@ class SchoolController extends Controller
 
     public function storeKbm(Request $request, $id)
     {
+        $school = School::findOrFail($id);
+        $this->authorizeAdminForSchool($school->id);
+
         $request->validate([
             'tahun_pelajaran' => 'required|string',
             'intra_link'      => 'nullable|url',
@@ -300,6 +300,7 @@ class SchoolController extends Controller
     public function updateKbm(Request $request, $id)
     {
         $kbm = KbmReport::findOrFail($id);
+        $this->authorizeAdminForSchool($kbm->school_id);
 
         $request->validate([
             'tahun_pelajaran' => 'required|string',
@@ -321,6 +322,8 @@ class SchoolController extends Controller
     public function destroyKbm($id)
     {
         $kbm = KbmReport::findOrFail($id);
+        $this->authorizeAdminForSchool($kbm->school_id);
+
         $kbm->delete();
 
         return redirect()->back()->with('success', 'Data laporan KBM berhasil dihapus!');

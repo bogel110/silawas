@@ -14,8 +14,14 @@ class DashboardController extends Controller
 
         // 1. Jika yang login adalah Admin Sekolah, langsung arahkan ke sekolahnya
         if ($user->role === 'admin_sekolah') {
+            if (! $user->school_id) {
+                abort(403, 'Akun admin sekolah belum terhubung ke data sekolah.');
+            }
+
             return redirect()->route('school.show', $user->school_id);
         }
+
+        $this->authorizePengawas();
 
         // 2. Jika yang login adalah Pengawas, tampilkan Dashboard Utama
         $totalSchools = School::count();

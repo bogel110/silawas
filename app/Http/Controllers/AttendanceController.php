@@ -23,6 +23,8 @@ class AttendanceController extends Controller
                 $selectedSchool = School::with(['attendances' => function ($query) {
                     $query->orderBy('tanggal', 'desc'); // Urutkan jurnal terbaru di atas
                 }])->findOrFail($request->school_id);
+
+                $this->authorizeSchoolAccess($selectedSchool->id);
             }
         }
         // Logika untuk Admin Sekolah: Langsung tampilkan jurnal sekolahnya sendiri
@@ -30,6 +32,10 @@ class AttendanceController extends Controller
             $selectedSchool = School::with(['attendances' => function ($query) {
                 $query->orderBy('tanggal', 'desc');
             }])->findOrFail($user->school_id);
+
+            $this->authorizeSchoolAccess($selectedSchool->id);
+        } else {
+            abort(403, 'Akses ditolak.');
         }
 
         return view('journal.index', compact('schools', 'selectedSchool'));

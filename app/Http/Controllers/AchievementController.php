@@ -14,7 +14,8 @@ class AchievementController extends Controller
     // ==========================================
     public function indexAdmin()
     {
-        if (strtolower(auth()->user()->role) !== 'admin_sekolah') abort(403);
+        $this->authorizeAdminForSchool(auth()->user()->school_id);
+
         $schoolId = auth()->user()->school_id;
         $achievements = Achievement::where('school_id', $schoolId)->orderBy('tanggal', 'desc')->get();
         return view('achievements.admin', compact('achievements'));
@@ -22,7 +23,9 @@ class AchievementController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
+        $this->authorizeAdminForSchool(auth()->user()->school_id);
+
+        $data = $request->validate([
             'tanggal'      => 'required|date',
             'peringkat'    => 'required|string',
             'tingkat'      => 'required|string',
@@ -32,8 +35,8 @@ class AchievementController extends Controller
             'keterangan'   => 'required|string'
         ]);
 
-        $data = $request->all();
-        $data['school_id'] = auth()->user()->school_id; 
+        $this->authorizeAdminForSchool(auth()->user()->school_id);
+        $data['school_id'] = auth()->user()->school_id;
         Achievement::create($data);
 
         return back()->with('success', 'Data Prestasi berhasil ditambahkan!');
@@ -41,7 +44,7 @@ class AchievementController extends Controller
 
     public function update(Request $request, $id)
     {
-        $request->validate([
+        $data = $request->validate([
             'tanggal'      => 'required|date',
             'peringkat'    => 'required|string',
             'tingkat'      => 'required|string',
@@ -52,20 +55,25 @@ class AchievementController extends Controller
         ]);
 
         $achievement = Achievement::findOrFail($id);
-        $achievement->update($request->all());
+        $this->authorizeAdminForSchool($achievement->school_id);
+
+        $achievement->update($data);
         
         return back()->with('success', 'Data Prestasi berhasil diperbarui!');
     }
 
     public function destroy($id)
     {
-        Achievement::findOrFail($id)->delete();
+        $achievement = Achievement::findOrFail($id);
+        $this->authorizeAdminForSchool($achievement->school_id);
+
+        $achievement->delete();
         return back()->with('success', 'Data Prestasi berhasil dihapus!');
     }
 
     public function exportAdmin()
     {
-        if (strtolower(auth()->user()->role) !== 'admin_sekolah') abort(403);
+        $this->authorizeAdminForSchool(auth()->user()->school_id);
 
         $schoolId = auth()->user()->school_id;
         $data = Achievement::where('school_id', $schoolId)->latest()->get();
@@ -107,13 +115,11 @@ class AchievementController extends Controller
     // ==========================================
     public function indexPengawas(Request $request)
     {
-        if (strtolower(auth()->user()->role) !== 'pengawas') {
-            abort(403, 'Akses Ditolak: Halaman ini khusus untuk Pengawas Sekolah.');
-        }
+        $this->authorizePengawas();
 
         $schools = School::orderBy('name', 'asc')->get();
         $selectedSchoolId = $request->get('school_id');
-        $selectedSchool = $selectedSchoolId ? School::find($selectedSchoolId) : null;
+        $selectedSchool = $selectedSchoolId ? School::findOrFail($selectedSchoolId) : null;
 
         // 1. DATA GLOBAL (Untuk Grafik & Kartu Angka Paling Atas - Selalu Dihitung)
         $allAchievements = Achievement::all();
@@ -161,7 +167,7 @@ class AchievementController extends Controller
 
     public function exportPengawas(Request $request)
     {
-        if (strtolower(auth()->user()->role) !== 'pengawas') abort(403);
+        $this->authorizePengawas();
 
         $schoolId = $request->get('school_id');
         $query = Achievement::with('school');
@@ -169,7 +175,7 @@ class AchievementController extends Controller
         // Jika filter sekolah diisi, ambil sekolah tersebut. Jika kosong, export semua.
         if ($schoolId) {
             $query->where('school_id', $schoolId);
-            $schoolName = School::find($schoolId)->name;
+            $schoolName = School::findOrFail($schoolId)->name;
         } else {
             $schoolName = "Seluruh_Sekolah_Binaan";
         }

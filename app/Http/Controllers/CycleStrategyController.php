@@ -10,16 +10,13 @@ class CycleStrategyController extends Controller
 {
     public function index(Request $request)
     {  
-        // Pastikan HANYA PENGAWAS yang bisa mengakses
-        if (auth()->user()->role !== 'pengawas') {
-            abort(403, 'Akses Ditolak: Modul ini khusus untuk Pengawas Sekolah.');
-        }
+        $this->authorizePengawas();
 
         $schools = School::orderBy('name', 'asc')->get();
         
         // Tangkap data sekolah yang dipilih dari Dropdown (URL GET)
         $selectedSchoolId = $request->get('school_id');
-        $selectedSchool = $selectedSchoolId ? School::find($selectedSchoolId) : null;
+        $selectedSchool = $selectedSchoolId ? School::findOrFail($selectedSchoolId) : null;
 
         // Jika sekolah dipilih, ambil data strateginya. Jika tidak, ambil SEMUA data strategi.
         $query = CycleStrategy::with('school');
@@ -63,26 +60,37 @@ class CycleStrategyController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
+        $this->authorizePengawas();
+
+        $data = $request->validate([
             'school_id' => 'required|exists:schools,id',
             'strategy' => 'required|string',
             'keterangan' => 'nullable|string'
         ]);
 
-        CycleStrategy::create($request->all());
+        CycleStrategy::create($data);
 
         return back()->with('success', 'Siklus & Strategi berhasil ditambahkan!');
     }
 
     public function update(Request $request, $id)
     {
+        $this->authorizePengawas();
+
+        $data = $request->validate([
+            'strategy' => 'required|string',
+            'keterangan' => 'nullable|string'
+        ]);
+
         $strategy = CycleStrategy::findOrFail($id);
-        $strategy->update($request->all());
+        $strategy->update($data);
         return back()->with('success', 'Data strategi berhasil diperbarui!');
     }
 
     public function destroy($id)
     {
+        $this->authorizePengawas();
+
         CycleStrategy::findOrFail($id)->delete();
         return back()->with('success', 'Data strategi berhasil dihapus!');
     }
@@ -90,13 +98,15 @@ class CycleStrategyController extends Controller
     // Tambahkan parameter Request untuk menangkap filter sekolah saat Export
     public function export(Request $request) 
     {
+        $this->authorizePengawas();
+
         $schoolId = $request->get('school_id');
         $query = CycleStrategy::with('school');
 
         // Jika sedang memilih sekolah tertentu, export khusus data sekolah itu
         if ($schoolId) {
             $query->where('school_id', $schoolId);
-            $schoolName = School::find($schoolId)->name;
+            $schoolName = School::findOrFail($schoolId)->name;
         } else {
             $schoolName = "Semua_Sekolah";
         }

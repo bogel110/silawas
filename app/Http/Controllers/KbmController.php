@@ -23,17 +23,22 @@ class KbmController extends Controller
 
             if ($request->filled('school_id')) {
                 $query->where('school_id', $request->school_id);
-                $selectedSchool = School::find($request->school_id);
+                $selectedSchool = School::findOrFail($request->school_id);
+                $this->authorizeSchoolAccess($selectedSchool->id);
             }
 
             $kbms = $query->get();
         } 
         elseif ($user->role === 'admin_sekolah') {
             $selectedSchool = School::findOrFail($user->school_id);
+            $this->authorizeSchoolAccess($selectedSchool->id);
+
             // Ambil KBM khusus sekolah admin yang login
             $kbms = KbmReport::where('school_id', $user->school_id)
                                 ->orderBy('tahun_pelajaran', 'desc')
                                 ->get();
+        } else {
+            abort(403, 'Akses ditolak.');
         }
 
         return view('kbm.index', compact('schools', 'kbms', 'selectedSchool'));

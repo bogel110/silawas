@@ -9,8 +9,22 @@
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
 
+    <script>
+        (function () {
+            try {
+                const savedTheme = localStorage.getItem('silawas-theme');
+                const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+
+                document.documentElement.dataset.theme = savedTheme || systemTheme;
+            } catch (error) {
+                document.documentElement.dataset.theme = 'light';
+            }
+        })();
+    </script>
+
     <style>
         :root {
+            color-scheme: light;
             --brand-900: #0b3c49;
             --brand-800: #0f5564;
             --brand-700: #0f6b7d;
@@ -33,6 +47,27 @@
             --bs-body-font-family: 'Plus Jakarta Sans', sans-serif;
             --bs-body-color: var(--text-main);
             --bs-body-bg: linear-gradient(180deg, #f8fbfc 0%, #f3f7fa 100%);
+        }
+
+        html[data-theme="dark"] {
+            color-scheme: dark;
+            --brand-900: #d7f5f8;
+            --brand-800: #9ae7ef;
+            --brand-700: #63c7d2;
+            --brand-100: rgba(99, 199, 210, 0.14);
+            --accent-soft: rgba(244, 162, 97, 0.14);
+            --surface: #0f2329;
+            --surface-soft: #112a31;
+            --surface-muted: #173740;
+            --line: rgba(180, 221, 227, 0.12);
+            --text-main: #e7f3f5;
+            --text-soft: #9fb8bf;
+            --shadow-soft: 0 18px 44px rgba(0, 0, 0, 0.28);
+            --shadow-card: 0 14px 34px rgba(0, 0, 0, 0.24);
+            --bs-primary: #63c7d2;
+            --bs-primary-rgb: 99, 199, 210;
+            --bs-body-color: var(--text-main);
+            --bs-body-bg: linear-gradient(180deg, #07191e 0%, #0b2026 100%);
         }
 
         body {
@@ -562,6 +597,294 @@
             opacity: 1;
         }
 
+        .theme-switch {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.55rem;
+            min-height: 46px;
+            padding: 0.45rem 0.85rem;
+            border: 1px solid rgba(15, 107, 125, 0.08);
+            border-radius: 18px;
+            background: rgba(255, 255, 255, 0.96);
+            box-shadow: 0 8px 22px rgba(15, 107, 125, 0.08);
+            color: var(--brand-700);
+            font-size: 0.78rem;
+            font-weight: 800;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        .theme-switch:hover,
+        .theme-switch:focus {
+            color: var(--brand-800);
+            background: #fff;
+            border-color: rgba(15, 107, 125, 0.14);
+        }
+
+        html[data-theme="dark"] .sidebar {
+            background:
+                radial-gradient(circle at top left, rgba(244, 162, 97, 0.1), transparent 36%),
+                linear-gradient(180deg, #081b20 0%, #0d242b 100%);
+        }
+
+        html[data-theme="dark"] .sidebar-shell,
+        html[data-theme="dark"] .top-navbar-inner {
+            background: rgba(12, 35, 41, 0.86);
+            border-color: rgba(180, 221, 227, 0.12);
+        }
+
+        html[data-theme="dark"] .sidebar-brand .text-primary {
+            color: var(--brand-800) !important;
+        }
+
+        html[data-theme="dark"] .sidebar .nav-link:hover {
+            background: rgba(99, 199, 210, 0.11);
+        }
+
+        html[data-theme="dark"] .sidebar-footer {
+            background: linear-gradient(135deg, rgba(99, 199, 210, 0.12), rgba(244, 162, 97, 0.1));
+        }
+
+        html[data-theme="dark"] .profile-toggle,
+        html[data-theme="dark"] .profile-toggle:hover,
+        html[data-theme="dark"] .profile-toggle:focus,
+        html[data-theme="dark"] .profile-toggle.show,
+        html[data-theme="dark"] .theme-switch,
+        html[data-theme="dark"] .theme-switch:hover,
+        html[data-theme="dark"] .theme-switch:focus,
+        html[data-theme="dark"] .btn-toggle-sidebar,
+        html[data-theme="dark"] .btn-soft {
+            background: rgba(17, 42, 49, 0.96);
+            border-color: rgba(180, 221, 227, 0.14);
+            color: var(--text-main);
+        }
+
+        html[data-theme="dark"] .profile-menu,
+        html[data-theme="dark"] .dropdown-menu,
+        html[data-theme="dark"] .bg-white,
+        html[data-theme="dark"] .bg-light {
+            background-color: #10262d !important;
+            color: var(--text-main) !important;
+        }
+
+        html[data-theme="dark"] .content-panel,
+        html[data-theme="dark"] .metric-card,
+        html[data-theme="dark"] .card,
+        html[data-theme="dark"] .table-panel {
+            background: rgba(15, 35, 41, 0.92);
+            border-color: rgba(180, 221, 227, 0.12) !important;
+            color: var(--text-main);
+        }
+
+        html[data-theme="dark"] .hero-panel {
+            background:
+                radial-gradient(circle at top right, rgba(244, 162, 97, 0.12), transparent 24%),
+                linear-gradient(135deg, rgba(15, 35, 41, 0.96), rgba(11, 32, 38, 0.94));
+            border-color: rgba(180, 221, 227, 0.12);
+        }
+
+        html[data-theme="dark"] .table-panel-header {
+            border-color: rgba(180, 221, 227, 0.12);
+            background: linear-gradient(180deg, rgba(17, 42, 49, 0.95), rgba(15, 35, 41, 0.96));
+        }
+
+        html[data-theme="dark"] .table {
+            --bs-table-bg: transparent;
+            --bs-table-color: var(--text-main);
+            --bs-table-hover-bg: rgba(99, 199, 210, 0.08);
+            --bs-table-hover-color: var(--text-main);
+            color: var(--text-main);
+        }
+
+        html[data-theme="dark"] .table thead th,
+        html[data-theme="dark"] .table tbody td {
+            border-color: rgba(180, 221, 227, 0.12);
+        }
+
+        html[data-theme="dark"] .form-control,
+        html[data-theme="dark"] .form-select,
+        html[data-theme="dark"] .input-group-text,
+        html[data-theme="dark"] textarea.form-control {
+            border-color: rgba(180, 221, 227, 0.15);
+            background-color: #112a31;
+            color: var(--text-main) !important;
+            -webkit-text-fill-color: var(--text-main);
+        }
+
+        html[data-theme="dark"] .form-control::placeholder,
+        html[data-theme="dark"] textarea.form-control::placeholder {
+            color: #78939a;
+            -webkit-text-fill-color: #78939a;
+            opacity: 1;
+        }
+
+        html[data-theme="dark"] .form-label,
+        html[data-theme="dark"] .form-check-label,
+        html[data-theme="dark"] label,
+        html[data-theme="dark"] legend,
+        html[data-theme="dark"] .input-group-text {
+            color: var(--text-main) !important;
+        }
+
+        html[data-theme="dark"] .form-control:disabled,
+        html[data-theme="dark"] .form-control[readonly],
+        html[data-theme="dark"] .form-select:disabled,
+        html[data-theme="dark"] textarea.form-control:disabled,
+        html[data-theme="dark"] textarea.form-control[readonly] {
+            background-color: #173740 !important;
+            color: #cde3e7 !important;
+            -webkit-text-fill-color: #cde3e7;
+            opacity: 1;
+        }
+
+        html[data-theme="dark"] .form-select option,
+        html[data-theme="dark"] select option {
+            background-color: #112a31;
+            color: var(--text-main);
+        }
+
+        html[data-theme="dark"] input[type="date"],
+        html[data-theme="dark"] input[type="month"],
+        html[data-theme="dark"] input[type="time"],
+        html[data-theme="dark"] input[type="datetime-local"] {
+            color-scheme: dark;
+        }
+
+        html[data-theme="dark"] .form-control:focus,
+        html[data-theme="dark"] .form-select:focus {
+            border-color: rgba(99, 199, 210, 0.42);
+            box-shadow: 0 0 0 0.2rem rgba(99, 199, 210, 0.12) !important;
+        }
+
+        html[data-theme="dark"] .list-group-item {
+            background: transparent;
+            border-color: rgba(180, 221, 227, 0.12);
+            color: var(--text-main);
+        }
+
+        html[data-theme="dark"] .modal-content {
+            background-color: rgba(15, 35, 41, 0.98);
+            color: var(--text-main);
+        }
+
+        html[data-theme="dark"] .text-dark,
+        html[data-theme="dark"] .text-muted,
+        html[data-theme="dark"] .text-soft {
+            color: var(--text-soft) !important;
+        }
+
+        html[data-theme="dark"] .text-primary {
+            color: var(--brand-800) !important;
+        }
+
+        html[data-theme="dark"] input.form-control,
+        html[data-theme="dark"] select.form-select,
+        html[data-theme="dark"] textarea.form-control {
+            background-color: #112a31 !important;
+            color: var(--text-main) !important;
+            -webkit-text-fill-color: var(--text-main) !important;
+        }
+
+        html[data-theme="dark"] input.form-control.text-muted,
+        html[data-theme="dark"] select.form-select.text-muted,
+        html[data-theme="dark"] textarea.form-control.text-muted,
+        html[data-theme="dark"] input.form-control:disabled,
+        html[data-theme="dark"] select.form-select:disabled,
+        html[data-theme="dark"] textarea.form-control:disabled,
+        html[data-theme="dark"] input.form-control[readonly],
+        html[data-theme="dark"] textarea.form-control[readonly] {
+            background-color: #173740 !important;
+            color: #d7eaee !important;
+            -webkit-text-fill-color: #d7eaee !important;
+            opacity: 1;
+        }
+
+        html[data-theme="dark"] input.form-control::placeholder,
+        html[data-theme="dark"] textarea.form-control::placeholder {
+            color: #9fb8bf !important;
+            -webkit-text-fill-color: #9fb8bf !important;
+            opacity: 1;
+        }
+
+        html[data-theme="dark"] select,
+        html[data-theme="dark"] select.form-select,
+        html[data-theme="dark"] .modal select,
+        html[data-theme="dark"] .modal select.form-select {
+            background-color: #112a31 !important;
+            color: #e7f3f5 !important;
+            -webkit-text-fill-color: #e7f3f5 !important;
+            border-color: rgba(180, 221, 227, 0.18) !important;
+            color-scheme: dark;
+        }
+
+        html[data-theme="dark"] select option,
+        html[data-theme="dark"] select.form-select option,
+        html[data-theme="dark"] .modal select option,
+        html[data-theme="dark"] .modal select.form-select option {
+            background-color: #112a31 !important;
+            color: #e7f3f5 !important;
+            -webkit-text-fill-color: #e7f3f5 !important;
+        }
+
+        html[data-theme="dark"] select option:checked,
+        html[data-theme="dark"] select option:hover {
+            background-color: #1d4b56 !important;
+            color: #ffffff !important;
+        }
+
+        html[data-theme="dark"] .choices,
+        html[data-theme="dark"] .choices__inner,
+        html[data-theme="dark"] .choices__list,
+        html[data-theme="dark"] .choices__list--single,
+        html[data-theme="dark"] .choices__list--dropdown,
+        html[data-theme="dark"] .choices__list[aria-expanded] {
+            background-color: #112a31 !important;
+            color: #e7f3f5 !important;
+        }
+
+        html[data-theme="dark"] .choices__inner,
+        html[data-theme="dark"] .choices__list--dropdown,
+        html[data-theme="dark"] .choices__list[aria-expanded] {
+            border-color: rgba(180, 221, 227, 0.18) !important;
+        }
+
+        html[data-theme="dark"] .choices__item,
+        html[data-theme="dark"] .choices__list--single .choices__item,
+        html[data-theme="dark"] .choices__list--dropdown .choices__item,
+        html[data-theme="dark"] .choices__list[aria-expanded] .choices__item,
+        html[data-theme="dark"] .choices__placeholder {
+            color: #e7f3f5 !important;
+            opacity: 1 !important;
+        }
+
+        html[data-theme="dark"] .choices__input,
+        html[data-theme="dark"] .choices[data-type*="select-one"] .choices__input {
+            background-color: #173740 !important;
+            border-color: rgba(180, 221, 227, 0.18) !important;
+            color: #e7f3f5 !important;
+            -webkit-text-fill-color: #e7f3f5 !important;
+        }
+
+        html[data-theme="dark"] .choices__input::placeholder {
+            color: #9fb8bf !important;
+            -webkit-text-fill-color: #9fb8bf !important;
+            opacity: 1 !important;
+        }
+
+        html[data-theme="dark"] .choices__list--dropdown .choices__item--selectable.is-highlighted,
+        html[data-theme="dark"] .choices__list[aria-expanded] .choices__item--selectable.is-highlighted {
+            background-color: #1d7784 !important;
+            color: #ffffff !important;
+        }
+
+        html[data-theme="dark"] .choices[data-type*="select-one"]::after {
+            border-color: #e7f3f5 transparent transparent transparent !important;
+        }
+
+        html[data-theme="dark"] .choices[data-type*="select-one"].is-open::after {
+            border-color: transparent transparent #e7f3f5 transparent !important;
+        }
+
         @media (max-width: 991.98px) {
             .sidebar {
                 transform: translateX(-100%);
@@ -709,38 +1032,45 @@
                     </div>
                 </div>
 
-                <div class="dropdown">
-                    <button class="btn profile-toggle dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <div class="text-end d-none d-sm-block">
-                            <p class="mb-0 fw-bold small text-dark lh-1">{{ auth()->user()->name }}</p>
-                            <small class="text-soft text-uppercase" style="font-size: 0.68rem; letter-spacing: 0.08em;">
-                                {{ str_replace('_', ' ', auth()->user()->role) }}
-                            </small>
-                        </div>
-                        <img alt="Profile" class="avatar-img" src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name) }}&background=0f6b7d&color=fff"/>
+                <div class="d-flex align-items-center gap-2">
+                    <button class="theme-switch" id="themeToggle" type="button" aria-label="Ganti tema tampilan">
+                        <span class="material-symbols-outlined fs-5" id="themeToggleIcon">dark_mode</span>
+                        <span class="d-none d-md-inline" id="themeToggleText">Dark</span>
                     </button>
-                    <ul class="dropdown-menu dropdown-menu-end profile-menu border-0">
-                        <li class="dropdown-header px-3 py-2">
-                            <div class="fw-bold">{{ auth()->user()->name }}</div>
-                            <div class="text-soft small text-uppercase">{{ str_replace('_', ' ', auth()->user()->role) }}</div>
-                        </li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li>
-                            <a class="dropdown-item" href="{{ route('profile.password.edit') }}">
-                                <span class="material-symbols-outlined fs-6">lock_person</span>
-                                Ubah Password
-                            </a>
-                        </li>
-                        <li>
-                            <form action="{{ route('logout') }}" method="POST" class="m-0">
-                                @csrf
-                                <button class="dropdown-item text-danger" type="submit">
-                                    <span class="material-symbols-outlined fs-6">logout</span>
-                                    Keluar
-                                </button>
-                            </form>
-                        </li>
-                    </ul>
+
+                    <div class="dropdown">
+                        <button class="btn profile-toggle dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <div class="text-end d-none d-sm-block">
+                                <p class="mb-0 fw-bold small text-dark lh-1">{{ auth()->user()->name }}</p>
+                                <small class="text-soft text-uppercase" style="font-size: 0.68rem; letter-spacing: 0.08em;">
+                                    {{ str_replace('_', ' ', auth()->user()->role) }}
+                                </small>
+                            </div>
+                            <img alt="Profile" class="avatar-img" src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name) }}&background=0f6b7d&color=fff"/>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end profile-menu border-0">
+                            <li class="dropdown-header px-3 py-2">
+                                <div class="fw-bold">{{ auth()->user()->name }}</div>
+                                <div class="text-soft small text-uppercase">{{ str_replace('_', ' ', auth()->user()->role) }}</div>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item" href="{{ route('profile.password.edit') }}">
+                                    <span class="material-symbols-outlined fs-6">lock_person</span>
+                                    Ubah Password
+                                </a>
+                            </li>
+                            <li>
+                                <form action="{{ route('logout') }}" method="POST" class="m-0">
+                                    @csrf
+                                    <button class="dropdown-item text-danger" type="submit">
+                                        <span class="material-symbols-outlined fs-6">logout</span>
+                                        Keluar
+                                    </button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
             </div>
         </header>
@@ -757,6 +1087,41 @@
             const btnOpen = document.getElementById('btnOpenSidebar');
             const btnClose = document.getElementById('btnCloseSidebar');
             const overlay = document.getElementById('sidebarOverlay');
+            const themeToggle = document.getElementById('themeToggle');
+            const themeToggleIcon = document.getElementById('themeToggleIcon');
+            const themeToggleText = document.getElementById('themeToggleText');
+
+            function setTheme(theme) {
+                const nextTheme = theme === 'dark' ? 'dark' : 'light';
+
+                document.documentElement.dataset.theme = nextTheme;
+
+                if (themeToggleIcon) {
+                    themeToggleIcon.textContent = nextTheme === 'dark' ? 'light_mode' : 'dark_mode';
+                }
+
+                if (themeToggleText) {
+                    themeToggleText.textContent = nextTheme === 'dark' ? 'Light' : 'Dark';
+                }
+
+                if (themeToggle) {
+                    themeToggle.setAttribute('aria-label', nextTheme === 'dark' ? 'Aktifkan light mode' : 'Aktifkan dark mode');
+                }
+
+                try {
+                    localStorage.setItem('silawas-theme', nextTheme);
+                } catch (error) {
+                    // Browser tertentu dapat memblokir localStorage.
+                }
+            }
+
+            setTheme(document.documentElement.dataset.theme || 'light');
+
+            if (themeToggle) {
+                themeToggle.addEventListener('click', function() {
+                    setTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark');
+                });
+            }
 
             function setSidebarState(show) {
                 if (!sidebar || !overlay) {

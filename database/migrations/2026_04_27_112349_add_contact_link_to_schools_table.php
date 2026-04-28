@@ -9,10 +9,16 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-        public function up(): void
+    public function up(): void
     {
         Schema::table('schools', function (Blueprint $table) {
-            $table->string('contact_link')->nullable()->after('drive_link');
+            if (! Schema::hasColumn('schools', 'drive_link')) {
+                $table->string('drive_link')->nullable()->after('rkas_link');
+            }
+
+            if (! Schema::hasColumn('schools', 'contact_link')) {
+                $table->string('contact_link')->nullable()->after('drive_link');
+            }
         });
     }
 
@@ -22,7 +28,9 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('schools', function (Blueprint $table) {
-            //
+            if (Schema::hasColumn('schools', 'contact_link')) {
+                $table->dropColumn('contact_link');
+            }
         });
     }
 };

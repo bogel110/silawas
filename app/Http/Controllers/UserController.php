@@ -11,10 +11,7 @@ class UserController extends Controller
 {
     public function index()
     {
-        // Proteksi: Hanya pengawas yang boleh akses halaman ini
-        if (auth()->user()->role !== 'pengawas') {
-            abort(403, 'Akses Ditolak. Halaman ini khusus Pengawas.');
-        }
+        $this->authorizePengawas();
 
         $users = User::latest()->get();
         $schools = School::orderBy('name', 'asc')->get(); 
@@ -24,11 +21,13 @@ class UserController extends Controller
 
     public function store(Request $request)
     {
+        $this->authorizePengawas();
+
         $request->validate([
             'name'      => 'required|string|max:255',
             'email'     => 'required|email|unique:users,email',
             'password'  => 'required|string|min:8',
-            'role'      => 'required|string',
+            'role'      => 'required|in:pengawas,admin_sekolah',
         ]);
 
         $school_id = null;
@@ -70,14 +69,14 @@ class UserController extends Controller
     // ==========================================
     public function update(Request $request, $id)
     {
-        if (auth()->user()->role !== 'pengawas') abort(403);
+        $this->authorizePengawas();
 
         $user = User::findOrFail($id);
 
         $request->validate([
             'name'  => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $id, // Abaikan email milik dia sendiri
-            'role'  => 'required|string',
+            'role'  => 'required|in:pengawas,admin_sekolah',
         ]);
 
         $user->name = $request->name;
@@ -88,6 +87,10 @@ class UserController extends Controller
         if ($request->role === 'pengawas') {
             $user->school_id = null; // Pengawas tidak terikat 1 sekolah
         } else {
+            $request->validate([
+                'school_id' => 'required|exists:schools,id',
+            ]);
+
             $user->school_id = $request->school_id;
         }
 
@@ -98,7 +101,11 @@ class UserController extends Controller
 
     public function destroy($id)
     {
-        if (auth()->user()->role !== 'pengawas') abort(403);
+        $this->authorizePengawas();
+
+        if ((int) auth()->id() === (int) $id) {
+            return back()->withErrors(['user' => 'Anda tidak dapat menghapus akun yang sedang digunakan.']);
+        }
         
         User::findOrFail($id)->delete();
         return back()->with('success', 'Akun berhasil dihapus!');
@@ -106,7 +113,7 @@ class UserController extends Controller
     
     public function resetPassword(Request $request, $id)
     {
-        if (auth()->user()->role !== 'pengawas') abort(403);
+        $this->authorizePengawas();
 
         $request->validate([
             'password' => 'required|string|min:8',
