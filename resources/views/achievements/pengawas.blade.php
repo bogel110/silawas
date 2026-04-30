@@ -31,62 +31,41 @@
     {{-- ========================================== --}}
     {{-- 1. GRAFIK & STATISTIK GLOBAL (Keseluruhan) --}}
     {{-- ========================================== --}}
+    <div class="row g-3 mb-4">
+        <div class="col-12 col-md-4">
+            <div class="card border-0 shadow-sm rounded-4 p-3 bg-white border-start border-4 border-primary h-100">
+                <small class="text-muted fw-bold text-uppercase" style="font-size: 0.68rem;">Total Seluruh Prestasi</small>
+                <h2 class="display-6 fw-bold mb-0 text-primary">{{ $totalPrestasi }}</h2>
+            </div>
+        </div>
+        <div class="col-6 col-md-4">
+            <div class="card border-0 shadow-sm rounded-4 p-3 bg-white border-start border-4 border-info h-100">
+                <small class="text-muted fw-bold text-uppercase" style="font-size: 0.68rem;">Oleh Siswa</small>
+                <h2 class="display-6 fw-bold mb-0 text-info">{{ $totalSiswa }}</h2>
+            </div>
+        </div>
+        <div class="col-6 col-md-4">
+            <div class="card border-0 shadow-sm rounded-4 p-3 bg-white border-start border-4 border-secondary h-100">
+                <small class="text-muted fw-bold text-uppercase" style="font-size: 0.68rem;">Oleh Guru/Tendik</small>
+                <h2 class="display-6 fw-bold mb-0 text-secondary">{{ $totalGuruTendik }}</h2>
+            </div>
+        </div>
+    </div>
+
     <div class="row g-4 mb-4">
-        <div class="col-12 col-lg-5">
+        <div class="col-12 col-md-5">
             <div class="card border-0 shadow-sm rounded-4 h-100 p-4 bg-white border-top border-4 border-primary">
-                <h6 class="font-headline fw-bold mb-4">Sebaran Tingkat Prestasi <span class="text-primary">(Keseluruhan)</span></h6>
-                <div style="position: relative; height: 250px; width: 100%;">
-                    <canvas id="globalPrestasiChart"></canvas>
+                <h6 class="font-headline fw-bold mb-4 text-center">Berdasarkan Tingkat</h6>
+                <div style="position: relative; height: 220px; width: 100%;">
+                    <canvas id="globalTingkatChart"></canvas>
                 </div>
             </div>
         </div>
-
-        <div class="col-12 col-lg-7">
-            <div class="row g-3 mb-3">
-                <div class="col-12 col-md-4">
-                    <div class="card border-0 shadow-sm rounded-4 p-3 bg-white border-bottom border-4 border-primary h-100">
-                        <small class="text-muted fw-bold text-uppercase" style="font-size: 0.68rem;">Total Seluruh Prestasi</small>
-                        <h2 class="display-6 fw-bold mb-0 text-primary">{{ $totalPrestasi }}</h2>
-                    </div>
-                </div>
-                <div class="col-6 col-md-4">
-                    <div class="card border-0 shadow-sm rounded-4 p-3 bg-white border-bottom border-4 border-info h-100">
-                        <small class="text-muted fw-bold text-uppercase" style="font-size: 0.68rem;">Oleh Siswa</small>
-                        <h2 class="display-6 fw-bold mb-0 text-info">{{ $totalSiswa }}</h2>
-                    </div>
-                </div>
-                <div class="col-6 col-md-4">
-                    <div class="card border-0 shadow-sm rounded-4 p-3 bg-white border-bottom border-4 border-secondary h-100">
-                        <small class="text-muted fw-bold text-uppercase" style="font-size: 0.68rem;">Oleh Guru/Tendik</small>
-                        <h2 class="display-6 fw-bold mb-0 text-secondary">{{ $totalGuruTendik }}</h2>
-                    </div>
-                </div>
-            </div>
-
-            <div class="row g-3">
-                <div class="col-6 col-md-3">
-                    <div class="card border-0 shadow-sm rounded-4 p-3 bg-light border-0 h-100">
-                        <small class="text-muted fw-bold text-uppercase" style="font-size: 0.65rem;">Kota/Kab</small>
-                        <h3 class="fw-bold mb-0 mt-1" style="color: #f4a261;">{{ $globalChartData[0] }}</h3>
-                    </div>
-                </div>
-                <div class="col-6 col-md-3">
-                    <div class="card border-0 shadow-sm rounded-4 p-3 bg-light border-0 h-100">
-                        <small class="text-muted fw-bold text-uppercase" style="font-size: 0.65rem;">Provinsi</small>
-                        <h3 class="fw-bold mb-0 mt-1" style="color: #2a9d8f;">{{ $globalChartData[1] }}</h3>
-                    </div>
-                </div>
-                <div class="col-6 col-md-3">
-                    <div class="card border-0 shadow-sm rounded-4 p-3 bg-light border-0 h-100">
-                        <small class="text-muted fw-bold text-uppercase" style="font-size: 0.65rem;">Nasional</small>
-                        <h3 class="fw-bold mb-0 mt-1" style="color: #e76f51;">{{ $globalChartData[2] }}</h3>
-                    </div>
-                </div>
-                <div class="col-6 col-md-3">
-                    <div class="card border-0 shadow-sm rounded-4 p-3 bg-light border-0 h-100">
-                        <small class="text-muted fw-bold text-uppercase" style="font-size: 0.65rem;">Internasional</small>
-                        <h3 class="fw-bold mb-0 mt-1" style="color: #e9c46a;">{{ $globalChartData[3] }}</h3>
-                    </div>
+        <div class="col-12 col-md-7">
+            <div class="card border-0 shadow-sm rounded-4 h-100 p-4 bg-white border-top border-4 border-info">
+                <h6 class="font-headline fw-bold mb-4 text-center">Kategori &amp; Tipe Peserta</h6>
+                <div style="position: relative; height: 220px; width: 100%;">
+                    <canvas id="globalKategoriTipeChart"></canvas>
                 </div>
             </div>
         </div>
@@ -118,63 +97,38 @@
             <h5 class="font-headline fw-bold mb-0">Statistik Spesifik: <span class="text-success">{{ $selectedSchool->name }}</span></h5>
         </div>
         <div class="card-body p-4">
-            <div class="row g-4 align-items-center">
-                {{-- Grafik Spesifik Sekolah --}}
-                <div class="col-12 col-lg-4">
-                    <div style="position: relative; height: 200px; width: 100%;">
-                        <canvas id="schoolPrestasiChart"></canvas>
+            <div class="row g-3 mb-4">
+                <div class="col-12 col-sm-4">
+                    <div class="p-3 bg-light rounded-4 border border-success border-opacity-25 text-center h-100">
+                        <small class="text-muted fw-bold text-uppercase d-block mb-1" style="font-size: 0.65rem;">Total Prestasi</small>
+                        <h3 class="fw-bold text-success mb-0">{{ $schoolTotalPrestasi }}</h3>
                     </div>
                 </div>
-                {{-- Angka Spesifik Sekolah --}}
-                <div class="col-12 col-lg-8">
-                    {{-- Baris 1: Total, Siswa, Guru --}}
-                    <div class="row g-3 mb-3">
-                        <div class="col-12 col-sm-4">
-                            <div class="p-3 bg-light rounded-4 border border-success border-opacity-25 text-center h-100">
-                                <small class="text-muted fw-bold text-uppercase d-block mb-1" style="font-size: 0.65rem;">Total Prestasi</small>
-                                <h3 class="fw-bold text-success mb-0">{{ $schoolTotalPrestasi }}</h3>
-                            </div>
-                        </div>
-                        <div class="col-6 col-sm-4">
-                            <div class="p-3 bg-light rounded-4 text-center h-100">
-                                <small class="text-muted fw-bold text-uppercase d-block mb-1" style="font-size: 0.65rem;">Siswa</small>
-                                <h3 class="fw-bold text-dark mb-0">{{ $schoolTotalSiswa }}</h3>
-                            </div>
-                        </div>
-                        <div class="col-6 col-sm-4">
-                            <div class="p-3 bg-light rounded-4 text-center h-100">
-                                <small class="text-muted fw-bold text-uppercase d-block mb-1" style="font-size: 0.65rem;">Guru/Tendik</small>
-                                <h3 class="fw-bold text-dark mb-0">{{ $schoolTotalGuruTendik }}</h3>
-                            </div>
-                        </div>
+                <div class="col-6 col-sm-4">
+                    <div class="p-3 bg-light rounded-4 text-center h-100">
+                        <small class="text-muted fw-bold text-uppercase d-block mb-1" style="font-size: 0.65rem;">Siswa</small>
+                        <h3 class="fw-bold text-dark mb-0">{{ $schoolTotalSiswa }}</h3>
                     </div>
-                    
-                    {{-- PERBAIKAN: Baris 2: Rincian Tingkat (Kab/Prov/Nas/Intl) --}}
-                    <div class="row g-3">
-                        <div class="col-6 col-md-3">
-                            <div class="p-2 bg-light rounded-3 text-center border-bottom border-3" style="border-color: #f4a261 !important;">
-                                <small class="text-muted fw-bold text-uppercase d-block mb-1" style="font-size: 0.65rem;">Kota/Kab</small>
-                                <h4 class="fw-bold mb-0" style="color: #f4a261;">{{ $schoolChartData[0] }}</h4>
-                            </div>
-                        </div>
-                        <div class="col-6 col-md-3">
-                            <div class="p-2 bg-light rounded-3 text-center border-bottom border-3" style="border-color: #2a9d8f !important;">
-                                <small class="text-muted fw-bold text-uppercase d-block mb-1" style="font-size: 0.65rem;">Provinsi</small>
-                                <h4 class="fw-bold mb-0" style="color: #2a9d8f;">{{ $schoolChartData[1] }}</h4>
-                            </div>
-                        </div>
-                        <div class="col-6 col-md-3">
-                            <div class="p-2 bg-light rounded-3 text-center border-bottom border-3" style="border-color: #e76f51 !important;">
-                                <small class="text-muted fw-bold text-uppercase d-block mb-1" style="font-size: 0.65rem;">Nasional</small>
-                                <h4 class="fw-bold mb-0" style="color: #e76f51;">{{ $schoolChartData[2] }}</h4>
-                            </div>
-                        </div>
-                        <div class="col-6 col-md-3">
-                            <div class="p-2 bg-light rounded-3 text-center border-bottom border-3" style="border-color: #e9c46a !important;">
-                                <small class="text-muted fw-bold text-uppercase d-block mb-1" style="font-size: 0.65rem;">Internasional</small>
-                                <h4 class="fw-bold mb-0" style="color: #e9c46a;">{{ $schoolChartData[3] }}</h4>
-                            </div>
-                        </div>
+                </div>
+                <div class="col-6 col-sm-4">
+                    <div class="p-3 bg-light rounded-4 text-center h-100">
+                        <small class="text-muted fw-bold text-uppercase d-block mb-1" style="font-size: 0.65rem;">Guru/Tendik</small>
+                        <h3 class="fw-bold text-dark mb-0">{{ $schoolTotalGuruTendik }}</h3>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row g-4">
+                <div class="col-12 col-md-5">
+                    <h6 class="fw-bold text-center small text-muted mb-3">Tingkat</h6>
+                    <div style="position: relative; height: 200px; width: 100%;">
+                        <canvas id="schoolTingkatChart"></canvas>
+                    </div>
+                </div>
+                <div class="col-12 col-md-7">
+                    <h6 class="fw-bold text-center small text-muted mb-3">Kategori &amp; Tipe Peserta</h6>
+                    <div style="position: relative; height: 200px; width: 100%;">
+                        <canvas id="schoolKategoriTipeChart"></canvas>
                     </div>
                 </div>
             </div>
@@ -257,37 +211,156 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // 1. Chart Global (Semua Sekolah)
-            const ctxGlobal = document.getElementById('globalPrestasiChart');
-            if(ctxGlobal) {
-                new Chart(ctxGlobal.getContext('2d'), {
-                    type: 'doughnut',
+            // 1. Chart Global (Semua Sekolah)
+            const globalTingkatTipeData = @json($globalTingkatTipeChart);
+            const globalTingkatCtx = document.getElementById('globalTingkatChart');
+            if(globalTingkatCtx) {
+                new Chart(globalTingkatCtx.getContext('2d'), {
+                    type: 'pie',
                     data: {
-                        labels: ['Kota/Kabupaten', 'Provinsi', 'Nasional', 'Internasional'],
+                        labels: ['Kota/Kab', 'Provinsi', 'Nasional', 'Internasional'],
                         datasets: [{
-                            data: {{ json_encode($globalChartData) }},
+                            data: @json($globalTingkatChart),
                             backgroundColor: ['#f4a261', '#2a9d8f', '#e76f51', '#e9c46a'],
                             borderWidth: 0
                         }]
                     },
-                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+                    options: { 
+                        responsive: true, 
+                        maintainAspectRatio: false, 
+                        plugins: { 
+                            legend: { position: 'bottom' },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        var index = context.dataIndex;
+                                        var total = context.raw || 0;
+                                        var siswa = 0;
+                                        var guruTendik = 0;
+                                        
+                                        if (globalTingkatTipeData && globalTingkatTipeData.siswa) {
+                                            siswa = globalTingkatTipeData.siswa[index] || 0;
+                                        }
+                                        if (globalTingkatTipeData && globalTingkatTipeData.guru_tendik) {
+                                            guruTendik = globalTingkatTipeData.guru_tendik[index] || 0;
+                                        }
+                                        
+                                        return [
+                                            context.label + ': ' + total,
+                                            ' - Siswa: ' + siswa,
+                                            ' - Guru/Tendik: ' + guruTendik
+                                        ];
+                                    }
+                                }
+                            }
+                        } 
+                    }
                 });
             }
 
-            // 2. Chart Spesifik Sekolah (Muncul jika ada sekolah dipilih)
+            const globalKategoriTipeCtx = document.getElementById('globalKategoriTipeChart');
+            if(globalKategoriTipeCtx) {
+                new Chart(globalKategoriTipeCtx.getContext('2d'), {
+                    type: 'bar',
+                    data: {
+                        labels: ['Siswa', 'Guru', 'Tendik'],
+                        datasets: [
+                            {
+                                label: 'Individu',
+                                data: @json($globalKategoriTipeChart['individu']),
+                                backgroundColor: '#457b9d',
+                                borderRadius: 4, borderWidth: 0
+                            },
+                            {
+                                label: 'Tim/Kelompok',
+                                data: @json($globalKategoriTipeChart['tim']),
+                                backgroundColor: '#e63946',
+                                borderRadius: 4, borderWidth: 0
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true, maintainAspectRatio: false,
+                        plugins: { legend: { position: 'bottom' } },
+                        scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+                    }
+                });
+            }
+
+            // 2. Chart Spesifik Sekolah
             @if($selectedSchool)
-                const ctxSchool = document.getElementById('schoolPrestasiChart');
-                if(ctxSchool) {
-                    new Chart(ctxSchool.getContext('2d'), {
-                        type: 'doughnut',
+                const schoolTingkatTipeData = @json($schoolTingkatTipeChart);
+                const schoolTingkatCtx = document.getElementById('schoolTingkatChart');
+                if(schoolTingkatCtx) {
+                    new Chart(schoolTingkatCtx.getContext('2d'), {
+                        type: 'pie',
                         data: {
                             labels: ['Kota/Kab', 'Prov', 'Nas', 'Intl'],
                             datasets: [{
-                                data: {{ json_encode($schoolChartData) }},
+                                data: @json($schoolTingkatChart),
                                 backgroundColor: ['#f4a261', '#2a9d8f', '#e76f51', '#e9c46a'],
                                 borderWidth: 0
                             }]
                         },
-                        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right' } } }
+                        options: { 
+                            responsive: true, 
+                            maintainAspectRatio: false, 
+                            plugins: { 
+                                legend: { position: 'bottom' },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function(context) {
+                                            var index = context.dataIndex;
+                                            var total = context.raw || 0;
+                                            var siswa = 0;
+                                            var guruTendik = 0;
+                                            
+                                            if (schoolTingkatTipeData && schoolTingkatTipeData.siswa) {
+                                                siswa = schoolTingkatTipeData.siswa[index] || 0;
+                                            }
+                                            if (schoolTingkatTipeData && schoolTingkatTipeData.guru_tendik) {
+                                                guruTendik = schoolTingkatTipeData.guru_tendik[index] || 0;
+                                            }
+                                            
+                                            return [
+                                                context.label + ': ' + total,
+                                                ' - Siswa: ' + siswa,
+                                                ' - Guru/Tendik: ' + guruTendik
+                                            ];
+                                        }
+                                    }
+                                }
+                            } 
+                        }
+                    });
+                }
+
+                const schoolKategoriTipeCtx = document.getElementById('schoolKategoriTipeChart');
+                if(schoolKategoriTipeCtx) {
+                    new Chart(schoolKategoriTipeCtx.getContext('2d'), {
+                        type: 'bar',
+                        data: {
+                            labels: ['Siswa', 'Guru', 'Tendik'],
+                            datasets: [
+                                {
+                                    label: 'Individu',
+                                    data: @json($schoolKategoriTipeChart['individu']),
+                                    backgroundColor: '#457b9d',
+                                    borderRadius: 4, borderWidth: 0
+                                },
+                                {
+                                    label: 'Tim/Kelompok',
+                                    data: @json($schoolKategoriTipeChart['tim']),
+                                    backgroundColor: '#e63946',
+                                    borderRadius: 4, borderWidth: 0
+                                }
+                            ]
+                        },
+                        options: {
+                            responsive: true, maintainAspectRatio: false,
+                            plugins: { legend: { position: 'bottom' } },
+                            scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+                        }
                     });
                 }
             @endif

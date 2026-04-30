@@ -14,7 +14,8 @@ class MonthlyReport extends Model
         'school_id', 
         'bulan', 
         'tahun',
-        'tahun_pelajaran', // <--- Tambahan baru
+        'tahun_pelajaran', 
+        'semester', // <--- Tambahan baru
         'kurikulum_link', 
         'kesiswaan_link', 
         'sarpras_link', 

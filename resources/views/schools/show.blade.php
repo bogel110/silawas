@@ -11,12 +11,68 @@
             <div>
                 <span class="badge bg-primary bg-opacity-10 text-primary fw-bold mb-2">{{ $school->level }} • {{ $school->status }}</span>
                 <div class="d-flex align-items-center gap-3">
-                    <h2 class="display-6 fw-extrabold font-headline mb-0">{{ $school->name }}</h2>
+                    <h2 class="display-6 fw-extrabold font-headline mb-0">Halo  , {{ $school->name }}</h2>
                 </div>
             </div>
             <div class="text-end">
                 <p class="text-muted small mb-1 fw-bold text-uppercase tracking-wider">Progress</p>
                 <h3 class="fw-bold text-primary mb-0">{{ number_format($school->skor_performa, 1) }}%</h3>
+            </div>
+        </div>
+        <div class="d-flex justify-content-between align-items-end">
+           <p class="text-soft small mb-0" style="text-align: justify;">
+                    Selamat Datang , pada sistem layanan administrasi komprehensif yang memberikan rekomendasi pengawasan dan pendampingan satuan pendidikan.
+                    Akses dashboard, jurnal kepsek, KBM, dan administrasi sekolah melalui satu pintu yang holistik, komprehensif dan profesional.
+                </p>
+        </div>
+    </div>
+    
+    {{-- PROGRES MODUL 2: LAPORAN BULANAN (BULAN BERJALAN) --}}
+    <div class="card border-0 shadow-sm rounded-4 mb-4 overflow-hidden border-start border-4 border-primary bg-primary bg-opacity-10">
+        <div class="card-body p-4">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+                <div>
+                    <h5 class="font-headline fw-bold mb-1">Capaian Laporan Kegiatan ( Tahun Ajaran : {{ $currentTahunPelajaran }} )</h5>
+                    <p class="text-soft small mb-0">Total akumulasi laporan kegiatan yang telah diunggah untuk <strong>Tahun Ajaran {{ $currentTahunPelajaran }}</strong></p>
+                </div>
+            </div>
+            
+            <div class="row g-3">
+                @php
+                    $categories = [
+                        'kurikulum' => ['label' => 'Kurikulum', 'color' => 'primary', 'icon' => 'menu_book'],
+                        'kesiswaan' => ['label' => 'Kesiswaan', 'color' => 'info', 'icon' => 'groups'],
+                        'sarpras' => ['label' => 'Sarpras', 'color' => 'warning', 'icon' => 'home_work'],
+                        'humas' => ['label' => 'Humas', 'color' => 'success', 'icon' => 'campaign'],
+                    ];
+                @endphp
+
+                @foreach($categories as $key => $cat)
+                    @php
+                        $isFilled = $modul2Stats[$key] ?? 0;
+                    @endphp
+                    <div class="col-md-3">
+                        <div class="p-3 rounded-3 bg-white shadow-sm border h-100 transition-all hover-shadow">
+                            <div class="d-flex align-items-center justify-content-between mb-2">
+                                <span class="fw-bold small text-muted text-uppercase tracking-wider" style="font-size: 0.65rem;">{{ $cat['label'] }}</span>
+                                <span class="material-symbols-outlined fs-5 text-{{ $isFilled ? $cat['color'] : 'danger' }}">
+                                    {{ $isFilled ? 'check_circle' : 'cancel' }}
+                                </span>
+                            </div>
+                            <div class="progress" style="height: 6px;">
+                                <div class="progress-bar bg-{{ $isFilled > 0 ? $cat['color'] : 'danger' }} progress-bar-striped {{ $isFilled > 0 ? 'progress-bar-animated' : '' }}" role="progressbar" style="width: {{ min(($isFilled / 12) * 100, 100) }}%"></div>
+                            </div>
+                            <div class="text-end mt-1 d-flex justify-content-between align-items-center">
+                                <small class="fw-bold text-{{ $isFilled > 0 ? $cat['color'] : 'dark' }}" style="font-size: 0.75rem;">
+                                    {{ $isFilled }} / 12 Laporan
+                                </small>
+                                <small class="fw-bold text-{{ $isFilled > 0 ? $cat['color'] : 'danger' }}" style="font-size: 0.7rem;">
+                                    {{ $isFilled > 0 ? 'Aktif' : 'Kosong' }}
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                @endforeach
             </div>
         </div>
     </div>
@@ -232,7 +288,7 @@
                                                                             <option value="2023/2024" {{ $kbm->tahun_pelajaran == '2023/2024' ? 'selected' : '' }}>2023/2024</option>
                                                                             <option value="2024/2025" {{ $kbm->tahun_pelajaran == '2024/2025' ? 'selected' : '' }}>2024/2025</option>
                                                                             <option value="2025/2026" {{ $kbm->tahun_pelajaran == '2025/2026' ? 'selected' : '' }}>2025/2026</option>
-                                                                            <option value="2025/2026" {{ $kbm->tahun_pelajaran == '2025/2026' ? 'selected' : '' }}>2026/2027</option>
+                                                                            <option value="2026/2027" {{ $kbm->tahun_pelajaran == '2026/2027' ? 'selected' : '' }}>2026/2027</option>
                                                                         </select>
                                                                     </div>
                                                                     <div class="mb-3">
@@ -413,6 +469,7 @@
                                 <tr>
                                     <th>Bulan</th>
                                     <th>Tahun Pelajaran</th> 
+                                    <th>Semester</th>
                                     <th>Kurikulum</th>
                                     <th>Kesiswaan</th>
                                     <th>Sarpras</th>
@@ -425,6 +482,7 @@
                                 <tr class="laporan-row">
                                     <td class="fw-bold small text-dark">{{ \Carbon\Carbon::create()->month($report->bulan)->translatedFormat('F') }}</td>
                                     <td class="small text-muted fw-bold">{{ $report->tahun_pelajaran ?? '-' }}</td> 
+                                    <td class="small fw-bold text-primary">{{ $report->semester ?? '-' }}</td> 
                                     <td>@if($report->kurikulum_link) <a href="{{ $report->kurikulum_link }}" target="_blank" class="badge bg-success text-decoration-none">Cek Berkas</a> @else - @endif</td>
                                     <td>@if($report->kesiswaan_link) <a href="{{ $report->kesiswaan_link }}" target="_blank" class="badge bg-success text-decoration-none">Cek Berkas</a> @else - @endif</td>
                                     <td>@if($report->sarpras_link) <a href="{{ $report->sarpras_link }}" target="_blank" class="badge bg-success text-decoration-none">Cek Berkas</a> @else - @endif</td>
@@ -458,7 +516,19 @@
                                                         <div class="modal-body py-0">
                                                             <div class="mb-3">
                                                                 <label class="small fw-bold">Tahun Pelajaran</label>
-                                                                <input type="text" name="tahun_pelajaran" class="form-control form-control-sm" value="{{ $report->tahun_pelajaran }}" placeholder="Contoh: 2023/2024" required>
+                                                                <select name="tahun_pelajaran" class="form-select form-select-sm" required>
+                                                                    @php $currentYear = date('Y'); @endphp
+                                                                    @for($i = $currentYear - 2; $i <= $currentYear + 1; $i++)
+                                                                        <option value="{{ $i }}/{{ $i+1 }}" {{ $report->tahun_pelajaran == "$i/".($i+1) ? 'selected' : '' }}>{{ $i }}/{{ $i+1 }}</option>
+                                                                    @endfor
+                                                                </select>
+                                                            </div>
+                                                            <div class="mb-3">
+                                                                <label class="small fw-bold">Semester</label>
+                                                                <select name="semester" class="form-select form-select-sm" required>
+                                                                    <option value="Ganjil" {{ $report->semester == 'Ganjil' ? 'selected' : '' }}>Ganjil</option>
+                                                                    <option value="Genap" {{ $report->semester == 'Genap' ? 'selected' : '' }}>Genap</option>
+                                                                </select>
                                                             </div>
                                                             <div class="mb-2">
                                                                 <label class="small fw-bold">Link Kurikulum</label>
@@ -644,6 +714,16 @@
                                     @endfor
                                 </select>
                             </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold text-primary">Semester</label>
+                                <select name="semester" class="form-select bg-light" required>
+                                    <option value="">-- Pilih Semester --</option>
+                                    <option value="Ganjil">Ganjil</option>
+                                    <option value="Genap">Genap</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row mb-4">
                             <div class="col-md-6">
                                 <label class="form-label small fw-bold text-primary">Pilih Bulan Laporan</label>
                                 <select name="bulan" class="form-select bg-light" required>

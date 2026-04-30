@@ -123,18 +123,53 @@ class AchievementController extends Controller
 
         // 1. DATA GLOBAL (Untuk Grafik & Kartu Angka Paling Atas - Selalu Dihitung)
         $allAchievements = Achievement::all();
-        $globalChartData = [
+        $globalTingkatChart = [
             $allAchievements->where('tingkat', 'Kota/Kabupaten')->count(),
             $allAchievements->where('tingkat', 'Provinsi')->count(),
             $allAchievements->where('tingkat', 'Nasional')->count(),
             $allAchievements->where('tingkat', 'Internasional')->count(),
         ];
+        $globalTingkatTipeChart = [
+            'siswa' => [
+                $allAchievements->where('tingkat', 'Kota/Kabupaten')->where('tipe_peserta', 'Siswa')->count(),
+                $allAchievements->where('tingkat', 'Provinsi')->where('tipe_peserta', 'Siswa')->count(),
+                $allAchievements->where('tingkat', 'Nasional')->where('tipe_peserta', 'Siswa')->count(),
+                $allAchievements->where('tingkat', 'Internasional')->where('tipe_peserta', 'Siswa')->count(),
+            ],
+            'guru_tendik' => [
+                $allAchievements->where('tingkat', 'Kota/Kabupaten')->whereIn('tipe_peserta', ['Guru', 'Tendik'])->count(),
+                $allAchievements->where('tingkat', 'Provinsi')->whereIn('tipe_peserta', ['Guru', 'Tendik'])->count(),
+                $allAchievements->where('tingkat', 'Nasional')->whereIn('tipe_peserta', ['Guru', 'Tendik'])->count(),
+                $allAchievements->where('tingkat', 'Internasional')->whereIn('tipe_peserta', ['Guru', 'Tendik'])->count(),
+            ],
+        ];
+        $globalKategoriTipeChart = [
+            'individu' => [
+                $allAchievements->where('tipe_peserta', 'Siswa')->where('kategori', 'Individu')->count(),
+                $allAchievements->where('tipe_peserta', 'Guru')->where('kategori', 'Individu')->count(),
+                $allAchievements->where('tipe_peserta', 'Tendik')->where('kategori', 'Individu')->count(),
+            ],
+            'tim' => [
+                $allAchievements->where('tipe_peserta', 'Siswa')->where('kategori', 'Tim')->count(),
+                $allAchievements->where('tipe_peserta', 'Guru')->where('kategori', 'Tim')->count(),
+                $allAchievements->where('tipe_peserta', 'Tendik')->where('kategori', 'Tim')->count(),
+            ]
+        ];
+
         $totalPrestasi = $allAchievements->count();
         $totalSiswa = $allAchievements->where('tipe_peserta', 'Siswa')->count();
         $totalGuruTendik = $allAchievements->whereIn('tipe_peserta', ['Guru', 'Tendik'])->count();
 
         // 2. DATA SPESIFIK SEKOLAH & TABEL
-        $schoolChartData = [0, 0, 0, 0];
+        $schoolTingkatChart = [0, 0, 0, 0];
+        $schoolTingkatTipeChart = [
+            'siswa' => [0, 0, 0, 0],
+            'guru_tendik' => [0, 0, 0, 0],
+        ];
+        $schoolKategoriTipeChart = [
+            'individu' => [0, 0, 0],
+            'tim' => [0, 0, 0]
+        ];
         $schoolTotalPrestasi = 0;
         $schoolTotalSiswa = 0;
         $schoolTotalGuruTendik = 0;
@@ -143,12 +178,39 @@ class AchievementController extends Controller
             $achievements = Achievement::with('school')->where('school_id', $selectedSchoolId)->orderBy('tanggal', 'desc')->get();
             
             // Hitung data HANYA untuk sekolah yang dipilih
-            $schoolChartData = [
+            $schoolTingkatChart = [
                 $achievements->where('tingkat', 'Kota/Kabupaten')->count(),
                 $achievements->where('tingkat', 'Provinsi')->count(),
                 $achievements->where('tingkat', 'Nasional')->count(),
                 $achievements->where('tingkat', 'Internasional')->count(),
             ];
+            $schoolTingkatTipeChart = [
+                'siswa' => [
+                    $achievements->where('tingkat', 'Kota/Kabupaten')->where('tipe_peserta', 'Siswa')->count(),
+                    $achievements->where('tingkat', 'Provinsi')->where('tipe_peserta', 'Siswa')->count(),
+                    $achievements->where('tingkat', 'Nasional')->where('tipe_peserta', 'Siswa')->count(),
+                    $achievements->where('tingkat', 'Internasional')->where('tipe_peserta', 'Siswa')->count(),
+                ],
+                'guru_tendik' => [
+                    $achievements->where('tingkat', 'Kota/Kabupaten')->whereIn('tipe_peserta', ['Guru', 'Tendik'])->count(),
+                    $achievements->where('tingkat', 'Provinsi')->whereIn('tipe_peserta', ['Guru', 'Tendik'])->count(),
+                    $achievements->where('tingkat', 'Nasional')->whereIn('tipe_peserta', ['Guru', 'Tendik'])->count(),
+                    $achievements->where('tingkat', 'Internasional')->whereIn('tipe_peserta', ['Guru', 'Tendik'])->count(),
+                ],
+            ];
+            $schoolKategoriTipeChart = [
+                'individu' => [
+                    $achievements->where('tipe_peserta', 'Siswa')->where('kategori', 'Individu')->count(),
+                    $achievements->where('tipe_peserta', 'Guru')->where('kategori', 'Individu')->count(),
+                    $achievements->where('tipe_peserta', 'Tendik')->where('kategori', 'Individu')->count(),
+                ],
+                'tim' => [
+                    $achievements->where('tipe_peserta', 'Siswa')->where('kategori', 'Tim')->count(),
+                    $achievements->where('tipe_peserta', 'Guru')->where('kategori', 'Tim')->count(),
+                    $achievements->where('tipe_peserta', 'Tendik')->where('kategori', 'Tim')->count(),
+                ]
+            ];
+
             $schoolTotalPrestasi = $achievements->count();
             $schoolTotalSiswa = $achievements->where('tipe_peserta', 'Siswa')->count();
             $schoolTotalGuruTendik = $achievements->whereIn('tipe_peserta', ['Guru', 'Tendik'])->count();
@@ -160,8 +222,8 @@ class AchievementController extends Controller
 
         return view('achievements.pengawas', compact(
             'schools', 'selectedSchool', 'achievements',
-            'globalChartData', 'totalPrestasi', 'totalSiswa', 'totalGuruTendik',
-            'schoolChartData', 'schoolTotalPrestasi', 'schoolTotalSiswa', 'schoolTotalGuruTendik'
+            'globalTingkatChart', 'globalTingkatTipeChart', 'globalKategoriTipeChart', 'totalPrestasi', 'totalSiswa', 'totalGuruTendik',
+            'schoolTingkatChart', 'schoolTingkatTipeChart', 'schoolKategoriTipeChart', 'schoolTotalPrestasi', 'schoolTotalSiswa', 'schoolTotalGuruTendik'
         ));
     }
 

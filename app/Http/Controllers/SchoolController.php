@@ -17,7 +17,21 @@ class SchoolController extends Controller
 
         $this->authorizeSchoolAccess($school->id);
 
-        return view('schools.show', compact('school'));
+        // --- TAMBAHAN: Hitung Progres Modul 2 (Berdasarkan Tahun Pelajaran Aktif) ---
+        $now = \Carbon\Carbon::now();
+        $currentTahunPelajaran = $now->month >= 7 
+            ? $now->year . '/' . ($now->year + 1) 
+            : ($now->year - 1) . '/' . $now->year;
+
+        $modul2Stats = [
+            'kurikulum' => $school->monthlyReports()->where('tahun_pelajaran', $currentTahunPelajaran)->whereNotNull('kurikulum_link')->where('kurikulum_link', '!=', '')->count(),
+            'kesiswaan' => $school->monthlyReports()->where('tahun_pelajaran', $currentTahunPelajaran)->whereNotNull('kesiswaan_link')->where('kesiswaan_link', '!=', '')->count(),
+            'sarpras'   => $school->monthlyReports()->where('tahun_pelajaran', $currentTahunPelajaran)->whereNotNull('sarpras_link')->where('sarpras_link', '!=', '')->count(),
+            'humas'     => $school->monthlyReports()->where('tahun_pelajaran', $currentTahunPelajaran)->whereNotNull('humas_link')->where('humas_link', '!=', '')->count(),
+        ];
+        // -------------------------------------------------------
+
+        return view('schools.show', compact('school', 'modul2Stats', 'currentTahunPelajaran'));
     }
 
     public function updateDriveLink(Request $request, $id)
@@ -69,26 +83,24 @@ class SchoolController extends Controller
         $request->validate([
             'bulan' => 'required|integer|min:1|max:12',
             'tahun_pelajaran' => 'required|string',
+            'semester' => 'required|string',
             'kurikulum_link' => 'nullable',
             'kesiswaan_link' => 'nullable',
             'sarpras_link' => 'nullable',
             'humas_link' => 'nullable',
         ]);
 
-        MonthlyReport::updateOrCreate(
-            [
-                'school_id' => $id,
-                'bulan' => $request->bulan,
-                'tahun' => date('Y'), 
-            ],
-            [
-                'tahun_pelajaran' => $request->tahun_pelajaran,
-                'kurikulum_link' => $request->kurikulum_link,
-                'kesiswaan_link' => $request->kesiswaan_link,
-                'sarpras_link' => $request->sarpras_link,
-                'humas_link' => $request->humas_link,
-            ]
-        );
+        MonthlyReport::create([
+            'school_id' => $id,
+            'bulan' => $request->bulan,
+            'tahun' => date('Y'), 
+            'tahun_pelajaran' => $request->tahun_pelajaran,
+            'semester' => $request->semester,
+            'kurikulum_link' => $request->kurikulum_link,
+            'kesiswaan_link' => $request->kesiswaan_link,
+            'sarpras_link' => $request->sarpras_link,
+            'humas_link' => $request->humas_link,
+        ]);
 
         return redirect()->back()->with('success', 'Laporan bulanan Wakasek berhasil disimpan!');
     }
@@ -148,6 +160,7 @@ class SchoolController extends Controller
         
         $data = $request->validate([
             'tahun_pelajaran' => 'required|string',
+            'semester' => 'required|string',
             'kurikulum_link' => 'nullable',
             'kesiswaan_link' => 'nullable',
             'sarpras_link' => 'nullable',

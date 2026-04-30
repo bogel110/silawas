@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\School;
+use App\Models\MonthlyReport;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
@@ -28,6 +30,21 @@ class DashboardController extends Controller
         $schools = School::all()->sortByDesc('skor_performa');
         $avgCompletion = $totalSchools > 0 ? $schools->avg('skor_performa') : 0;
 
-        return view('Dashboard', compact('totalSchools', 'schools', 'avgCompletion'));
+        // 3. Progres Modul 2 (Laporan Bulanan) - Berdasarkan Tahun Pelajaran Aktif
+        $now = Carbon::now();
+        $currentTahunPelajaran = $now->month >= 7 
+            ? $now->year . '/' . ($now->year + 1) 
+            : ($now->year - 1) . '/' . $now->year;
+
+        $monthlyReports = MonthlyReport::where('tahun_pelajaran', $currentTahunPelajaran)->get();
+            
+        $modul2Stats = [
+            'kurikulum' => $monthlyReports->whereNotNull('kurikulum_link')->where('kurikulum_link', '!=', '')->count(),
+            'kesiswaan' => $monthlyReports->whereNotNull('kesiswaan_link')->where('kesiswaan_link', '!=', '')->count(),
+            'sarpras' => $monthlyReports->whereNotNull('sarpras_link')->where('sarpras_link', '!=', '')->count(),
+            'humas' => $monthlyReports->whereNotNull('humas_link')->where('humas_link', '!=', '')->count(),
+        ];
+
+        return view('Dashboard', compact('totalSchools', 'schools', 'avgCompletion', 'modul2Stats', 'currentTahunPelajaran'));
     }
 }

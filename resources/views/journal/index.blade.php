@@ -10,40 +10,44 @@
 
         .journal-modal .modal-content {
             overflow: hidden;
-            border: 1px solid rgba(15, 107, 125, 0.08);
+            border: 1px solid var(--line);
             border-radius: 28px;
-            box-shadow: 0 24px 60px rgba(24, 50, 58, 0.18);
+            box-shadow: var(--shadow-soft);
+            background-color: var(--surface);
         }
 
         .journal-modal .modal-header {
             padding: 1.5rem 1.5rem 0.75rem;
             background:
-                radial-gradient(circle at top right, rgba(244, 162, 97, 0.18), transparent 28%),
-                linear-gradient(180deg, rgba(245, 248, 251, 0.96), rgba(255, 255, 255, 0.98));
+                radial-gradient(circle at top right, rgba(244, 162, 97, 0.12), transparent 28%),
+                linear-gradient(180deg, var(--surface-soft), var(--surface));
+            border-bottom: none;
         }
 
         .journal-modal .modal-title {
             font-size: 1.55rem;
             line-height: 1.2;
+            color: var(--text-main);
         }
 
         .journal-modal .modal-body {
             padding: 0 1.5rem 1.5rem;
+            background-color: var(--surface);
         }
 
         .journal-modal .modal-intro {
             margin-bottom: 1.25rem;
             padding: 1rem 1.1rem;
             border-radius: 18px;
-            background: rgba(15, 107, 125, 0.05);
-            color: #516970;
+            background: var(--brand-100);
+            color: var(--text-soft);
         }
 
         .journal-modal .modal-section {
             padding: 1.1rem;
-            border: 1px solid rgba(15, 107, 125, 0.08);
+            border: 1px solid var(--line);
             border-radius: 20px;
-            background: #fbfdfe;
+            background: var(--surface-soft);
         }
 
         .journal-modal textarea.form-control {
@@ -53,7 +57,8 @@
 
         .journal-modal .modal-footer {
             padding: 1rem 1.5rem 1.5rem;
-            background: rgba(245, 248, 251, 0.8);
+            background: var(--surface-muted);
+            border-top: none;
         }
 
         @media (max-width: 575.98px) {
@@ -91,8 +96,8 @@
                 gap: 0.75rem;
                 padding-top: 0.85rem;
                 padding-bottom: calc(0.85rem + env(safe-area-inset-bottom, 0px));
-                background: rgba(245, 248, 251, 0.96);
-                box-shadow: 0 -10px 24px rgba(24, 50, 58, 0.08);
+                background: var(--surface-muted);
+                box-shadow: 0 -10px 24px rgba(0, 0, 0, 0.08);
             }
 
             .journal-modal .modal-footer .btn {
@@ -278,25 +283,25 @@
 
                         {{-- BODY MODAL --}}
                         <div class="modal-body px-4">
-                            <div class="alert alert-info bg-info bg-opacity-10 border-0 text-info-emphasis small mb-4 py-2 px-3 rounded-3">
-                                <span class="fw-bold">Tanggal Jurnal:</span> {{ now()->translatedFormat('d F Y') }}
+                            <div class="alert alert-info bg-info bg-opacity-10 border-0 small mb-4 py-2 px-3 rounded-3">
+                                <span class="fw-bold text-info">Tanggal Jurnal:</span> <span class="text-info">{{ now()->translatedFormat('d F Y') }}</span>
                             </div>
 
                             <div class="row g-3 mb-3">
                                 <div class="col-12 col-md-6">
                                     <label class="form-label small fw-bold text-muted mb-1">Siswa Hadir</label>
-                                    <input type="number" name="siswa_hadir" class="form-control bg-light border border-secondary-subtle rounded-3 px-3 py-2" style="font-size: 0.9rem;" placeholder="Contoh: 360" required min="0">
+                                    <input type="number" name="siswa_hadir" class="form-control rounded-3 px-3 py-2" style="font-size: 0.9rem;" placeholder="Contoh: 360" required min="0">
                                 </div>
                                 <div class="col-12 col-md-6">
                                     <label class="form-label small fw-bold text-muted mb-1">Guru Hadir</label>
-                                    <input type="number" name="guru_hadir" class="form-control bg-light border border-secondary-subtle rounded-3 px-3 py-2" style="font-size: 0.9rem;" placeholder="Contoh: 50" required min="0">
+                                    <input type="number" name="guru_hadir" class="form-control rounded-3 px-3 py-2" style="font-size: 0.9rem;" placeholder="Contoh: 50" required min="0">
                                 </div>
                             </div>
 
                             <div class="row g-3">
                                 <div class="col-12 col-md-6">
                                     <label class="form-label small fw-bold text-muted mb-1">Kehadiran Kepsek</label>
-                                    <select name="kepsek_hadir" class="form-select bg-light border border-secondary-subtle rounded-3 px-3 py-2" style="font-size: 0.9rem;" required>
+                                    <select name="kepsek_hadir" class="form-select rounded-3 px-3 py-2" style="font-size: 0.9rem;" required>
                                         <option value="">-- Silakan Pilih --</option>
                                         <option value="1">Hadir (Ada di tempat)</option>
                                         <option value="0">Tidak Hadir (Dinas Luar / Izin)</option>
@@ -305,7 +310,7 @@
 
                                 <div class="col-12 col-md-6">
                                     <label class="form-label small fw-bold text-muted mb-1">Tupoksi Kepsek</label>
-                                    <select name="tupoksi" class="form-select bg-light border border-secondary-subtle rounded-3 px-3 py-2" style="font-size: 0.9rem;" required>
+                                    <select name="tupoksi" class="form-select rounded-3 px-3 py-2" style="font-size: 0.9rem;" required>
                                         <option value="">-- Pilih Tupoksi --</option>
                                         <option value="Manajerial">1. Manajerial</option>
                                         <option value="Educator">2. Educator</option>
@@ -318,7 +323,7 @@
 
                                 <div class="col-12">
                                     <label class="form-label small fw-bold text-muted mb-1">Keterangan Aktivitas</label>
-                                    <textarea name="keterangan" class="form-control bg-light border border-secondary-subtle rounded-3 px-3 py-2" style="font-size: 0.9rem;" rows="3" placeholder="Tulis ringkasan kegiatan, agenda, atau catatan penting hari ini..." required></textarea>
+                                    <textarea name="keterangan" class="form-control rounded-3 px-3 py-2" style="font-size: 0.9rem;" rows="3" placeholder="Tulis ringkasan kegiatan, agenda, atau catatan penting hari ini..." required></textarea>
                                 </div>
                             </div>
                         </div>

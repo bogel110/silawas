@@ -10,9 +10,13 @@
                     <span class="material-symbols-outlined" style="font-size: 1rem;">analytics</span>
                     Ringkasan Supervisi
                 </span>
-                <h2 class="display-6 font-headline fw-bold mb-2">Dashboard Pemantauan Sekolah Binaan</h2>
-                <p class="text-soft mb-0" style="max-width: 680px;">
-                    Pantau progres kelengkapan administrasi, lihat performa sekolah secara cepat, dan kelola tindak lanjut supervisi dari satu tampilan yang lebih rapi.
+                <h2 class="display-6 font-headline fw-bold mb-2">Halo, {{ auth()->user()->name }}</h2>
+                <h4 class="isplay-6 font-headline fw-bold mb-2">
+                    Dashboard Pemantauan Sekolah Binaan
+                </h4>
+                <p class="text-soft small mb-0" style="text-align: justify;">
+                    Selamat Datang , pada sistem layanan administrasi komprehensif yang memberikan rekomendasi pengawasan dan pendampingan satuan pendidikan.
+                    Akses dashboard, jurnal kepsek, KBM, dan administrasi sekolah melalui satu pintu yang holistik, komprehensif dan profesional.
                 </p>
             </div>
             <div class="col-lg-4">
@@ -81,6 +85,64 @@
                 <div class="progress bg-white bg-opacity-25" style="height: 10px;">
                     <div class="progress-bar bg-warning" role="progressbar" style="width: {{ $avgCompletion }}%"></div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- MODUL 2: PROGRES LAPORAN BULANAN --}}
+    <div class="card border-0 shadow-sm rounded-4 mb-5 overflow-hidden border-top border-4 border-primary">
+        <div class="card-header bg-white border-0 p-4 pb-0">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+                <div>
+                    <div class="eyebrow-muted mb-1 text-uppercase ls-1" style="letter-spacing: 0.05em; font-size: 0.7rem;">Pemantauan</div>
+                    <h4 class="font-headline fw-bold mb-1">Capaian Laporan Kegiatan Sekolah ( Tahun Pelajaran {{ $currentTahunPelajaran }} )</h4>
+                    <p class="text-soft small mb-0">Total akumulasi unggahan link per kategori untuk <strong>Tahun Pelajaran {{ $currentTahunPelajaran }}</strong></p>
+                </div>
+                <div class="d-flex align-items-center gap-2 bg-light px-3 py-2 rounded-pill">
+                    <span class="material-symbols-outlined text-primary fs-5">domain</span>
+                    <span class="fw-bold text-dark small">{{ $totalSchools }} Sekolah Binaan</span>
+                </div>
+            </div>
+        </div>
+        <div class="card-body p-4">
+            <div class="row g-4">
+                @php
+                    $categories = [
+                        'kurikulum' => ['label' => 'Kurikulum', 'color' => 'primary', 'icon' => 'menu_book', 'bg' => 'rgba(13, 110, 253, 0.05)'],
+                        'kesiswaan' => ['label' => 'Kesiswaan', 'color' => 'info', 'icon' => 'groups', 'bg' => 'rgba(13, 202, 240, 0.05)'],
+                        'sarpras' => ['label' => 'Sarpras', 'color' => 'warning', 'icon' => 'home_work', 'bg' => 'rgba(255, 193, 7, 0.05)'],
+                        'humas' => ['label' => 'Humas', 'color' => 'success', 'icon' => 'campaign', 'bg' => 'rgba(25, 135, 84, 0.05)'],
+                    ];
+                @endphp
+
+                @foreach($categories as $key => $cat)
+                    @php
+                        $count = $modul2Stats[$key] ?? 0;
+                        $percent = $totalSchools > 0 ? ($count / $totalSchools) * 100 : 0;
+                    @endphp
+                    <div class="col-md-6 col-lg-3">
+                        <div class="p-4 rounded-4 h-100 border transition-all hover-shadow" style="background: {{ $cat['bg'] }}; border-color: rgba(0,0,0,0.05) !important;">
+                            <div class="d-flex align-items-center gap-3 mb-4">
+                                <div class="icon-box" style="width: 40px; height: 40px; border-radius: 12px; background: #fff; color: var(--bs-{{ $cat['color'] }}); box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                                    <span class="material-symbols-outlined fs-5">{{ $cat['icon'] }}</span>
+                                </div>
+                                <span class="fw-bold text-dark">{{ $cat['label'] }}</span>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between align-items-end mb-2">
+                                <div class="d-flex align-items-baseline gap-1">
+                                    <h3 class="mb-0 fw-bold font-headline">{{ $count }}</h3>
+                                    <span class="text-soft small">Laporan</span>
+                                </div>
+                                <small class="fw-bold text-{{ $cat['color'] }}">{{ $count }} Total</small>
+                            </div>
+                            
+                            <div class="progress rounded-pill shadow-sm" style="height: 10px; background: #fff;">
+                                <div class="progress-bar bg-{{ $cat['color'] }} progress-bar-striped progress-bar-animated" role="progressbar" style="width: {{ $totalSchools > 0 ? min(($count / ($totalSchools * 12)) * 100, 100) : 0 }}%"></div>
+                            </div>
+                        </div>
+                    </div>
+                @endforeach
             </div>
         </div>
     </div>
