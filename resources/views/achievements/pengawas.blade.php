@@ -140,21 +140,23 @@
     {{-- 4. TABEL DATA PRESTASI --}}
     {{-- ========================================== --}}
     <div class="card border-0 shadow-sm rounded-4 mb-4">
-        <div class="card-header bg-white border-bottom-0 pt-4 pb-0 px-4 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+        {{-- PERBAIKAN: Header Tabel dibuat sejajar (align-items-center) --}}
+        <div class="card-header bg-white border-bottom-0 pt-4 pb-3 px-4 d-flex justify-content-between align-items-center flex-wrap gap-3">
             <h5 class="font-headline fw-bold mb-0">
                 Data Rincian: 
                 <span class="text-primary">{{ $selectedSchool ? $selectedSchool->name : 'Seluruh Sekolah Binaan' }}</span>
             </h5>
             
-            <div class="d-flex flex-wrap gap-2 align-items-center">
-                <select id="entriesPrestasi" class="form-select form-select-sm bg-light border-0 shadow-sm" style="width: auto;">
+            <div class="d-flex align-items-center gap-2">
+                <span class="small text-muted fw-bold d-none d-sm-inline">Tampilkan</span>
+                <select id="entriesPrestasi" class="form-select form-select-sm bg-light border-0 shadow-sm" style="width: auto; cursor: pointer;">
                     <option value="5">5</option>
                     <option value="10" selected>10</option>
                     <option value="25">25</option>
                     <option value="50">50</option>
                 </select>
 
-                <div class="input-group input-group-sm shadow-sm" style="max-width: 200px;">
+                <div class="input-group input-group-sm shadow-sm" style="max-width: 220px;">
                     <span class="input-group-text bg-light border-0"><span class="material-symbols-outlined fs-6 text-muted">search</span></span>
                     <input type="text" id="searchPrestasi" class="form-control border-0 bg-light ps-0" placeholder="Cari data...">
                 </div>
@@ -162,7 +164,7 @@
         </div>
 
         <div class="card-body p-0">
-            <div class="p-4 pt-3 table-responsive">
+            <div class="p-4 pt-0 table-responsive">
                 <table class="table table-sm align-middle mb-0">
                     <thead class="bg-light small text-muted">
                         <tr>
@@ -202,7 +204,6 @@
             </div>
         </div>
     </div>
-
     {{-- ========================================================================= --}}
     {{-- SCRIPTS: CHART.JS & CHOICES.JS & LOGIKA PENCARIAN --}}
     {{-- ========================================================================= --}}

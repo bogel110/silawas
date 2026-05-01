@@ -630,7 +630,7 @@
                                 <input type="url" name="rkas_link" class="form-control form-control-sm border-primary" value="{{ $school->rkas_link }}" placeholder="https://...">
                             </div>
                             <div class="col-md-12 mt-3">
-                                <label class="form-label small fw-bold text-primary">10. Contact Sekolah (WA/Linktree)</label>
+                                <label class="form-label small fw-bold text-primary">10. Contact Sekolah</label>
                                 <div class="input-group input-group-sm shadow-sm">
                                     <span class="input-group-text bg-white border-primary border-end-0">
                                         <span class="material-symbols-outlined fs-6 text-primary">contact_support</span>

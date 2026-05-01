@@ -34,17 +34,39 @@
     </div>
 @endif
 
-<div class="card border-0 shadow-sm rounded-4 overflow-hidden">
-    <div class="p-4 bg-light bg-opacity-50 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 border-bottom">
-        <div>
+<div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+    
+    {{-- HEADER TABEL: Terbagi 2 Baris agar rapi & sejajar ujung ke ujung --}}
+    <div class="card-header bg-light bg-opacity-50 border-bottom pt-4 pb-3 px-4">
+        
+        {{-- Baris 1: Judul --}}
+        <div class="mb-3">
             <h5 class="font-headline fw-bold mb-0">Daftar Pengguna</h5>
         </div>
-        
-        <div class="input-group" style="max-width: 300px;">
-            <span class="input-group-text bg-white border-end-0">
-                <span class="material-symbols-outlined fs-6 text-muted">search</span>
-            </span>
-            <input type="text" id="searchUser" class="form-control border-start-0 ps-0" placeholder="Cari nama atau email...">
+
+        {{-- Baris 2: Data Entry (Kiri) & Search (Kanan) Sejajar --}}
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+            
+            {{-- Data Entry (Tampil Data) --}}
+            <div class="d-flex align-items-center gap-2">
+                <span class="small text-muted fw-bold d-none d-sm-inline">Tampilkan</span>
+                <select id="entriesUser" class="form-select form-select-sm border-0 shadow-sm bg-white" style="width: auto; cursor: pointer;">
+                    <option value="5">5</option>
+                    <option value="10" selected>10</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                </select>
+                <span class="small text-muted fw-bold d-none d-sm-inline">Data</span>
+            </div>
+
+            {{-- Kotak Pencarian (Search) --}}
+            <div class="input-group input-group-sm shadow-sm" style="max-width: 250px;">
+                <span class="input-group-text bg-white border-0">
+                    <span class="material-symbols-outlined fs-6 text-muted">search</span>
+                </span>
+                <input type="text" id="searchUser" class="form-control border-0 ps-0 bg-white" placeholder="Cari data pengguna...">
+            </div>
+
         </div>
     </div>
 
@@ -62,7 +84,7 @@
                         <th class="text-center">Aksi</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="userTableBody">
                     @forelse($users as $user)
                     <tr class="user-row">
                         <td class="text-center text-muted fw-bold row-number"></td>
@@ -154,7 +176,6 @@
                                                 {{-- Pilihan Sekolah --}}
                                                 <div class="mb-3" id="editSchoolField{{ $user->id }}" style="{{ $user->role == 'pengawas' ? 'display:none;' : '' }}">
                                                     <label class="form-label small fw-bold text-primary">Penempatan Sekolah</label>
-                                                    {{-- PERBAIKAN: Tambah class "choices-school-select" --}}
                                                     <select name="school_id" class="form-select choices-school-select">
                                                         <option value="">-- Silakan Pilih Sekolah --</option>
                                                         @foreach($schools as $sch)
@@ -380,23 +401,37 @@
             });
         });
 
-        // 2. SCRIPT PENCARIAN & PAGINATION (Tetap sama persis)
+        // 2. SCRIPT PENCARIAN & PAGINATION MENGGUNAKAN JAVASCRIPT
         const searchInput = document.getElementById('searchUser');
+        const entriesSelect = document.getElementById('entriesUser'); 
         const userRows = Array.from(document.querySelectorAll('.user-row')); 
         const notFoundRow = document.getElementById('notFoundRow');
         const paginationControls = document.getElementById('paginationControls');
         const pageInfo = document.getElementById('pageInfo');
 
         let currentPage = 1;
-        const rowsPerPage = 5; 
+        let rowsPerPage = parseInt(entriesSelect.value); 
 
         function renderTable() {
             const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
             
+            // PERUBAHAN UTAMA: Filter khusus agar mencari secara akurat ke kolom 1 sampai 5
             const filteredRows = userRows.filter(row => {
-                const userName = row.querySelector('.user-name').textContent.toLowerCase();
-                const userEmail = row.querySelector('.user-email').textContent.toLowerCase();
-                return userName.includes(searchTerm) || userEmail.includes(searchTerm);
+                const columns = row.querySelectorAll('td');
+                if (columns.length < 6) return false;
+
+                const nama    = columns[1].textContent.toLowerCase();
+                const email   = columns[2].textContent.toLowerCase();
+                const level   = columns[3].textContent.toLowerCase();
+                const sekolah = columns[4].textContent.toLowerCase();
+                const status  = columns[5].textContent.toLowerCase();
+
+                // Kembalikan True jika keyword ada di salah satu kolom tersebut
+                return nama.includes(searchTerm) || 
+                       email.includes(searchTerm) || 
+                       level.includes(searchTerm) || 
+                       sekolah.includes(searchTerm) || 
+                       status.includes(searchTerm);
             });
 
             userRows.forEach(row => row.style.display = 'none');
@@ -474,8 +509,18 @@
             });
         }
 
+        // Listener untuk Kotak Pencarian
         if(searchInput) {
             searchInput.addEventListener('keyup', function() {
+                currentPage = 1;
+                renderTable();
+            });
+        }
+
+        // Listener untuk Dropdown Tampil Data (Data Entry)
+        if(entriesSelect) {
+            entriesSelect.addEventListener('change', function() {
+                rowsPerPage = parseInt(this.value);
                 currentPage = 1;
                 renderTable();
             });

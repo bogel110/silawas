@@ -202,13 +202,11 @@
                         </div>
 
                         <div class="mb-6">
-                            <div class="tiny-label text-brand-700">Masuk Akun</div>
-                            <h2 class="mt-2 font-headline text-3xl font-extrabold text-slate-900">Selamat datang kembali</h2>
-                            <p class="mt-2 text-sm leading-6 text-slate-500">
-                                Masukkan email dan kata sandi untuk melanjutkan ke panel SILAWAS.
-                            </p>
+                            <h2 class="mt-2 font-headline text-2xl font-extrabold text-slate-900">Pendamping Sekolah,<br><i>Achmad Fansuri Basyar S.Pd., M.A.</i></h2>
                         </div>
-
+                        <p class="mt-2 text-sm leading-6 text-slate-500">
+                            Silakan masukkan email dan kata sandi untuk melanjutkan ke panel SILAWAS.
+                        </p>
                         <x-auth-session-status class="mb-4 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700" :status="session('status')" />
 
                         @if($errors->any())
@@ -246,11 +244,11 @@
                                         <span>Ingat saya</span>
                                     </label>
 
-                                    @if (Route::has('password.request'))
+                                    <!-- @if (Route::has('password.request'))
                                         <a class="text-sm font-semibold text-brand-700 hover:text-brand-900" href="{{ route('password.request') }}">
                                             Lupa password?
                                         </a>
-                                    @endif
+                                    @endif -->
                                 </div>
 
                                 <button type="submit" class="login-btn inline-flex w-full items-center justify-center rounded-2xl px-5 py-3.5 text-sm font-bold text-white transition">

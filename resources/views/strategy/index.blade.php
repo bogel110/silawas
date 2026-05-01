@@ -165,6 +165,7 @@
                 
                 <div class="d-flex flex-column flex-sm-row gap-2 align-items-sm-center">
                     <div class="d-flex align-items-center gap-2">
+                        <span class="small text-muted fw-bold d-none d-sm-inline">Tampilkan</span>
                         <select id="entriesStrategy" class="form-select form-select-sm bg-light border-0 shadow-sm" style="width: auto; cursor: pointer;">
                             <option value="5">5</option>
                             <option value="10" selected>10</option>
