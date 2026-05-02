@@ -34,6 +34,52 @@ class SchoolController extends Controller
         return view('schools.show', compact('school', 'modul2Stats', 'currentTahunPelajaran'));
     }
 
+    public function laporanKegiatan(Request $request)
+    {
+        $user = auth()->user();
+        $schools = collect();
+        $school = null;
+
+        if ($user && $user->role === 'admin_sekolah') {
+            if (! $user->school_id) {
+                abort(403, 'Akun admin sekolah belum terhubung ke data sekolah.');
+            }
+
+            $school = School::with('monthlyReports')->findOrFail($user->school_id);
+        } elseif ($user && $user->role === 'pengawas') {
+            $schools = School::orderBy('name')->get();
+
+            if ($request->filled('school_id')) {
+                $school = School::with('monthlyReports')->findOrFail($request->school_id);
+            }
+        } else {
+            abort(403, 'Akses ditolak.');
+        }
+
+        $now = \Carbon\Carbon::now();
+        $currentTahunPelajaran = $now->month >= 7
+            ? $now->year . '/' . ($now->year + 1)
+            : ($now->year - 1) . '/' . $now->year;
+
+        $modul2Stats = [
+            'kurikulum' => 0,
+            'kesiswaan' => 0,
+            'sarpras'   => 0,
+            'humas'     => 0,
+        ];
+
+        if ($school) {
+            $modul2Stats = [
+                'kurikulum' => $school->monthlyReports()->where('tahun_pelajaran', $currentTahunPelajaran)->whereNotNull('kurikulum_link')->where('kurikulum_link', '!=', '')->count(),
+                'kesiswaan' => $school->monthlyReports()->where('tahun_pelajaran', $currentTahunPelajaran)->whereNotNull('kesiswaan_link')->where('kesiswaan_link', '!=', '')->count(),
+                'sarpras'   => $school->monthlyReports()->where('tahun_pelajaran', $currentTahunPelajaran)->whereNotNull('sarpras_link')->where('sarpras_link', '!=', '')->count(),
+                'humas'     => $school->monthlyReports()->where('tahun_pelajaran', $currentTahunPelajaran)->whereNotNull('humas_link')->where('humas_link', '!=', '')->count(),
+            ];
+        }
+
+        return view('reports.index', compact('schools', 'school', 'modul2Stats', 'currentTahunPelajaran'));
+    }
+
     public function updateDriveLink(Request $request, $id)
     {
         $school = School::findOrFail($id);

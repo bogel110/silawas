@@ -27,56 +27,6 @@
         </div>
     </div>
     
-    {{-- PROGRES MODUL 2: LAPORAN BULANAN (BULAN BERJALAN) --}}
-    <div class="card border-0 shadow-sm rounded-4 mb-4 overflow-hidden border-start border-4 border-primary bg-primary bg-opacity-10">
-        <div class="card-body p-4">
-            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
-                <div>
-                    <h5 class="font-headline fw-bold mb-1">Capaian Laporan Kegiatan ( Tahun Ajaran : {{ $currentTahunPelajaran }} )</h5>
-                    <p class="text-soft small mb-0">Total akumulasi laporan kegiatan yang telah diunggah untuk <strong>Tahun Ajaran {{ $currentTahunPelajaran }}</strong></p>
-                </div>
-            </div>
-            
-            <div class="row g-3">
-                @php
-                    $categories = [
-                        'kurikulum' => ['label' => 'Kurikulum', 'color' => 'primary', 'icon' => 'menu_book'],
-                        'kesiswaan' => ['label' => 'Kesiswaan', 'color' => 'info', 'icon' => 'groups'],
-                        'sarpras' => ['label' => 'Sarpras', 'color' => 'warning', 'icon' => 'home_work'],
-                        'humas' => ['label' => 'Humas', 'color' => 'success', 'icon' => 'campaign'],
-                    ];
-                @endphp
-
-                @foreach($categories as $key => $cat)
-                    @php
-                        $isFilled = $modul2Stats[$key] ?? 0;
-                    @endphp
-                    <div class="col-md-3">
-                        <div class="p-3 rounded-3 bg-white shadow-sm border h-100 transition-all hover-shadow">
-                            <div class="d-flex align-items-center justify-content-between mb-2">
-                                <span class="fw-bold small text-muted text-uppercase tracking-wider" style="font-size: 0.65rem;">{{ $cat['label'] }}</span>
-                                <span class="material-symbols-outlined fs-5 text-{{ $isFilled ? $cat['color'] : 'danger' }}">
-                                    {{ $isFilled ? 'check_circle' : 'cancel' }}
-                                </span>
-                            </div>
-                            <div class="progress" style="height: 6px;">
-                                <div class="progress-bar bg-{{ $isFilled > 0 ? $cat['color'] : 'danger' }} progress-bar-striped {{ $isFilled > 0 ? 'progress-bar-animated' : '' }}" role="progressbar" style="width: {{ min(($isFilled / 12) * 100, 100) }}%"></div>
-                            </div>
-                            <div class="text-end mt-1 d-flex justify-content-between align-items-center">
-                                <small class="fw-bold text-{{ $isFilled > 0 ? $cat['color'] : 'dark' }}" style="font-size: 0.75rem;">
-                                    {{ $isFilled }} / 12 Laporan
-                                </small>
-                                <small class="fw-bold text-{{ $isFilled > 0 ? $cat['color'] : 'danger' }}" style="font-size: 0.7rem;">
-                                    {{ $isFilled > 0 ? 'Aktif' : 'Kosong' }}
-                                </small>
-                            </div>
-                        </div>
-                    </div>
-                @endforeach
-            </div>
-        </div>
-    </div>
-
     @if($errors->any())
         <div class="px-4 pt-3">
             <div class="alert alert-danger alert-dismissible fade show py-2 small mb-0" role="alert">
@@ -431,8 +381,9 @@
             </div>
         </div> --}}
 
-        {{-- MODUL 5: LAPORAN KINERJA WAKASEK --}}
-        <div class="col-lg-12">
+        @if(false)
+        {{-- MODUL 3: LAPORAN KEGIATAN --}}
+        <div class="col-lg-12" id="laporan-kegiatan">
             <div class="card border-0 shadow-sm rounded-4 mb-4">
                 <div class="card-header bg-white border-bottom-0 pt-4 pb-0 px-4 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
                     <div class="d-flex align-items-center gap-3">
@@ -463,7 +414,55 @@
                 </div>
 
                 <div class="card-body p-0">
-                    <div class="table-responsive p-4 pt-3">
+                    <div class="p-4 pt-3">
+                        <div class="rounded-4 border bg-primary bg-opacity-10 p-4 mb-4">
+                            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+                                <div>
+                                    <h5 class="font-headline fw-bold mb-1">Capaian Laporan Kegiatan ( Tahun Ajaran : {{ $currentTahunPelajaran }} )</h5>
+                                    <p class="text-soft small mb-0">Total akumulasi laporan kegiatan yang telah diunggah untuk <strong>Tahun Ajaran {{ $currentTahunPelajaran }}</strong></p>
+                                </div>
+                            </div>
+
+                            <div class="row g-3">
+                                @php
+                                    $categories = [
+                                        'kurikulum' => ['label' => 'Kurikulum', 'color' => 'primary', 'icon' => 'menu_book'],
+                                        'kesiswaan' => ['label' => 'Kesiswaan', 'color' => 'info', 'icon' => 'groups'],
+                                        'sarpras' => ['label' => 'Sarpras', 'color' => 'warning', 'icon' => 'home_work'],
+                                        'humas' => ['label' => 'Humas', 'color' => 'success', 'icon' => 'campaign'],
+                                    ];
+                                @endphp
+
+                                @foreach($categories as $key => $cat)
+                                    @php
+                                        $isFilled = $modul2Stats[$key] ?? 0;
+                                    @endphp
+                                    <div class="col-md-3">
+                                        <div class="p-3 rounded-3 bg-white shadow-sm border h-100 transition-all hover-shadow">
+                                            <div class="d-flex align-items-center justify-content-between mb-2">
+                                                <span class="fw-bold small text-muted text-uppercase tracking-wider" style="font-size: 0.65rem;">{{ $cat['label'] }}</span>
+                                                <span class="material-symbols-outlined fs-5 text-{{ $isFilled ? $cat['color'] : 'danger' }}">
+                                                    {{ $isFilled ? 'check_circle' : 'cancel' }}
+                                                </span>
+                                            </div>
+                                            <div class="progress" style="height: 6px;">
+                                                <div class="progress-bar bg-{{ $isFilled > 0 ? $cat['color'] : 'danger' }} progress-bar-striped {{ $isFilled > 0 ? 'progress-bar-animated' : '' }}" role="progressbar" style="width: {{ min(($isFilled / 12) * 100, 100) }}%"></div>
+                                            </div>
+                                            <div class="text-end mt-1 d-flex justify-content-between align-items-center">
+                                                <small class="fw-bold text-{{ $isFilled > 0 ? $cat['color'] : 'dark' }}" style="font-size: 0.75rem;">
+                                                    {{ $isFilled }} / 12 Laporan
+                                                </small>
+                                                <small class="fw-bold text-{{ $isFilled > 0 ? $cat['color'] : 'danger' }}" style="font-size: 0.7rem;">
+                                                    {{ $isFilled > 0 ? 'Aktif' : 'Kosong' }}
+                                                </small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+
+                        <div class="table-responsive">
                         <table class="table align-middle mb-0">
                             <thead class="bg-light text-muted small">
                                 <tr>
@@ -557,14 +556,15 @@
                                     </td>
                                 </tr>
                                 @empty
-                                <tr><td colspan="7" class="text-center small text-muted py-4">Laporan bulanan belum tersedia.</td></tr>
+                                <tr><td colspan="8" class="text-center small text-muted py-4">Laporan bulanan belum tersedia.</td></tr>
                                 @endforelse
 
                                 <tr id="notFoundLaporan" style="display: none;">
-                                    <td colspan="7" class="text-center small text-muted py-3">Data tidak ditemukan.</td>
+                                    <td colspan="8" class="text-center small text-muted py-3">Data tidak ditemukan.</td>
                                 </tr>
                             </tbody>
                         </table>
+                        </div>
                     </div>
                     <div class="p-3 bg-light bg-opacity-25 border-top d-flex justify-content-between align-items-center rounded-bottom-4">
                         <small class="text-muted fw-semibold" id="laporanPageInfo">Menampilkan data...</small>
@@ -573,6 +573,7 @@
                 </div>
             </div>
         </div>
+        @endif
     </div>
 
     {{-- ============================== --}}

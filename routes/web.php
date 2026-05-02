@@ -15,6 +15,9 @@ Route::middleware(['auth'])->group(function () {
     // Route untuk Detail Sekolah
     Route::get('/school/{id}', [SchoolController::class, 'show'])->name('school.show');
 
+    // Menu tersendiri untuk rekap Laporan Kegiatan
+    Route::get('/laporan-kegiatan', [SchoolController::class, 'laporanKegiatan'])->name('reports.index');
+
     // Route BARU untuk menyimpan absensi harian
     Route::post('/school/{id}/attendance', [SchoolController::class, 'storeAttendance'])->name('school.store_attendance');
 

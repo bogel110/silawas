@@ -944,13 +944,25 @@
             </div>
 
             <div class="nav-section-label">Navigasi</div>
+            @php
+                $canOpenLaporanKegiatan = auth()->user()->role === 'pengawas' || (auth()->user()->role === 'admin_sekolah' && auth()->user()->school_id);
+                $isDashboardActive = request()->is('/') || request()->is('dashboard') || request()->routeIs('school.show');
+            @endphp
             <ul class="nav flex-column mb-0">
                 <li class="nav-item">
-                    <a class="nav-link {{ request()->is('/') || request()->is('dashboard') ? 'active' : '' }}" href="{{ url('/') }}">
+                    <a class="nav-link {{ $isDashboardActive ? 'active' : '' }}" href="{{ url('/') }}">
                         <span class="material-symbols-outlined">dashboard</span>
                         <span>Dashboard</span>
                     </a>
                 </li>
+                @if($canOpenLaporanKegiatan)
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('reports.index') ? 'active' : '' }}" href="{{ route('reports.index') }}">
+                            <span class="material-symbols-outlined">assignment</span>
+                            <span>Laporan Kegiatan</span>
+                        </a>
+                    </li>
+                @endif
                 <li class="nav-item">
                     <a class="nav-link {{ request()->routeIs('jurnal.index') ? 'active' : '' }}" href="{{ route('jurnal.index') }}">
                         <span class="material-symbols-outlined">book</span>
