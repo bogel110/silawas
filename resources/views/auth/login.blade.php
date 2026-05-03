@@ -215,7 +215,7 @@
                             </div>
                             <div class="min-w-0">
                                 <div class="tiny-label text-brand-700">Pengawas Sekolah</div>
-                                <div class="font-headline text-base font-extrabold leading-snug text-slate-900">Achmad Fansuri Basyar S.Pd., M.A.</div>
+                                <div class="font-headline text-base font-extrabold leading-snug text-slate-900">Achmad Hamzah Fansuri Basar, S.Pd., M.A.</div>
                             </div>
                         </div>
 
