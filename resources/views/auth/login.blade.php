@@ -133,6 +133,13 @@
             height: 1px;
             background: linear-gradient(90deg, transparent, rgba(255,255,255,0.45), transparent);
         }
+
+        .mentor-badge {
+            background: linear-gradient(135deg, rgba(233, 247, 248, 0.95), rgba(255, 255, 255, 0.92));
+            border: 1px solid rgba(44, 148, 161, 0.14);
+            box-shadow: 0 14px 30px rgba(11, 51, 58, 0.06);
+        }
+
     </style>
 </head>
 <body class="font-body">
@@ -165,6 +172,7 @@
                             <p class="mt-5 text-sm leading-7 text-white/75">
                                 Akses dashboard, jurnal kepsek, KBM, dan administrasi sekolah melalui satu pintu yang holistik, komprehensif dan profesional.
                             </p>
+
                         </div>
                     </div>
 
@@ -201,8 +209,19 @@
                             </div>
                         </div>
 
-                        <div class="mb-6">
-                            <h2 class="mt-2 font-headline text-2xl font-extrabold text-slate-900">Pendamping Sekolah,<br><i>Achmad Fansuri Basyar S.Pd., M.A.</i></h2>
+                        <div class="mb-5 inline-flex w-full items-center gap-3 rounded-2xl mentor-badge px-4 py-3">
+                            <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand-700 text-white shadow-sm">
+                                <span class="material-symbols-outlined text-[22px]">supervisor_account</span>
+                            </div>
+                            <div class="min-w-0">
+                                <div class="tiny-label text-brand-700">Pengawas Sekolah</div>
+                                <div class="font-headline text-base font-extrabold leading-snug text-slate-900">Achmad Fansuri Basyar S.Pd., M.A.</div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="tiny-label text-brand-700">Login Portal</div>
+                            <h2 class="mt-2 font-headline text-3xl font-extrabold tracking-tight text-slate-900">Masuk ke SILAWAS</h2>
                         </div>
                         <p class="mt-2 text-sm leading-6 text-slate-500">
                             Silakan masukkan email dan kata sandi untuk melanjutkan ke panel SILAWAS.
