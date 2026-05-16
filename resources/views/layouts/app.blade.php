@@ -870,10 +870,32 @@
             opacity: 1 !important;
         }
 
+        .choices__list--dropdown .choices__item--selectable.is-selected,
+        .choices__list--dropdown .choices__item--selectable[aria-selected="true"],
+        .choices__list[aria-expanded] .choices__item--selectable.is-selected,
+        .choices__list[aria-expanded] .choices__item--selectable[aria-selected="true"] {
+            background-color: #e8f6f8 !important;
+            color: #0b3c49 !important;
+            -webkit-text-fill-color: #0b3c49 !important;
+            font-weight: 800;
+        }
+
         html[data-theme="dark"] .choices__list--dropdown .choices__item--selectable.is-highlighted,
         html[data-theme="dark"] .choices__list[aria-expanded] .choices__item--selectable.is-highlighted {
             background-color: #1d7784 !important;
             color: #ffffff !important;
+            -webkit-text-fill-color: #ffffff !important;
+            font-weight: 800;
+        }
+
+        html[data-theme="dark"] .choices__list--dropdown .choices__item--selectable.is-selected,
+        html[data-theme="dark"] .choices__list--dropdown .choices__item--selectable[aria-selected="true"],
+        html[data-theme="dark"] .choices__list[aria-expanded] .choices__item--selectable.is-selected,
+        html[data-theme="dark"] .choices__list[aria-expanded] .choices__item--selectable[aria-selected="true"] {
+            background-color: #1d4b56 !important;
+            color: #ffffff !important;
+            -webkit-text-fill-color: #ffffff !important;
+            font-weight: 800;
         }
 
         html[data-theme="dark"] .choices[data-type*="select-one"]::after {

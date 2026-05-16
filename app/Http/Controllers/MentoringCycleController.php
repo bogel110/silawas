@@ -20,6 +20,9 @@ class MentoringCycleController extends Controller
 
         $cycles = collect();
         $recap = [];
+        $calendarEvents = [];
+        $availableYears = [(int) now()->year];
+        $initialCalendarMonth = now()->format('Y-m');
 
         // Jika sekolah sudah dipilih, ambil data dan hitung rekapnya
         if ($selectedSchool) {
@@ -34,9 +37,47 @@ class MentoringCycleController extends Controller
                 'pelaksanaan_prog' => $cycles->where('siklus', 'Pendampingan Pelaksanaan Program')->count(),
                 'pelaporan' => $cycles->where('siklus', 'Pelaporan Pendampingan')->count(),
             ];
+
+            $cycleYears = $cycles->pluck('tanggal')
+                                ->filter()
+                                ->map(fn ($tanggal) => \Carbon\Carbon::parse($tanggal)->year)
+                                ->push((int) now()->year);
+
+            $availableYears = range($cycleYears->max(), $cycleYears->min());
+
+            if ($cycles->isNotEmpty()) {
+                $initialCalendarMonth = \Carbon\Carbon::parse($cycles->first()->tanggal)->format('Y-m');
+            }
+
+            $colors = [
+                'Perencanaan Pendampingan' => '#0dcaf0',
+                'Pendampingan Perencanaan Program' => '#ffc107',
+                'Pendampingan Pelaksanaan Program' => '#0d6efd',
+                'Pelaporan Pendampingan' => '#198754',
+            ];
+
+            $calendarEvents = $cycles->map(function ($cycle) use ($colors) {
+                return [
+                    'title' => $cycle->siklus,
+                    'start' => \Carbon\Carbon::parse($cycle->tanggal)->format('Y-m-d'),
+                    'allDay' => true,
+                    'color' => $colors[$cycle->siklus] ?? '#6c757d',
+                    'textColor' => $cycle->siklus === 'Pendampingan Perencanaan Program' ? '#18323a' : '#ffffff',
+                    'description' => $cycle->keterangan ?: '-',
+                    'modalTarget' => '#editModal' . $cycle->id,
+                ];
+            })->values()->all();
         }
 
-        return view('mentoring.index', compact('schools', 'selectedSchool', 'cycles', 'recap'));
+        return view('mentoring.index', compact(
+            'schools',
+            'selectedSchool',
+            'cycles',
+            'recap',
+            'calendarEvents',
+            'availableYears',
+            'initialCalendarMonth'
+        ));
     }
 
     public function store(Request $request)

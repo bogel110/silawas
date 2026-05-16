@@ -44,6 +44,8 @@ Route::middleware(['auth'])->group(function () {
     Route::prefix('administrator')->name('admin.')->group(function () {
         Route::get('/users', [UserController::class, 'index'])->name('users.index');
         Route::post('/users', [UserController::class, 'store'])->name('users.store');
+        Route::get('/users/import-template', [UserController::class, 'downloadAdminImportTemplate'])->name('users.import_template');
+        Route::post('/users/import', [UserController::class, 'importAdmins'])->name('users.import');
         Route::put('/users/{id}', [UserController::class, 'update'])->name('users.update');
         Route::put('/users/{id}/reset-password', [UserController::class, 'resetPassword'])->name('users.reset_password');
         Route::delete('/users/{id}', [UserController::class, 'destroy'])->name('users.destroy');

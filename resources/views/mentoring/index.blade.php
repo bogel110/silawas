@@ -4,10 +4,14 @@
 
 @section('content')
     {{-- ========================================================================= --}}
-    {{-- LIBRARY & STYLES: CHOICES.JS UNTUK PENCARIAN DROPDOWN --}}
+    {{-- LIBRARY & STYLES: CHOICES.JS UNTUK PENCARIAN DROPDOWN & KALENDER --}}
     {{-- ========================================================================= --}}
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
+    <link rel="stylesheet" href="{{ asset('tmp/plugins/fullcalendar/fullcalendar.min.css') }}">
     <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+    <script src="{{ asset('tmp/plugins/jQuery/jQuery-2.1.4.min.js') }}"></script>
+    <script src="{{ asset('tmp/plugins/daterangepicker/moment.min.js') }}"></script>
+    <script src="{{ asset('tmp/plugins/fullcalendar/fullcalendar.min.js') }}"></script>
     
     <style>
         /* Pengaturan Dasar Choices.js */
@@ -33,8 +37,35 @@
         .choices__list--dropdown .choices__item {
             padding: 15px 20px !important; font-size: 1rem !important; border-bottom: 1px solid #f1f3f5;
         }
+        .choices__list--dropdown .choices__item--selectable.is-selected,
+        .choices__list--dropdown .choices__item--selectable[aria-selected="true"] {
+            background-color: #e8f6f8 !important;
+            color: #0b3c49 !important;
+            font-weight: 700;
+        }
         .choices__list--dropdown .choices__item--selectable.is-highlighted {
             background-color: #0d6efd !important; color: #ffffff !important; font-weight: 600;
+        }
+
+        html[data-theme="dark"] .choices__list--dropdown .choices__item,
+        html[data-theme="dark"] .choices__list[aria-expanded] .choices__item {
+            border-bottom-color: rgba(180, 221, 227, 0.14) !important;
+        }
+        html[data-theme="dark"] .choices__list--dropdown .choices__item--selectable.is-selected,
+        html[data-theme="dark"] .choices__list--dropdown .choices__item--selectable[aria-selected="true"],
+        html[data-theme="dark"] .choices__list[aria-expanded] .choices__item--selectable.is-selected,
+        html[data-theme="dark"] .choices__list[aria-expanded] .choices__item--selectable[aria-selected="true"] {
+            background-color: #1d4b56 !important;
+            color: #ffffff !important;
+            -webkit-text-fill-color: #ffffff !important;
+            font-weight: 800;
+        }
+        html[data-theme="dark"] .choices__list--dropdown .choices__item--selectable.is-highlighted,
+        html[data-theme="dark"] .choices__list[aria-expanded] .choices__item--selectable.is-highlighted {
+            background-color: #1d7784 !important;
+            color: #ffffff !important;
+            -webkit-text-fill-color: #ffffff !important;
+            font-weight: 800;
         }
 
         /* Tampilan Khusus Mobile */
@@ -46,6 +77,269 @@
             .choices.is-open::after {
                 content: ""; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
                 background: rgba(0,0,0,0.2); z-index: 999;
+            }
+        }
+
+        .calendar-shell {
+            overflow: hidden;
+            border-radius: 1.35rem;
+            background: rgba(255, 255, 255, 0.96);
+        }
+        .calendar-summary {
+            display: grid;
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+            gap: 0.65rem;
+        }
+        .calendar-stat {
+            min-height: 72px;
+            border: 1px solid rgba(15, 107, 125, 0.08);
+            border-radius: 0.85rem;
+            background: rgba(255, 255, 255, 0.86);
+            padding: 0.8rem;
+        }
+        .calendar-stat strong {
+            display: block;
+            color: var(--text-main);
+            font-size: 1.15rem;
+            line-height: 1;
+        }
+        .calendar-stat span {
+            display: block;
+            color: var(--text-soft);
+            font-size: 0.68rem;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+        .calendar-toolbar-panel {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            padding: 0.85rem;
+            border: 1px solid rgba(15, 107, 125, 0.08);
+            border-radius: 1rem;
+            background: rgba(245, 248, 251, 0.74);
+        }
+        .calendar-school-meta {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.65rem;
+        }
+        .calendar-month-control {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+        .calendar-month-control label {
+            margin: 0;
+            color: var(--text-soft);
+            font-size: 0.72rem;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+        .calendar-date-field {
+            display: flex;
+            align-items: center;
+            gap: 0.45rem;
+        }
+        .calendar-month-control .form-select,
+        .calendar-month-control input[type="date"] {
+            min-height: 40px;
+            border-radius: 999px;
+            font-size: 0.84rem;
+            font-weight: 700;
+        }
+        #calendarMonthSelect {
+            min-width: 150px;
+        }
+        #calendarYearSelect {
+            min-width: 104px;
+        }
+        #calendarDayPicker {
+            min-width: 148px;
+        }
+        .cycle-dot {
+            width: 0.65rem;
+            height: 0.65rem;
+            border-radius: 999px;
+            display: inline-flex;
+            flex: 0 0 auto;
+        }
+        #siklusCalendar {
+            min-height: 620px;
+            padding: 0.85rem 0 0;
+        }
+        #siklusCalendar .fc-toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+        #siklusCalendar .fc-toolbar h2 {
+            margin: 0;
+            color: var(--text-main);
+            font-family: 'Manrope', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 800;
+        }
+        #siklusCalendar .fc-button {
+            border: 1px solid rgba(15, 107, 125, 0.12);
+            border-radius: 999px;
+            background: #fff;
+            color: var(--brand-700);
+            box-shadow: 0 8px 18px rgba(15, 107, 125, 0.08);
+            text-shadow: none;
+            font-weight: 800;
+        }
+        #siklusCalendar .fc-button:hover,
+        #siklusCalendar .fc-state-active {
+            background: var(--brand-700);
+            color: #fff;
+        }
+        #siklusCalendar .fc-widget-header,
+        #siklusCalendar .fc-widget-content {
+            border-color: rgba(15, 107, 125, 0.08);
+        }
+        #siklusCalendar .fc-day-header {
+            padding: 0.75rem 0.4rem;
+            color: var(--text-soft);
+            font-size: 0.72rem;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+        #siklusCalendar .fc-day-number {
+            padding: 0.45rem 0.55rem;
+            color: var(--text-main);
+            font-weight: 800;
+        }
+        #siklusCalendar .fc-today {
+            background: rgba(15, 107, 125, 0.06);
+        }
+        #siklusCalendar .fc-event {
+            border: 0;
+            border-radius: 0.55rem;
+            padding: 0.18rem 0.35rem;
+            font-size: 0.72rem;
+            font-weight: 800;
+            cursor: pointer;
+        }
+        #siklusCalendar .fc-event .fc-title {
+            white-space: normal;
+        }
+        .calendar-list {
+            max-height: 620px;
+            overflow-y: auto;
+        }
+        .calendar-side-panel {
+            border-left: 1px solid rgba(15, 107, 125, 0.08);
+            padding-left: 1.1rem;
+        }
+        .cycle-timeline {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            gap: 0.85rem;
+            padding-left: 0.75rem;
+        }
+        .cycle-timeline::before {
+            content: '';
+            position: absolute;
+            top: 0.35rem;
+            bottom: 0.35rem;
+            left: 0.32rem;
+            width: 2px;
+            background: rgba(15, 107, 125, 0.1);
+        }
+        .cycle-timeline-item {
+            position: relative;
+            width: 100%;
+            border: 1px solid rgba(15, 107, 125, 0.08);
+            border-radius: 1rem;
+            background: #fff;
+            padding: 0.85rem 0.85rem 0.85rem 1rem;
+            text-align: left;
+            transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+        }
+        .cycle-timeline-item:hover,
+        .cycle-timeline-item:focus {
+            border-color: rgba(15, 107, 125, 0.2);
+            box-shadow: 0 10px 22px rgba(15, 107, 125, 0.08);
+            transform: translateX(2px);
+        }
+        .cycle-timeline-dot {
+            position: absolute;
+            top: 1rem;
+            left: -0.78rem;
+            width: 0.72rem;
+            height: 0.72rem;
+            border: 2px solid #fff;
+            border-radius: 999px;
+            box-shadow: 0 0 0 2px rgba(15, 107, 125, 0.12);
+        }
+        .cycle-timeline-note {
+            display: -webkit-box;
+            overflow: hidden;
+            color: var(--text-soft);
+            font-size: 0.72rem;
+            line-height: 1.45;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+        html[data-theme="dark"] .calendar-shell,
+        html[data-theme="dark"] .calendar-stat,
+        html[data-theme="dark"] .calendar-toolbar-panel,
+        html[data-theme="dark"] .cycle-timeline-item,
+        html[data-theme="dark"] #siklusCalendar .fc-button {
+            background: #112a31;
+            color: var(--text-main);
+            border-color: rgba(180, 221, 227, 0.14);
+        }
+        html[data-theme="dark"] .cycle-timeline::before {
+            background: rgba(180, 221, 227, 0.16);
+        }
+        html[data-theme="dark"] .cycle-timeline-dot {
+            border-color: #112a31;
+        }
+        html[data-theme="dark"] #siklusCalendar .fc-widget-header,
+        html[data-theme="dark"] #siklusCalendar .fc-widget-content {
+            border-color: rgba(180, 221, 227, 0.12);
+        }
+        html[data-theme="dark"] #siklusCalendar .fc-today {
+            background: rgba(99, 199, 210, 0.1);
+        }
+        @media (max-width: 991.98px) {
+            .calendar-summary {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+            #siklusCalendar {
+                min-height: 560px;
+                padding: 0.75rem;
+            }
+            #siklusCalendar .fc-toolbar {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+            .calendar-toolbar-panel,
+            .calendar-month-control {
+                align-items: stretch;
+                flex-direction: column;
+            }
+            .calendar-date-field,
+            .calendar-month-control .form-select,
+            .calendar-month-control input[type="date"] {
+                width: 100%;
+            }
+            .calendar-side-panel {
+                border-left: 0;
+                border-top: 1px solid rgba(15, 107, 125, 0.08);
+                padding-left: 0;
+                padding-top: 1rem;
             }
         }
     </style>
@@ -106,174 +400,210 @@
     {{-- TAMPILAN JIKA SEKOLAH SUDAH DIPILIH --}}
     {{-- ========================================================================= --}}
     @if($selectedSchool)
+        @php
+            $skor = $selectedSchool->skor_performa ?? 0;
+            $badgeColor = $skor >= 75 ? 'success' : ($skor >= 40 ? 'warning' : 'danger');
+        @endphp
         
-        {{-- PANEL REKAPITULASI ANGKA --}}
-        <div class="row g-3 mb-4">
-            <div class="col-6 col-md-3">
-                <div class="card border-0 shadow-sm rounded-4 p-4 bg-dark h-100 d-flex justify-content-center">
-                    <small class="text-cyan-400 fw-bold text-uppercase tracking-widest text-white" style="font-size: 0.65rem;">Total Intervensi</small>
-                    <h2 class="display-5 fw-bold mb-0 text-white">{{ $recap['total'] }}</h2>
-                </div>
-            </div>
-            <div class="col-6 col-md-2">
-                <div class="card border-0 shadow-sm rounded-4 p-3 bg-white border-bottom border-4 border-info h-100">
-                    <small class="text-muted fw-bold text-uppercase" style="font-size: 0.65rem;">1. Perencanaan</small>
-                    <h4 class="fw-bold mb-0 text-info mt-1">{{ $recap['perencanaan'] }} <span class="small text-muted fs-6">Aktv</span></h4>
-                </div>
-            </div>
-            <div class="col-6 col-md-2">
-                <div class="card border-0 shadow-sm rounded-4 p-3 bg-white border-bottom border-4 border-warning h-100">
-                    <small class="text-muted fw-bold text-uppercase" style="font-size: 0.65rem;">2. Pend. Program</small>
-                    <h4 class="fw-bold mb-0 text-warning mt-1">{{ $recap['perencanaan_prog'] }} <span class="small text-muted fs-6">Aktv</span></h4>
-                </div>
-            </div>
-            <div class="col-6 col-md-2">
-                <div class="card border-0 shadow-sm rounded-4 p-3 bg-white border-bottom border-4 border-primary h-100">
-                    <small class="text-muted fw-bold text-uppercase" style="font-size: 0.65rem;">3. Pelaksanaan</small>
-                    <h4 class="fw-bold mb-0 text-primary mt-1">{{ $recap['pelaksanaan_prog'] }} <span class="small text-muted fs-6">Aktv</span></h4>
-                </div>
-            </div>
-            <div class="col-6 col-md-2">
-                <div class="card border-0 shadow-sm rounded-4 p-3 bg-white border-bottom border-4 border-success h-100">
-                    <small class="text-muted fw-bold text-uppercase" style="font-size: 0.65rem;">4. Pelaporan</small>
-                    <h4 class="fw-bold mb-0 text-success mt-1">{{ $recap['pelaporan'] }} <span class="small text-muted fs-6">Aktv</span></h4>
-                </div>
-            </div>
-        </div>
-
-        {{-- TABEL DATA SIKLUS PENDAMPINGAN --}}
-        <div class="card border-0 shadow-sm rounded-4 mb-4">
-            
-            {{-- HEADER TABEL: Terbagi 2 Baris agar rapi --}}
+        {{-- REKAPITULASI KALENDER --}}
+        <div class="card border-0 shadow-sm rounded-4 mb-4 calendar-shell">
             <div class="card-header bg-white border-bottom-0 pt-4 pb-3 px-4">
-                
-                {{-- Baris 1: Judul Riwayat & Tombol Aksi --}}
-                <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-start gap-3 mb-3">
+                <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-start gap-3">
                     <div>
-                        <h5 class="font-headline fw-bold mb-1">Riwayat: <span class="text-primary">{{ $selectedSchool->name }}</span></h5>
-                        @php
-                            $skor = $selectedSchool->skor_performa ?? 0;
-                            $badgeColor = $skor >= 75 ? 'success' : ($skor >= 40 ? 'warning' : 'danger');
-                        @endphp
-                        <span class="badge bg-{{ $badgeColor }} bg-opacity-10 text-{{ $badgeColor }} border border-{{ $badgeColor }} rounded-pill px-3">
-                            Skor Performa: {{ $skor }}%
-                        </span>
+                        <h5 class="font-headline fw-bold mb-1">Kalender Siklus: <span class="text-primary">{{ $selectedSchool->name }}</span></h5>
+                        <p class="text-muted small mb-0">Rekap pendampingan tampil sebagai event bulanan agar jadwal dan riwayat mudah dipindai.</p>
                     </div>
-                    
                     <div class="d-flex flex-wrap gap-2 align-items-center">
                         <a href="{{ route('mentoring.export', ['school_id' => $selectedSchool->id]) }}" class="btn btn-success btn-sm fw-bold d-flex align-items-center gap-1 shadow-sm">
                             <span class="material-symbols-outlined fs-6">download</span> Download File Siklus
                         </a>
                         <button type="button" class="btn btn-primary btn-sm fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#modalSiklus">
-                            <span class="d-flex align-items-center gap-1">    
+                            <span class="d-flex align-items-center gap-1">
                                 <span class="material-symbols-outlined fs-6">add_circle</span> Input Siklus
                             </span>
                         </button>
                     </div>
                 </div>
 
-                {{-- Baris 2: Data Entry (Tampil) & Search (Pencarian) --}}
-                <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
-                    <div class="d-flex align-items-center gap-2">
-                        <span class="small text-muted fw-bold d-none d-sm-inline">Tampilkan</span>
-                        <select id="entriesSiklus" class="form-select form-select-sm bg-light border-0 shadow-sm" style="width: auto; cursor: pointer;">
-                            <option value="5">5</option>
-                            <option value="10" selected>10</option>
-                            <option value="25">25</option>
-                            <option value="50">50</option>
-                        </select>
-                        <span class="small text-muted fw-bold d-none d-sm-inline">Data</span>
+                <div class="calendar-toolbar-panel mt-4">
+                    <div class="calendar-school-meta">
+                        <span class="badge bg-{{ $badgeColor }} bg-opacity-10 text-{{ $badgeColor }} border border-{{ $badgeColor }} rounded-pill px-3">
+                            Skor Performa: {{ $skor }}%
+                        </span>
+                        <span class="small text-muted fw-bold" id="calendarCurrentMonthLabel"></span>
                     </div>
+                    <div class="calendar-month-control">
+                        @php
+                            [$initialCalendarYear, $initialCalendarMonthNumber] = explode('-', $initialCalendarMonth);
+                            $monthOptions = [
+                                1 => 'Januari',
+                                2 => 'Februari',
+                                3 => 'Maret',
+                                4 => 'April',
+                                5 => 'Mei',
+                                6 => 'Juni',
+                                7 => 'Juli',
+                                8 => 'Agustus',
+                                9 => 'September',
+                                10 => 'Oktober',
+                                11 => 'November',
+                                12 => 'Desember',
+                            ];
+                        @endphp
+                        <div class="calendar-date-field">
+                            <label for="calendarMonthSelect">Bulan</label>
+                            <select id="calendarMonthSelect" class="form-select form-select-sm">
+                                @foreach($monthOptions as $monthNumber => $monthName)
+                                    <option value="{{ str_pad($monthNumber, 2, '0', STR_PAD_LEFT) }}" {{ (int) $initialCalendarMonthNumber === $monthNumber ? 'selected' : '' }}>
+                                        {{ $monthName }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="calendar-date-field">
+                            <label for="calendarYearSelect">Tahun</label>
+                            <select id="calendarYearSelect" class="form-select form-select-sm">
+                                @foreach($availableYears as $year)
+                                    <option value="{{ $year }}" {{ (int) $initialCalendarYear === (int) $year ? 'selected' : '' }}>
+                                        {{ $year }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="calendar-date-field">
+                            <label for="calendarDayPicker">Tanggal</label>
+                            <input type="date" id="calendarDayPicker" class="form-control form-control-sm" value="{{ $initialCalendarMonth }}-01">
+                        </div>
+                    </div>
+                </div>
 
-                    <div class="input-group input-group-sm shadow-sm" style="max-width: 250px;">
-                        <span class="input-group-text bg-light border-0"><span class="material-symbols-outlined fs-6 text-muted">search</span></span>
-                        <input type="text" id="searchSiklus" class="form-control border-0 bg-light ps-0" placeholder="Cari catatan...">
+                <div class="calendar-summary mt-3">
+                    <div class="calendar-stat">
+                        <span>Total Intervensi</span>
+                        <strong>{{ $recap['total'] }}</strong>
+                    </div>
+                    <div class="calendar-stat">
+                        <span>Perencanaan</span>
+                        <strong class="text-info">{{ $recap['perencanaan'] }}</strong>
+                    </div>
+                    <div class="calendar-stat">
+                        <span>Pend. Program</span>
+                        <strong class="text-warning">{{ $recap['perencanaan_prog'] }}</strong>
+                    </div>
+                    <div class="calendar-stat">
+                        <span>Pelaksanaan</span>
+                        <strong class="text-primary">{{ $recap['pelaksanaan_prog'] }}</strong>
+                    </div>
+                    <div class="calendar-stat">
+                        <span>Pelaporan</span>
+                        <strong class="text-success">{{ $recap['pelaporan'] }}</strong>
                     </div>
                 </div>
             </div>
 
-            {{-- ISI TABEL --}}
-            <div class="card-body p-0">
-                <div class="p-4 pt-0 table-responsive">
-                    <table class="table table-sm align-middle mb-0">
-                        <thead class="bg-light text-muted small">
-                            <tr>
-                                <th class="ps-2" style="width: 15%">Tanggal</th>
-                                <th class="text-center" style="width: 30%">Tahapan Siklus</th>
-                                <th class="text-center" style="width: 45%">Keterangan</th>
-                                <th class="text-center" style="width: 10%">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody id="siklusTableBody">
-                            @forelse($cycles as $cycle)
-                            <tr class="siklus-row small">
-                                <td class="fw-bold ps-2">{{ \Carbon\Carbon::parse($cycle->tanggal)->translatedFormat('d M Y') }}</td>
-                                <td class="text-center">
-                                    <span class="badge bg-dark bg-opacity-10 text-dark border border-dark rounded-pill px-3">{{ $cycle->siklus }}</span>
-                                </td>
-                                <td class="text-center" style="white-space: normal;">{{ $cycle->keterangan ?? '-' }}</td>
-                                <td class="text-center">
-                                    <div class="d-flex justify-content-center gap-2">
-                                        <button class="btn btn-link text-primary p-0" data-bs-toggle="modal" data-bs-target="#editModal{{ $cycle->id }}"><span class="material-symbols-outlined fs-6">edit</span></button>
-                                        <form action="{{ route('mentoring.destroy', $cycle->id) }}" method="POST" onsubmit="return confirm('Hapus data siklus ini?')">
-                                            @csrf @method('DELETE')
-                                            <button type="submit" class="btn btn-link text-danger p-0"><span class="material-symbols-outlined fs-6">delete</span></button>
-                                        </form>
-                                    </div>
-                                    
-                                    {{-- MODAL EDIT DATA SIKLUS --}}
-                                    <div class="modal fade text-start" id="editModal{{ $cycle->id }}" tabindex="-1" aria-hidden="true">
-                                        <div class="modal-dialog modal-dialog-centered">
-                                            <form action="{{ route('mentoring.update', $cycle->id) }}" method="POST" class="modal-content border-0 shadow">
-                                                @csrf @method('PUT')
-                                                <div class="modal-header border-bottom-0 pt-4 px-4 pb-0">
-                                                    <h5 class="modal-title font-headline fw-bold mb-1">Edit Siklus</h5>
-                                                    <button type="button" class="btn-close mt-1" data-bs-dismiss="modal"></button>
-                                                </div>
-                                                <div class="modal-body px-4">
-                                                    <div class="mb-3">
-                                                        <label class="form-label small fw-bold text-muted mb-1">Tanggal Pendampingan</label>
-                                                        <input type="date" name="tanggal" class="form-control bg-light border-secondary-subtle" value="{{ $cycle->tanggal }}" required>
-                                                    </div>
-                                                    <div class="mb-3">
-                                                        <label class="form-label small fw-bold text-muted mb-1">Tahapan Siklus</label>
-                                                        <select name="siklus" class="form-select bg-light border-secondary-subtle" required>
-                                                            <option value="Perencanaan Pendampingan" {{ $cycle->siklus == 'Perencanaan Pendampingan' ? 'selected' : '' }}>1. Perencanaan Pendampingan</option>
-                                                            <option value="Pendampingan Perencanaan Program" {{ $cycle->siklus == 'Pendampingan Perencanaan Program' ? 'selected' : '' }}>2. Pendampingan Perencanaan Program</option>
-                                                            <option value="Pendampingan Pelaksanaan Program" {{ $cycle->siklus == 'Pendampingan Pelaksanaan Program' ? 'selected' : '' }}>3. Pendampingan Pelaksanaan Program</option>
-                                                            <option value="Pelaporan Pendampingan" {{ $cycle->siklus == 'Pelaporan Pendampingan' ? 'selected' : '' }}>4. Pelaporan Pendampingan</option>
-                                                        </select>
-                                                    </div>
-                                                    <div class="mb-3">
-                                                        <label class="form-label small fw-bold text-muted mb-1">Keterangan / Catatan</label>
-                                                        <textarea name="keterangan" class="form-control bg-light border-secondary-subtle" rows="3" required>{{ $cycle->keterangan }}</textarea>
-                                                    </div>
-                                                </div>
-                                                <div class="modal-footer bg-light border-top-0 px-4 py-3">
-                                                    <button type="button" class="btn btn-outline-secondary btn-sm fw-bold" data-bs-dismiss="modal">Batal</button>
-                                                    <button type="submit" class="btn btn-primary btn-sm fw-bold">Update Data</button>
-                                                </div>
-                                            </form>
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-                            @empty
-                            <tr id="emptyRow"><td colspan="4" class="text-center small text-muted py-5">Belum ada riwayat pendampingan untuk sekolah ini.</td></tr>
-                            @endforelse
-                            
-                            <tr id="notFoundRow" style="display:none;"><td colspan="4" class="text-center py-4 text-muted small">Data tidak ditemukan.</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                {{-- PAGINATION --}}
-                <div class="p-3 bg-light bg-opacity-25 border-top d-flex justify-content-between align-items-center rounded-bottom-4">
-                    <small class="text-muted fw-semibold" id="siklusPageInfo"></small>
-                    <nav id="siklusPagination"></nav>
+            <div class="card-body pt-0 px-4 pb-4">
+                <div class="row g-4">
+                    <div class="col-lg-9">
+                        <div id="siklusCalendar"></div>
+                    </div>
+                    <div class="col-lg-3">
+                        <div class="d-flex flex-column gap-3 calendar-list calendar-side-panel">
+                            <div>
+                                <h6 class="fw-bold mb-2">Legenda Siklus</h6>
+                                <div class="d-flex flex-column gap-2 small text-muted">
+                                    <div class="d-flex align-items-center gap-2"><span class="cycle-dot" style="background:#0dcaf0;"></span> Perencanaan Pendampingan</div>
+                                    <div class="d-flex align-items-center gap-2"><span class="cycle-dot" style="background:#ffc107;"></span> Pendampingan Perencanaan Program</div>
+                                    <div class="d-flex align-items-center gap-2"><span class="cycle-dot" style="background:#0d6efd;"></span> Pendampingan Pelaksanaan Program</div>
+                                    <div class="d-flex align-items-center gap-2"><span class="cycle-dot" style="background:#198754;"></span> Pelaporan Pendampingan</div>
+                                </div>
+                            </div>
+                            <hr class="my-0">
+                            <div>
+                                <div class="d-flex justify-content-between align-items-center gap-2 mb-3">
+                                    <h6 class="fw-bold mb-0">Time Line</h6>
+                                    <span class="badge bg-primary bg-opacity-10 text-primary border border-primary rounded-pill px-2">
+                                        {{ $cycles->count() }} Event
+                                    </span>
+                                </div>
+                                <div class="cycle-timeline">
+                                    @forelse($cycles as $timelineCycle)
+                                        @php
+                                            $cycleColor = match($timelineCycle->siklus) {
+                                                'Perencanaan Pendampingan' => '#0dcaf0',
+                                                'Pendampingan Perencanaan Program' => '#ffc107',
+                                                'Pendampingan Pelaksanaan Program' => '#0d6efd',
+                                                'Pelaporan Pendampingan' => '#198754',
+                                                default => '#6c757d',
+                                            };
+                                        @endphp
+                                        <button type="button" class="cycle-timeline-item" data-bs-toggle="modal" data-bs-target="#editModal{{ $timelineCycle->id }}">
+                                            <span class="cycle-timeline-dot" style="background:{{ $cycleColor }};"></span>
+                                            <div class="fw-bold small">{{ \Carbon\Carbon::parse($timelineCycle->tanggal)->translatedFormat('d M Y') }}</div>
+                                            <div class="small fw-semibold text-dark mt-1">{{ $timelineCycle->siklus }}</div>
+                                            <div class="cycle-timeline-note mt-1">
+                                                {{ $timelineCycle->keterangan ?? 'Tidak ada keterangan.' }}
+                                            </div>
+                                        </button>
+                                    @empty
+                                        <p class="small text-muted mb-0">Belum ada event siklus pada timeline.</p>
+                                    @endforelse
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
+
+        {{-- MODAL EDIT / HAPUS DATA SIKLUS --}}
+        @foreach($cycles as $cycle)
+            <div class="modal fade text-start" id="editModal{{ $cycle->id }}" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content border-0 shadow">
+                        <form action="{{ route('mentoring.update', $cycle->id) }}" method="POST">
+                            @csrf @method('PUT')
+                            <div class="modal-header border-bottom-0 pt-4 px-4 pb-0">
+                                <div>
+                                    <h5 class="modal-title font-headline fw-bold mb-1">Edit Siklus</h5>
+                                    <p class="text-muted small mb-0">Ubah atau hapus event siklus pendampingan.</p>
+                                </div>
+                                <button type="button" class="btn-close mt-1" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body px-4">
+                                <div class="mb-3">
+                                    <label class="form-label small fw-bold text-muted mb-1">Tanggal Pendampingan</label>
+                                    <input type="date" name="tanggal" class="form-control bg-light border-secondary-subtle" value="{{ $cycle->tanggal }}" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label small fw-bold text-muted mb-1">Tahapan Siklus</label>
+                                    <select name="siklus" class="form-select bg-light border-secondary-subtle" required>
+                                        <option value="Perencanaan Pendampingan" {{ $cycle->siklus == 'Perencanaan Pendampingan' ? 'selected' : '' }}>1. Perencanaan Pendampingan</option>
+                                        <option value="Pendampingan Perencanaan Program" {{ $cycle->siklus == 'Pendampingan Perencanaan Program' ? 'selected' : '' }}>2. Pendampingan Perencanaan Program</option>
+                                        <option value="Pendampingan Pelaksanaan Program" {{ $cycle->siklus == 'Pendampingan Pelaksanaan Program' ? 'selected' : '' }}>3. Pendampingan Pelaksanaan Program</option>
+                                        <option value="Pelaporan Pendampingan" {{ $cycle->siklus == 'Pelaporan Pendampingan' ? 'selected' : '' }}>4. Pelaporan Pendampingan</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label small fw-bold text-muted mb-1">Keterangan / Catatan</label>
+                                    <textarea name="keterangan" class="form-control bg-light border-secondary-subtle" rows="3" required>{{ $cycle->keterangan }}</textarea>
+                                </div>
+                            </div>
+                            <div class="modal-footer bg-light border-top-0 px-4 py-3 d-flex justify-content-between">
+                                <button type="submit" class="btn btn-primary btn-sm fw-bold">Update Data</button>
+                                <button type="button" class="btn btn-outline-secondary btn-sm fw-bold" data-bs-dismiss="modal">Batal</button>
+                            </div>
+                        </form>
+                        <form action="{{ route('mentoring.destroy', $cycle->id) }}" method="POST" class="px-4 pb-4" onsubmit="return confirm('Hapus data siklus ini?')">
+                            @csrf @method('DELETE')
+                            <button type="submit" class="btn btn-outline-danger btn-sm fw-bold w-100 d-flex align-items-center justify-content-center gap-1">
+                                <span class="material-symbols-outlined fs-6">delete</span>
+                                Hapus Siklus Pendampingan
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        @endforeach
 
         {{-- MODAL INPUT DATA SIKLUS BARU --}}
         <div class="modal fade" id="modalSiklus" tabindex="-1" aria-hidden="true">
@@ -329,83 +659,125 @@
     @endif
 
     {{-- ========================================================================= --}}
-    {{-- SCRIPT: PENCARIAN & PAGINATION TABEL SIKLUS (REAL-TIME) --}}
+    {{-- SCRIPT: KALENDER SIKLUS (REAL-TIME) --}}
     {{-- ========================================================================= --}}
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const tableBody = document.getElementById('siklusTableBody');
-            if(!tableBody) return;
+            const calendarElement = document.getElementById('siklusCalendar');
+            if (calendarElement && window.jQuery && typeof jQuery(calendarElement).fullCalendar === 'function') {
+                const siklusEvents = @json($calendarEvents);
+                const siklusCalendar = jQuery(calendarElement);
+                const calendarMonthSelect = document.getElementById('calendarMonthSelect');
+                const calendarYearSelect = document.getElementById('calendarYearSelect');
+                const calendarDayPicker = document.getElementById('calendarDayPicker');
+                const calendarCurrentMonthLabel = document.getElementById('calendarCurrentMonthLabel');
+                const calendarMonthNames = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
 
-            let allRows = Array.from(document.querySelectorAll('.siklus-row'));
-            const searchInput = document.getElementById('searchSiklus');
-            const entriesSelect = document.getElementById('entriesSiklus');
-            const pageInfo = document.getElementById('siklusPageInfo');
-            const paginationNav = document.getElementById('siklusPagination');
-            const notFoundRow = document.getElementById('notFoundRow');
-            const emptyRow = document.getElementById('emptyRow');
+                function updateCalendarMonthMeta(dateValue) {
+                    if (!dateValue || typeof moment === 'undefined') return;
 
-            if(allRows.length === 0) return;
+                    const activeDate = moment(dateValue);
+                    const monthValue = activeDate.format('MM');
+                    const yearValue = activeDate.format('YYYY');
 
-            let currentPage = 1;
-            let rowsPerPage = parseInt(entriesSelect.value);
+                    if (calendarMonthSelect && calendarMonthSelect.value !== monthValue) {
+                        calendarMonthSelect.value = monthValue;
+                    }
 
-            function updateTable() {
-                const searchTerm = searchInput.value.toLowerCase();
-                const filteredRows = allRows.filter(row => row.textContent.toLowerCase().includes(searchTerm));
+                    if (calendarYearSelect && calendarYearSelect.value !== yearValue) {
+                        calendarYearSelect.value = yearValue;
+                    }
 
-                const totalRows = filteredRows.length;
-                const totalPages = Math.ceil(totalRows / rowsPerPage);
+                    if (calendarDayPicker && calendarDayPicker.value !== activeDate.format('YYYY-MM-DD')) {
+                        calendarDayPicker.value = activeDate.format('YYYY-MM-DD');
+                    }
 
-                if(totalRows === 0) {
-                    if(notFoundRow) notFoundRow.style.display = searchTerm ? '' : 'none';
-                    if(emptyRow && !searchTerm) emptyRow.style.display = '';
-                    if(pageInfo) pageInfo.textContent = '';
-                    if(paginationNav) paginationNav.innerHTML = '';
-                } else {
-                    if(notFoundRow) notFoundRow.style.display = 'none';
-                    if(emptyRow) emptyRow.style.display = 'none';
+                    if (calendarCurrentMonthLabel) {
+                        calendarCurrentMonthLabel.textContent = `Bulan aktif: ${calendarMonthNames[activeDate.month()]} ${activeDate.year()}`;
+                    }
                 }
 
-                allRows.forEach(row => row.style.display = 'none');
+                function gotoSelectedMonthYear() {
+                    if (!calendarMonthSelect || !calendarYearSelect) return;
 
-                const start = (currentPage - 1) * rowsPerPage;
-                const end = start + rowsPerPage;
-
-                filteredRows.slice(start, end).forEach(row => row.style.display = '');
-
-                if(totalRows > 0 && pageInfo) {
-                    pageInfo.textContent = `Menampilkan ${start + 1} - ${Math.min(end, totalRows)} dari total ${totalRows} data`;
-                    renderPagination(totalPages);
+                    const selectedDate = `${calendarYearSelect.value}-${calendarMonthSelect.value}-01`;
+                    siklusCalendar.fullCalendar('gotoDate', selectedDate);
+                    updateCalendarMonthMeta(selectedDate);
                 }
+
+                function gotoSelectedDay() {
+                    if (!calendarDayPicker || !calendarDayPicker.value) return;
+
+                    siklusCalendar.fullCalendar('gotoDate', calendarDayPicker.value);
+                    siklusCalendar.fullCalendar('changeView', 'agendaDay');
+                    updateCalendarMonthMeta(calendarDayPicker.value);
+                }
+
+                function forceCalendarView(viewName) {
+                    siklusCalendar.fullCalendar('changeView', viewName);
+                    updateCalendarMonthMeta(siklusCalendar.fullCalendar('getDate'));
+                }
+
+                siklusCalendar.fullCalendar({
+                    header: {
+                        left: 'prev,next today',
+                        center: 'title',
+                        right: 'month,agendaWeek,agendaDay'
+                    },
+                    buttonText: {
+                        today: 'Hari Ini',
+                        month: 'Bulan',
+                        week: 'Minggu',
+                        day: 'Hari'
+                    },
+                    monthNames: ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'],
+                    monthNamesShort: ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'],
+                    dayNames: ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'],
+                    dayNamesShort: ['Min','Sen','Sel','Rab','Kam','Jum','Sab'],
+                    firstDay: 1,
+                    height: 'auto',
+                    defaultDate: '{{ $initialCalendarMonth }}-01',
+                    editable: false,
+                    allDaySlot: true,
+                    allDayText: 'Event',
+                    axisFormat: 'HH:mm',
+                    timeFormat: 'HH:mm',
+                    minTime: '06:00:00',
+                    maxTime: '18:00:00',
+                    events: siklusEvents,
+                    viewRender: function(view) {
+                        updateCalendarMonthMeta(view.intervalStart || siklusCalendar.fullCalendar('getDate'));
+                    },
+                    eventRender: function(event, element) {
+                        element.attr('title', event.description);
+                    },
+                    eventClick: function(event) {
+                        if (!event.modalTarget) return;
+
+                        const modalElement = document.querySelector(event.modalTarget);
+                        if (modalElement && window.bootstrap) {
+                            bootstrap.Modal.getOrCreateInstance(modalElement).show();
+                        }
+                    }
+                });
+
+                if (calendarMonthSelect) calendarMonthSelect.addEventListener('change', gotoSelectedMonthYear);
+                if (calendarYearSelect) calendarYearSelect.addEventListener('change', gotoSelectedMonthYear);
+                if (calendarDayPicker) calendarDayPicker.addEventListener('change', gotoSelectedDay);
+
+                calendarElement.querySelector('.fc-month-button')?.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    forceCalendarView('month');
+                });
+                calendarElement.querySelector('.fc-agendaWeek-button')?.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    forceCalendarView('agendaWeek');
+                });
+                calendarElement.querySelector('.fc-agendaDay-button')?.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    forceCalendarView('agendaDay');
+                });
             }
-
-            function renderPagination(totalPages) {
-                if(!paginationNav) return;
-                if(totalPages <= 1) { paginationNav.innerHTML = ''; return; }
-                
-                let html = '<ul class="pagination pagination-sm mb-0 shadow-sm">';
-                html += `<li class="page-item ${currentPage === 1 ? 'disabled' : ''}"><a class="page-link" href="#" onclick="changePage(${currentPage - 1}, event)">&laquo;</a></li>`;
-                
-                for(let i=1; i<=totalPages; i++) {
-                    html += `<li class="page-item ${i === currentPage ? 'active' : ''}"><a class="page-link" href="#" onclick="changePage(${i}, event)">${i}</a></li>`;
-                }
-                
-                html += `<li class="page-item ${currentPage === totalPages ? 'disabled' : ''}"><a class="page-link" href="#" onclick="changePage(${currentPage + 1}, event)">&raquo;</a></li>`;
-                html += '</ul>';
-                
-                paginationNav.innerHTML = html;
-            }
-
-            window.changePage = function(page, event) {
-                event.preventDefault();
-                currentPage = page;
-                updateTable();
-            };
-
-            if(searchInput) searchInput.addEventListener('keyup', () => { currentPage = 1; updateTable(); });
-            if(entriesSelect) entriesSelect.addEventListener('change', (e) => { rowsPerPage = parseInt(e.target.value); currentPage = 1; updateTable(); });
-
-            updateTable();
         });
     </script>
 @endsection
