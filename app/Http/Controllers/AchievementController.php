@@ -117,16 +117,12 @@ class AchievementController extends Controller
     {
         $this->authorizePengawas();
 
-        $schools = $this->supervisedSchoolsQuery()->orderBy('name', 'asc')->get();
-        $schoolIds = $schools->pluck('id');
+        $schools = School::orderBy('name', 'asc')->get();
         $selectedSchoolId = $request->get('school_id');
         $selectedSchool = $selectedSchoolId ? School::findOrFail($selectedSchoolId) : null;
-        if ($selectedSchool) {
-            $this->authorizeSchoolAccess($selectedSchool->id);
-        }
 
         // 1. DATA GLOBAL (Untuk Grafik & Kartu Angka Paling Atas - Selalu Dihitung)
-        $allAchievements = Achievement::whereIn('school_id', $schoolIds)->get();
+        $allAchievements = Achievement::all();
         $globalTingkatChart = [
             $allAchievements->where('tingkat', 'Kota/Kabupaten')->count(),
             $allAchievements->where('tingkat', 'Provinsi')->count(),
@@ -221,7 +217,7 @@ class AchievementController extends Controller
 
         } else {
             // Jika tidak ada filter, tabel menampilkan semua data
-            $achievements = Achievement::with('school')->whereIn('school_id', $schoolIds)->orderBy('tanggal', 'desc')->get();
+            $achievements = Achievement::with('school')->orderBy('tanggal', 'desc')->get();
         }
 
         return view('achievements.pengawas', compact(
@@ -236,11 +232,10 @@ class AchievementController extends Controller
         $this->authorizePengawas();
 
         $schoolId = $request->get('school_id');
-        $query = Achievement::with('school')->whereIn('school_id', $this->supervisedSchoolIds());
+        $query = Achievement::with('school');
 
         // Jika filter sekolah diisi, ambil sekolah tersebut. Jika kosong, export semua.
         if ($schoolId) {
-            $this->authorizeSchoolAccess($schoolId);
             $query->where('school_id', $schoolId);
             $schoolName = School::findOrFail($schoolId)->name;
         } else {
