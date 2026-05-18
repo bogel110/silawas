@@ -3,6 +3,11 @@
 @section('title', 'Detail: ' . $school->name)
 
 @section('content')
+    @php
+        $isPengawasArea = in_array(auth()->user()->role, ['pengawas', 'super_admin'], true);
+        $canManageSchool = auth()->user()->role === 'admin_sekolah' && auth()->user()->school_id == $school->id;
+    @endphp
+
     <div class="mb-4">
         <a href="{{ url('/') }}" class="text-decoration-none text-muted fw-bold small d-flex align-items-center gap-1 mb-3">
             <span class="material-symbols-outlined fs-6">arrow_back</span> Kembali ke Dashboard
@@ -57,7 +62,7 @@
                     <h5 class="font-headline fw-bold mb-0">1. Berkas Administrasi</h5>
                 </div>
                 <div class="card-body p-4">
-                    @if(auth()->user()->role !== 'pengawas' || (auth()->user()->role === 'admin_sekolah' && auth()->user()->school_id == $school->id))
+                    @if($canManageSchool)
                         <button type="button" class="btn btn-sm btn-primary fw-bold fw-bold d-flex align-items-center gap-1 mt-2" data-bs-toggle="modal" data-bs-target="#modalDokumenMaster">
                             <span class="material-symbols-outlined fs-6">edit</span> Input Link Dokumen
                         </button>
@@ -122,7 +127,7 @@
                 <div class="card-header bg-white border-bottom-0 pt-4 pb-0 px-4">
                     <h5 class="font-headline fw-bold mb-0">2. Catatan dan Rekomendasi Pengawas</h5>
                 
-                @if(auth()->user()->role === 'pengawas')
+                @if($isPengawasArea)
                     <form action="{{ route('school.update_catatan', $school->id) }}" method="POST">
                         @csrf
                         <textarea name="catatan_pengawas" class="form-control border-2 shadow-sm mb-2 mt-3" rows="4" placeholder="Tulis rekomendasi dan hasil evaluasi pengawasan di sini...">{{ $school->catatan_pengawas }}</textarea>
@@ -147,7 +152,7 @@
                 <div class="card-header bg-white border-bottom-0 pt-4 pb-0 px-4 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
                     <div class="d-flex align-items-center gap-3">
                         <h5 class="font-headline fw-bold mb-0">3. Modul KBM</h5>
-                        @if(auth()->user()->role !== 'pengawas' || (auth()->user()->role === 'admin_sekolah' && auth()->user()->school_id == $school->id))
+                        @if($canManageSchool)
                             <button type="button" class="btn btn-sm btn-primary fw-bold" data-bs-toggle="modal" data-bs-target="#modalKbm">
                                 + Input Link KBM
                             </button>
@@ -202,10 +207,10 @@
                                             @else <span class="-">-</span> @endif
                                         </td>
                                        <td class="text-center">
-                                            @if(auth()->user()->role === 'pengawas' || (auth()->user()->role === 'admin_sekolah' && auth()->user()->school_id == $school->id))
+                                            @if($isPengawasArea || $canManageSchool)
                                                 <div class="d-flex justify-content-center gap-2">
                                                     {{-- Tombol Edit
-                                                     @if(auth()->user()->role !== 'pengawas' || (auth()->user()->role === 'admin_sekolah' && auth()->user()->school_id == $school->id))
+                                                     @if($canManageSchool)
                                                     <button class="btn btn-link text-primary p-0" data-bs-toggle="modal" data-bs-target="#editModalKbm{{ $kbm->id }}" title="Edit Data">
                                                         <span class="material-symbols-outlined fs-6">edit</span>
                                                     </button>
@@ -290,7 +295,7 @@
                 <div class="card-header bg-white border-bottom-0 pt-4 pb-0 px-4 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
                     <div class="d-flex align-items-center gap-3">
                         <h5 class="font-headline fw-bold mb-0">4. Jurnal Kepsek</h5>
-                        @if(auth()->user()->role !== 'pengawas' || (auth()->user()->role === 'admin_sekolah' && auth()->user()->school_id == $school->id))
+                        @if($canManageSchool)
                             <button type="button" class="btn btn-sm btn-primary fw-bold" data-bs-toggle="modal" data-bs-target="#modalAbsensi">
                                 + Isi Jurnal
                             </button>
@@ -351,7 +356,7 @@
                                         <td class="small fw-medium">{{ $absen->tupoksi ?? '-' }}</td>
                                         <td class="small text-muted" style="max-width: 200px; white-space: normal;">{{ $absen->keterangan ?? '-' }}</td>
                                         <td class="text-center">
-                                            @if(auth()->user()->role === 'pengawas')
+                                            @if($isPengawasArea)
                                             <form action="{{ route('attendance.destroy', $absen->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data ini?')">
                                                 @csrf
                                                 @method('DELETE')
@@ -388,7 +393,7 @@
                 <div class="card-header bg-white border-bottom-0 pt-4 pb-0 px-4 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
                     <div class="d-flex align-items-center gap-3">
                         <h5 class="font-headline fw-bold mb-0">3. Laporan Kegiatan</h5>
-                        @if(auth()->user()->role !== 'pengawas' || (auth()->user()->role === 'admin_sekolah' && auth()->user()->school_id == $school->id))
+                        @if($canManageSchool)
                             <button type="button" class="btn btn-sm btn-primary fw-bold" data-bs-toggle="modal" data-bs-target="#modalLaporan">
                                 + Tambah Laporan
                             </button>
@@ -488,7 +493,7 @@
                                     <td>@if($report->humas_link) <a href="{{ $report->humas_link }}" target="_blank" class="badge bg-success text-decoration-none">Cek Berkas</a> @else - @endif</td>
                                     <td class="text-center">
                                         <div class="d-flex justify-content-center gap-2">
-                                             @if(auth()->user()->role !== 'pengawas' || (auth()->user()->role === 'admin_sekolah' && auth()->user()->school_id == $school->id))
+                                             @if($canManageSchool)
                                             <button class="btn btn-link text-primary p-0" data-bs-toggle="modal" data-bs-target="#editModalLaporan{{ $report->id }}">
                                                 <span class="material-symbols-outlined fs-6">edit</span>
                                             </button>

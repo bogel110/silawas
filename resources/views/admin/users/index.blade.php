@@ -2,23 +2,150 @@
 
 @section('title', 'Administrator - Kelola Admin Sekolah')
 
+@push('styles')
+    <style>
+        .user-admin-hero {
+            overflow: hidden;
+        }
+
+        .user-admin-actions {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 0.75rem;
+            width: min(100%, 460px);
+        }
+
+        .user-admin-action {
+            --action-rgb: 13, 110, 253;
+            --action-color: #0d6efd;
+            justify-content: flex-start;
+            min-height: 50px;
+            border: 1px solid rgba(var(--action-rgb), 0.55) !important;
+            border-radius: 12px;
+            padding-inline: 1rem;
+            background:
+                linear-gradient(135deg, rgba(var(--action-rgb), 0.13), rgba(var(--action-rgb), 0.035)),
+                var(--surface) !important;
+            color: var(--action-color) !important;
+            white-space: normal;
+            min-width: 0;
+            line-height: 1.15;
+            text-align: left;
+            box-shadow: 0 10px 22px rgba(var(--action-rgb), 0.08) !important;
+            transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease, background 0.18s ease, color 0.18s ease;
+        }
+
+        .user-admin-action span:last-child {
+            min-width: 0;
+            overflow-wrap: anywhere;
+        }
+
+        .user-admin-action.is-primary {
+            --action-rgb: 15, 107, 125;
+            --action-color: var(--brand-800);
+            background:
+                linear-gradient(135deg, rgba(var(--action-rgb), 0.16), rgba(var(--action-rgb), 0.05)),
+                var(--surface) !important;
+        }
+
+        .user-admin-action.is-success {
+            --action-rgb: 25, 135, 84;
+            --action-color: #198754;
+            background:
+                linear-gradient(135deg, rgba(var(--action-rgb), 0.15), rgba(var(--action-rgb), 0.04)),
+                var(--surface) !important;
+        }
+
+        .user-admin-action:hover,
+        .user-admin-action:focus,
+        .user-admin-action:focus-visible {
+            border-color: rgba(var(--action-rgb), 0.9) !important;
+            color: var(--action-color) !important;
+            transform: translateY(-2px);
+            box-shadow:
+                0 0 0 4px rgba(var(--action-rgb), 0.14),
+                0 16px 30px rgba(var(--action-rgb), 0.2) !important;
+        }
+
+        .user-admin-action:active {
+            transform: translateY(0) scale(0.985);
+            box-shadow:
+                0 0 0 5px rgba(var(--action-rgb), 0.2),
+                0 8px 18px rgba(var(--action-rgb), 0.18) !important;
+        }
+
+        html[data-theme="dark"] .user-admin-action {
+            --action-color: #7fe8f2;
+            background:
+                linear-gradient(135deg, rgba(var(--action-rgb), 0.22), rgba(var(--action-rgb), 0.055)),
+                #102d34 !important;
+            color: var(--action-color) !important;
+            box-shadow: 0 10px 22px rgba(0, 0, 0, 0.18) !important;
+        }
+
+        html[data-theme="dark"] .user-admin-action.is-primary {
+            --action-rgb: 99, 199, 210;
+            --action-color: #9ff5fb;
+            background:
+                linear-gradient(135deg, rgba(var(--action-rgb), 0.22), rgba(var(--action-rgb), 0.055)),
+                #102d34 !important;
+        }
+
+        html[data-theme="dark"] .user-admin-action.is-success {
+            --action-rgb: 35, 197, 94;
+            --action-color: #34d399;
+            background:
+                linear-gradient(135deg, rgba(var(--action-rgb), 0.2), rgba(var(--action-rgb), 0.05)),
+                #102d34 !important;
+        }
+
+        html[data-theme="dark"] .user-admin-action:hover,
+        html[data-theme="dark"] .user-admin-action:focus,
+        html[data-theme="dark"] .user-admin-action:focus-visible {
+            color: var(--action-color) !important;
+            box-shadow:
+                0 0 0 4px rgba(var(--action-rgb), 0.16),
+                0 18px 34px rgba(0, 0, 0, 0.34) !important;
+        }
+
+        @media (max-width: 575.98px) {
+            .user-admin-actions {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+@endpush
+
 @section('content')
-<div class="mb-4 d-flex flex-column flex-md-row justify-content-between align-items-md-end gap-3">
-    <div>
-        <h2 class="display-6 fw-extrabold font-headline mb-0">Kelola Pengguna</h2>
-        <p class="text-muted small mb-0">Manajemen akun Administrator Sekolah dan Pengawas.</p>
-    </div>
-    
-    <div class="d-flex flex-wrap gap-2">
-        <button class="btn btn-outline-primary fw-bold d-flex align-items-center gap-1 shadow-sm" data-bs-toggle="modal" data-bs-target="#modalTambahPengawas">
-            <span class="material-symbols-outlined fs-6">shield_person</span> Tambah Pengawas
-        </button>
-        <button class="btn btn-outline-success fw-bold d-flex align-items-center gap-1 shadow-sm" data-bs-toggle="modal" data-bs-target="#modalImportAdmin">
-            <span class="material-symbols-outlined fs-6">upload_file</span> Import Excel
-        </button>
-        <button class="btn btn-outline-primary fw-bold d-flex align-items-center gap-1 shadow-sm" data-bs-toggle="modal" data-bs-target="#modalTambahUser">
-            <span class="material-symbols-outlined fs-6">person_add</span> Tambah Admin Sekolah
-        </button>
+<div class="hero-panel user-admin-hero mb-4">
+    <div class="d-flex flex-column flex-xl-row justify-content-between align-items-xl-center gap-4">
+        <div>
+            <span class="section-kicker mb-3">
+                <span class="material-symbols-outlined" style="font-size: 1rem;">manage_accounts</span>
+                Administrator
+            </span>
+            <h2 class="display-6 fw-extrabold font-headline mb-1">Kelola Pengguna</h2>
+            <p class="text-soft small mb-0">Manajemen akun Super Admin, Pengawas, dan Administrator Sekolah.</p>
+        </div>
+        
+        <div class="user-admin-actions">
+            <button class="btn btn-primary fw-bold d-flex align-items-center gap-2 shadow-sm user-admin-action is-primary" data-bs-toggle="modal" data-bs-target="#modalTambahSuperAdmin">
+                <span class="material-symbols-outlined fs-6">admin_panel_settings</span>
+                <span>Tambah Super Admin</span>
+            </button>
+            <button class="btn btn-outline-primary fw-bold d-flex align-items-center gap-2 shadow-sm user-admin-action" data-bs-toggle="modal" data-bs-target="#modalTambahPengawas">
+                <span class="material-symbols-outlined fs-6">shield_person</span>
+                <span>Tambah Pengawas</span>
+            </button>
+            <button class="btn btn-outline-success fw-bold d-flex align-items-center gap-2 shadow-sm user-admin-action is-success" data-bs-toggle="modal" data-bs-target="#modalImportAdmin">
+                <span class="material-symbols-outlined fs-6">upload_file</span>
+                <span>Import Excel</span>
+            </button>
+            <button class="btn btn-outline-primary fw-bold d-flex align-items-center gap-2 shadow-sm user-admin-action" data-bs-toggle="modal" data-bs-target="#modalTambahUser">
+                <span class="material-symbols-outlined fs-6">person_add</span>
+                <span>Tambah Admin Sekolah</span>
+            </button>
+        </div>
     </div>
 </div>
 
@@ -120,13 +247,15 @@
                         data-sort-index="{{ $loop->index }}"
                         data-sort-name="{{ $user->name }}"
                         data-sort-email="{{ $user->email }}"
-                        data-sort-level="{{ $user->role === 'pengawas' ? 'pengawas' : 'admin_sekolah' }}">
+                        data-sort-level="{{ $user->role ?? 'admin_sekolah' }}">
                         <td class="text-center text-muted fw-bold row-number"></td>
                         
                         <td class="fw-bold user-name">{{ $user->name }}</td>
                         <td class="user-email">{{ $user->email }}</td>
                         <td>
-                            @if($user->role === 'pengawas')
+                            @if($user->role === 'super_admin')
+                                <span class="badge bg-dark text-white">Super Admin</span>
+                            @elseif($user->role === 'pengawas')
                                 <span class="badge bg-primary text-white">Pengawas</span>
                             @else
                                 <span class="badge bg-primary text-white">
@@ -135,8 +264,10 @@
                             @endif
                         </td>
                         <td>
-                            @if($user->role === 'pengawas')
-                                <span class="badge bg-primary text-white">Semua Sekolah Binaan</span>
+                            @if($user->role === 'super_admin')
+                                <span class="badge bg-dark text-white">Akses semua sekolah</span>
+                            @elseif($user->role === 'pengawas')
+                                <span class="badge bg-primary bg-opacity-10 text-primary">{{ $user->supervisedSchools->count() }} sekolah binaan</span>
                             @else
                                 <span class="badge bg-primary bg-opacity-10 text-primary">
                                     {{ $user->school->name ?? ($user->school_name ?? 'Tidak ada data') }}
@@ -144,7 +275,7 @@
                             @endif
                         </td>
                         <td>
-                            @if($user->role === 'pengawas')
+                            @if(in_array($user->role, ['super_admin', 'pengawas'], true))
                                 <span class="text-muted small">-</span>
                             @else
                                 @php
@@ -202,13 +333,14 @@
                                                 <div class="mb-3">
                                                     <label class="form-label small fw-bold">Level Pengguna</label>
                                                     <select name="role" class="form-select" required onchange="toggleEditSchool(this, '{{ $user->id }}')">
+                                                        <option value="super_admin" {{ $user->role == 'super_admin' ? 'selected' : '' }}>Super Admin</option>
                                                         <option value="pengawas" {{ $user->role == 'pengawas' ? 'selected' : '' }}>Pengawas</option>
                                                         <option value="admin_sekolah" {{ $user->role == 'admin_sekolah' ? 'selected' : '' }}>Admin Sekolah / Operator</option>
                                                     </select>
                                                 </div>
 
                                                 {{-- Pilihan Sekolah --}}
-                                                <div class="mb-3" id="editSchoolField{{ $user->id }}" style="{{ $user->role == 'pengawas' ? 'display:none;' : '' }}">
+                                                <div class="mb-3" id="editSchoolField{{ $user->id }}" style="{{ $user->role == 'admin_sekolah' ? '' : 'display:none;' }}">
                                                     <label class="form-label small fw-bold text-primary">Penempatan Sekolah</label>
                                                     <select name="school_id" class="form-select choices-school-select">
                                                         <option value="">-- Silakan Pilih Sekolah --</option>
@@ -272,6 +404,41 @@
         <div class="p-4 pt-3 bg-light bg-opacity-25 border-top d-flex justify-content-between align-items-center">
             <small class="text-muted fw-semibold" id="pageInfo">Menampilkan data...</small>
             <nav id="paginationControls"></nav>
+        </div>
+    </div>
+</div>
+
+{{-- MODAL TAMBAH SUPER ADMIN --}}
+<div class="modal fade" id="modalTambahSuperAdmin" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow rounded-4">
+            <div class="modal-header border-bottom-0">
+                <h5 class="modal-title font-headline fw-bold">Tambah Akun Super Admin</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{{ route('admin.users.store') }}" method="POST">
+                @csrf
+                <input type="hidden" name="role" value="super_admin">
+                <div class="modal-body p-4 pt-0">
+                    <p class="small text-muted mb-4">Akun super admin dapat melihat seluruh sekolah dan mengatur sekolah binaan untuk setiap pengawas.</p>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Nama Lengkap</label>
+                        <input type="text" name="name" class="form-control" required placeholder="Contoh: Super Admin SILAWAS">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Email Login</label>
+                        <input type="email" name="email" class="form-control" required placeholder="superadmin@silawas.com">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Password Awal (Min. 8 Karakter)</label>
+                        <input type="text" name="password" class="form-control" required placeholder="Contoh: Silawas2026!">
+                    </div>
+                </div>
+                <div class="modal-footer border-top-0 bg-light rounded-bottom-4">
+                    <button type="button" class="btn btn-outline-secondary btn-sm fw-bold" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-dark btn-sm fw-bold w-50">Buat Akun</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
@@ -362,7 +529,7 @@
                 @csrf
                 <input type="hidden" name="role" value="pengawas"> 
                 <div class="modal-body p-4 pt-0">
-                    <p class="small text-muted mb-4">Akun pengawas memiliki hak akses tak terbatas untuk memantau dan mengevaluasi seluruh sekolah binaan.</p>
+                    <p class="small text-muted mb-4">Akun pengawas hanya dapat memantau sekolah yang ditugaskan melalui menu Pengawas Binaan.</p>
                     <div class="mb-3">
                         <label class="form-label small fw-bold">Nama Lengkap Pengawas</label>
                         <input type="text" name="name" class="form-control" required placeholder="Contoh: Drs. Budi Santoso, M.Pd">

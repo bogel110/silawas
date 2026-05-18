@@ -967,7 +967,8 @@
 
             <div class="nav-section-label">Navigasi</div>
             @php
-                $canOpenLaporanKegiatan = auth()->user()->role === 'pengawas' || (auth()->user()->role === 'admin_sekolah' && auth()->user()->school_id);
+                $isPengawasArea = in_array(auth()->user()->role, ['pengawas', 'super_admin'], true);
+                $canOpenLaporanKegiatan = $isPengawasArea || (auth()->user()->role === 'admin_sekolah' && auth()->user()->school_id);
                 $isDashboardActive = request()->is('/') || request()->is('dashboard') || request()->routeIs('school.show');
             @endphp
             <ul class="nav flex-column mb-0">
@@ -1005,7 +1006,7 @@
                         </a>
                     </li>
                 @endif
-                @if(auth()->user()->role === 'pengawas')
+                @if($isPengawasArea)
                     <li class="nav-item">
                         <a class="nav-link {{ request()->routeIs('achievement.pengawas') ? 'active' : '' }}" href="{{ route('achievement.pengawas') }}">
                             <span class="material-symbols-outlined">social_leaderboard</span>
@@ -1022,6 +1023,14 @@
                         <a class="nav-link {{ request()->routeIs('mentoring.*') ? 'active' : '' }}" href="{{ route('mentoring.index') }}">
                             <div class="sb-nav-link-icon"><span class="material-symbols-outlined fs-6">sync</span></div>
                             Siklus Pendampingan
+                        </a>
+                    </li>
+                @endif
+                @if(auth()->user()->role === 'super_admin')
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('super-admin.pengawas-binaan.*') ? 'active' : '' }}" href="{{ route('super-admin.pengawas-binaan.index') }}">
+                            <span class="material-symbols-outlined">supervisor_account</span>
+                            <span>Pengawas Binaan</span>
                         </a>
                     </li>
                     <li class="nav-item">

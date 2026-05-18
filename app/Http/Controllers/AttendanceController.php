@@ -15,8 +15,8 @@ class AttendanceController extends Controller
         $schools = [];
 
         // Logika untuk Pengawas: Ambil semua data sekolah untuk dimasukkan ke dropdown
-        if ($user->role === 'pengawas') {
-            $schools = School::orderBy('name', 'asc')->get();
+        if (in_array($user->role, ['pengawas', 'super_admin'], true)) {
+            $schools = $this->supervisedSchoolsQuery()->orderBy('name', 'asc')->get();
 
             // Jika pengawas sudah memilih sekolah dari dropdown
             if ($request->filled('school_id')) {

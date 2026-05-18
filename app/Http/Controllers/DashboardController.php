@@ -25,9 +25,9 @@ class DashboardController extends Controller
 
         $this->authorizePengawas();
 
-        // 2. Jika yang login adalah Pengawas, tampilkan Dashboard Utama
-        $totalSchools = School::count();
-        $schools = School::all()->sortByDesc('skor_performa');
+        // 2. Jika yang login adalah Pengawas/Super Admin, tampilkan Dashboard Utama
+        $schools = $this->supervisedSchoolsQuery()->get()->sortByDesc('skor_performa');
+        $totalSchools = $schools->count();
         $avgCompletion = $totalSchools > 0 ? $schools->avg('skor_performa') : 0;
 
         // 3. Progres Modul 2 (Laporan Bulanan) - Berdasarkan Tahun Pelajaran Aktif
@@ -36,7 +36,9 @@ class DashboardController extends Controller
             ? $now->year . '/' . ($now->year + 1) 
             : ($now->year - 1) . '/' . $now->year;
 
-        $monthlyReports = MonthlyReport::where('tahun_pelajaran', $currentTahunPelajaran)->get();
+        $monthlyReports = MonthlyReport::where('tahun_pelajaran', $currentTahunPelajaran)
+            ->whereIn('school_id', $schools->pluck('id'))
+            ->get();
             
         $modul2Stats = [
             'kurikulum' => $monthlyReports->whereNotNull('kurikulum_link')->where('kurikulum_link', '!=', '')->count(),

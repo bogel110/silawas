@@ -3,6 +3,10 @@
 @section('title', 'Modul KBM (Kurikulum)')
 
 @section('content')
+    @php
+        $isPengawasArea = in_array(auth()->user()->role, ['pengawas', 'super_admin'], true);
+    @endphp
+
     <div class="mb-4">
         <h2 class="display-6 fw-extrabold font-headline mb-0">PERANGKAT KBM (Kurikulum)</h2>
         <p class="text-muted small mb-0">Kelengkapan dokumen Kegiatan Belajar Mengajar.</p>
@@ -16,7 +20,7 @@
     @endif
 
     {{-- KOTAK PENCARIAN KHUSUS PENGAWAS --}}
-    @if(auth()->user()->role === 'pengawas')
+    @if($isPengawasArea)
         <div class="card border-0 shadow-sm rounded-4 mb-4 bg-primary bg-opacity-10 border-start border-4 border-primary">
             <div class="card-body p-4">
                 <form action="{{ route('kbm.index') }}" method="GET" class="d-flex flex-column flex-md-row align-items-md-end gap-3">
@@ -50,7 +54,7 @@
             <div class="card-header bg-white border-bottom-0 pt-4 pb-0 px-4 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
                 <div class="d-flex align-items-center gap-3">
                     <h5 class="font-headline fw-bold mb-0">
-                        @if(auth()->user()->role === 'pengawas')
+                        @if($isPengawasArea)
                             Dokumen KBM: <span class="text-primary">{{ $selectedSchool->name }}</span>
                         @else
                             Dokumen KBM Sekolah
@@ -247,7 +251,7 @@
             </div>
         @endif
 
-    @elseif(auth()->user()->role === 'pengawas')
+    @elseif($isPengawasArea)
         {{-- ========================================== --}}
         {{-- EMPTY STATE (Jika Pengawas Belum Pilih Sekolah) --}}
         {{-- ========================================== --}}

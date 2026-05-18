@@ -70,6 +70,10 @@
 @endpush
 
 @section('content')
+    @php
+        $isPengawasArea = in_array(auth()->user()->role, ['pengawas', 'super_admin'], true);
+    @endphp
+
     @if($errors->any())
         <div class="alert alert-danger alert-dismissible fade show py-2 small" role="alert">
             <strong>Gagal menyimpan!</strong>
@@ -105,7 +109,7 @@
         </div>
     </div>
 
-    @if(auth()->user()->role === 'pengawas')
+    @if($isPengawasArea)
         <div class="content-panel school-picker-panel p-4 mb-4">
             <form action="{{ route('reports.index') }}" method="GET" id="schoolPickerForm">
                 <div class="row g-3 align-items-end">
@@ -154,8 +158,7 @@
         </div>
     @else
         @php
-            $canManageLaporan = auth()->user()->role !== 'pengawas'
-                || (auth()->user()->role === 'admin_sekolah' && auth()->user()->school_id == $school->id);
+            $canManageLaporan = auth()->user()->role === 'admin_sekolah' && auth()->user()->school_id == $school->id;
             $reportColspan = $canManageLaporan ? 8 : 7;
         @endphp
 

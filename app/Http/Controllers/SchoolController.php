@@ -46,11 +46,12 @@ class SchoolController extends Controller
             }
 
             $school = School::with('monthlyReports')->findOrFail($user->school_id);
-        } elseif ($user && $user->role === 'pengawas') {
-            $schools = School::orderBy('name')->get();
+        } elseif ($user && in_array($user->role, ['pengawas', 'super_admin'], true)) {
+            $schools = $this->supervisedSchoolsQuery()->orderBy('name')->get();
 
             if ($request->filled('school_id')) {
                 $school = School::with('monthlyReports')->findOrFail($request->school_id);
+                $this->authorizeSchoolAccess($school->id);
             }
         } else {
             abort(403, 'Akses ditolak.');
@@ -185,6 +186,7 @@ class SchoolController extends Controller
         ]);
 
         $school = School::findOrFail($id);
+        $this->authorizeSchoolAccess($school->id);
         $school->update(['catatan_pengawas' => $request->catatan_pengawas]);
 
         return redirect()->back()->with('success', 'Catatan evaluasi Pengawas berhasil disimpan!');
@@ -232,6 +234,7 @@ class SchoolController extends Controller
         $this->authorizePengawas();
 
         $school = School::findOrFail($id);
+        $this->authorizeSchoolAccess($school->id);
         $school->delete();
 
         return redirect()->back()->with('success', 'Data sekolah berhasil dihapus!');
@@ -241,7 +244,7 @@ class SchoolController extends Controller
     {
         $this->authorizePengawas();
 
-        $schools = School::all(); 
+        $schools = $this->supervisedSchoolsQuery()->get(); 
         $filename = "Data_Performa_Sekolah_Binaan_" . date('Ymd') . ".csv";
 
         $headers = [

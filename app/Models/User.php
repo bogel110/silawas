@@ -44,4 +44,10 @@ class User extends Authenticatable
     {
         return $this->belongsTo(School::class, 'school_id');
     }
+
+    public function supervisedSchools()
+    {
+        return $this->belongsToMany(School::class, 'pengawas_school', 'user_id', 'school_id')
+            ->withTimestamps();
+    }
 }

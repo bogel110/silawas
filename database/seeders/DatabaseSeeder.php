@@ -40,16 +40,26 @@ class DatabaseSeeder extends Seeder
             'status' => 'Swasta',
         ]);
 
-        // 2. Membuat Akun Super Admin (Pengawas)
+        // 2. Membuat Akun Super Admin
         User::create([
+            'name' => 'Super Admin SILAWAS',
+            'email' => 'superadmin@silawas.com',
+            'password' => Hash::make('password123'),
+            'role' => 'super_admin',
+            'school_id' => null,
+        ]);
+
+        // 3. Membuat Akun Pengawas
+        $pengawas = User::create([
             'name' => 'Ir. Pengawas Hebat, M.Pd',
             'email' => 'pengawas@silawas.com',
             'password' => Hash::make('password123'), // Password default
             'role' => 'pengawas',
             'school_id' => null, // Pengawas tidak terikat 1 sekolah
         ]);
+        $pengawas->supervisedSchools()->attach([$school1->id, $school2->id, $school3->id]);
 
-        // 3. Membuat Akun Admin Sekolah
+        // 4. Membuat Akun Admin Sekolah
         User::create([
             'name' => 'Admin SMAN 1',
             'email' => 'admin.sman1@silawas.com',

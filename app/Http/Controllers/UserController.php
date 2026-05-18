@@ -13,9 +13,9 @@ class UserController extends Controller
 {
     public function index()
     {
-        $this->authorizePengawas();
+        $this->authorizeSuperAdmin();
 
-        $users = User::latest()->get();
+        $users = User::with(['school', 'supervisedSchools'])->latest()->get();
         $schools = School::orderBy('name', 'asc')->get(); 
         
         return view('admin.users.index', compact('users', 'schools'));
@@ -23,18 +23,18 @@ class UserController extends Controller
 
     public function store(Request $request)
     {
-        $this->authorizePengawas();
+        $this->authorizeSuperAdmin();
 
         $request->validate([
             'name'      => 'required|string|max:255',
             'email'     => 'required|email|unique:users,email',
             'password'  => 'required|string|min:8',
-            'role'      => 'required|in:pengawas,admin_sekolah',
+            'role'      => 'required|in:super_admin,pengawas,admin_sekolah',
         ]);
 
         $school_id = null;
 
-        if ($request->role !== 'pengawas') {
+        if ($request->role === 'admin_sekolah') {
             $request->validate([
                 'school_name'   => 'required|string|max:255',
                 'school_level'  => 'required|string',
@@ -59,16 +59,22 @@ class UserController extends Controller
             'school_id' => $school_id,
         ]);
 
-        $pesan = $request->role === 'pengawas' 
-                 ? 'Akun Pengawas berhasil ditambahkan!' 
-                 : 'Akun Admin dan data Sekolah berhasil ditambahkan!';
+        if (auth()->user()?->role === 'pengawas' && $school_id) {
+            auth()->user()->supervisedSchools()->syncWithoutDetaching([$school_id]);
+        }
+
+        $pesan = match ($request->role) {
+            'super_admin' => 'Akun Super Admin berhasil ditambahkan!',
+            'pengawas' => 'Akun Pengawas berhasil ditambahkan!',
+            default => 'Akun Admin dan data Sekolah berhasil ditambahkan!',
+        };
 
         return redirect()->back()->with('success', $pesan);
     }
 
     public function importAdmins(Request $request)
     {
-        $this->authorizePengawas();
+        $this->authorizeSuperAdmin();
 
         $request->validate([
             'import_file' => 'required|file|mimes:xlsx,csv,txt|max:4096',
@@ -123,6 +129,10 @@ class UserController extends Controller
                 'school_id' => $school->id,
             ]);
 
+            if (auth()->user()?->role === 'pengawas') {
+                auth()->user()->supervisedSchools()->syncWithoutDetaching([$school->id]);
+            }
+
             $created++;
         }
 
@@ -137,7 +147,7 @@ class UserController extends Controller
 
     public function downloadAdminImportTemplate()
     {
-        $this->authorizePengawas();
+        $this->authorizeSuperAdmin();
 
         $rows = [
             ['nama_admin', 'email', 'password', 'nama_sekolah', 'level_sekolah', 'status_sekolah'],
@@ -455,14 +465,14 @@ class UserController extends Controller
     // ==========================================
     public function update(Request $request, $id)
     {
-        $this->authorizePengawas();
+        $this->authorizeSuperAdmin();
 
         $user = User::findOrFail($id);
 
         $request->validate([
             'name'  => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $id, // Abaikan email milik dia sendiri
-            'role'  => 'required|in:pengawas,admin_sekolah',
+            'role'  => 'required|in:super_admin,pengawas,admin_sekolah',
         ]);
 
         $user->name = $request->name;
@@ -470,8 +480,8 @@ class UserController extends Controller
         $user->role = $request->role;
 
         // Atur ID Sekolah berdasarkan Role
-        if ($request->role === 'pengawas') {
-            $user->school_id = null; // Pengawas tidak terikat 1 sekolah
+        if (in_array($request->role, ['super_admin', 'pengawas'], true)) {
+            $user->school_id = null; // Pengawas/Super Admin tidak terikat 1 sekolah
         } else {
             $request->validate([
                 'school_id' => 'required|exists:schools,id',
@@ -482,12 +492,16 @@ class UserController extends Controller
 
         $user->save();
 
+        if ($user->role !== 'pengawas') {
+            $user->supervisedSchools()->sync([]);
+        }
+
         return redirect()->back()->with('success', 'Data pengguna berhasil diperbarui!');
     }
 
     public function destroy($id)
     {
-        $this->authorizePengawas();
+        $this->authorizeSuperAdmin();
 
         if ((int) auth()->id() === (int) $id) {
             return back()->withErrors(['user' => 'Anda tidak dapat menghapus akun yang sedang digunakan.']);
@@ -499,7 +513,7 @@ class UserController extends Controller
     
     public function resetPassword(Request $request, $id)
     {
-        $this->authorizePengawas();
+        $this->authorizeSuperAdmin();
 
         $request->validate([
             'password' => 'required|string|min:8',

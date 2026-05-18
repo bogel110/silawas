@@ -33,6 +33,12 @@ class School extends Model
         return $this->hasMany(KbmReport::class)->orderBy('tahun_pelajaran', 'desc');
     }
 
+    public function supervisors()
+    {
+        return $this->belongsToMany(User::class, 'pengawas_school', 'school_id', 'user_id')
+            ->withTimestamps();
+    }
+
     /**
      * Menghitung skor performa sekolah berdasarkan kelengkapan 10 link dokumen utama.
      */

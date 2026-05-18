@@ -109,6 +109,10 @@
 @endpush
 
 @section('content')
+    @php
+        $isPengawasArea = in_array(auth()->user()->role, ['pengawas', 'super_admin'], true);
+    @endphp
+
     <div class="mb-4">
         <h2 class="display-6 fw-extrabold font-headline mb-0">Jurnal Kepala Sekolah</h2>
         <p class="text-muted small mb-0">Pantau kehadiran dan aktivitas harian Kepala Sekolah.</p>
@@ -122,7 +126,7 @@
     @endif
 
     {{-- KOTAK PENCARIAN KHUSUS PENGAWAS --}}
-    @if(auth()->user()->role === 'pengawas')
+    @if($isPengawasArea)
         <div class="card border-0 shadow-sm rounded-4 mb-4 bg-primary bg-opacity-10 border-start border-4 border-primary">
             <div class="card-body p-4">
                 <form action="{{ route('jurnal.index') }}" method="GET" class="d-flex flex-column flex-md-row align-items-md-end gap-3">
@@ -155,7 +159,7 @@
             <div class="card-header bg-white border-bottom-0 pt-4 pb-0 px-4 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
                 <div class="d-flex align-items-center gap-3">
                     <h5 class="font-headline fw-bold mb-0">
-                        @if(auth()->user()->role === 'pengawas')
+                        @if($isPengawasArea)
                             Data Jurnal: <span class="text-primary">{{ $selectedSchool->name }}</span>
                         @else
                             Rekap Jurnal Harian
@@ -209,7 +213,7 @@
                                     <th>Keterangan</th>
                                     
                                     {{-- KEPALA KOLOM AKSI (Hanya muncul untuk pengawas) --}}
-                                    @if(auth()->user()->role === 'pengawas')
+                                    @if($isPengawasArea)
                                         <th class="text-center">Aksi</th>
                                     @endif
                                 </tr>
@@ -232,7 +236,7 @@
                                     <td class="small text-muted" style="max-width: 200px; white-space: normal;">{{ $absen->keterangan ?? '-' }}</td>
                                     
                                     {{-- TOMBOL HAPUS (Hanya muncul untuk pengawas) --}}
-                                    @if(auth()->user()->role === 'pengawas')
+                                    @if($isPengawasArea)
                                         <td class="text-center">
                                             <form action="{{ route('attendance.destroy', $absen->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data jurnal tanggal {{ \Carbon\Carbon::parse($absen->tanggal)->format('d/m/Y') }} ini?')">
                                                 @csrf
@@ -339,7 +343,7 @@
             </div>
         @endif
 
-    @elseif(auth()->user()->role === 'pengawas')
+    @elseif($isPengawasArea)
         <div class="text-center py-5">
             <span class="material-symbols-outlined display-1 text-muted opacity-25 mb-3">folder_open</span>
             <h5 class="fw-bold text-muted">Belum Ada Sekolah yang Dipilih</h5>

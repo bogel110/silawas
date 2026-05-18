@@ -5,6 +5,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\SchoolController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\PengawasBinaanController;
 
 // Semua route di dalam grup ini wajib login (auth)
 Route::middleware(['auth'])->group(function () {
@@ -49,6 +50,12 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/users/{id}', [UserController::class, 'update'])->name('users.update');
         Route::put('/users/{id}/reset-password', [UserController::class, 'resetPassword'])->name('users.reset_password');
         Route::delete('/users/{id}', [UserController::class, 'destroy'])->name('users.destroy');
+    });
+
+    // Rute Khusus Super Admin -> Pengawas dan Sekolah Binaan
+    Route::prefix('super-admin')->name('super-admin.')->group(function () {
+        Route::get('/pengawas-binaan', [PengawasBinaanController::class, 'index'])->name('pengawas-binaan.index');
+        Route::put('/pengawas-binaan/{user}', [PengawasBinaanController::class, 'update'])->name('pengawas-binaan.update');
     });
 
     // Tambahkan baris ini untuk menangani aksi hapus sekolah

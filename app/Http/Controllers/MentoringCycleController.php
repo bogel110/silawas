@@ -12,11 +12,14 @@ class MentoringCycleController extends Controller
     {
         $this->authorizePengawas();
 
-        $schools = School::orderBy('name', 'asc')->get();
+        $schools = $this->supervisedSchoolsQuery()->orderBy('name', 'asc')->get();
         
         // Cek apakah pengawas sudah memilih sekolah dari dropdown
         $selectedSchoolId = $request->get('school_id');
         $selectedSchool = $selectedSchoolId ? School::findOrFail($selectedSchoolId) : null;
+        if ($selectedSchool) {
+            $this->authorizeSchoolAccess($selectedSchool->id);
+        }
 
         $cycles = collect();
         $recap = [];
@@ -91,6 +94,8 @@ class MentoringCycleController extends Controller
             'keterangan' => 'nullable|string'
         ]);
 
+        $this->authorizeSchoolAccess($data['school_id']);
+
         MentoringCycle::create($data);
         return back()->with('success', 'Data Siklus Pendampingan berhasil disimpan!');
     }
@@ -106,6 +111,7 @@ class MentoringCycleController extends Controller
         ]);
 
         $cycle = MentoringCycle::findOrFail($id);
+        $this->authorizeSchoolAccess($cycle->school_id);
         $cycle->update($data);
         return back()->with('success', 'Data Siklus Pendampingan berhasil diperbarui!');
     }
@@ -114,7 +120,9 @@ class MentoringCycleController extends Controller
     {
         $this->authorizePengawas();
 
-        MentoringCycle::findOrFail($id)->delete();
+        $cycle = MentoringCycle::findOrFail($id);
+        $this->authorizeSchoolAccess($cycle->school_id);
+        $cycle->delete();
         return back()->with('success', 'Data Siklus Pendampingan berhasil dihapus!');
     }
     public function export(Request $request)
@@ -122,10 +130,11 @@ class MentoringCycleController extends Controller
         $this->authorizePengawas();
 
         $schoolId = $request->get('school_id');
-        $query = MentoringCycle::with('school');
+        $query = MentoringCycle::with('school')->whereIn('school_id', $this->supervisedSchoolIds());
         
         // Jika sedang memilih sekolah tertentu, export data sekolah itu saja
         if ($schoolId) {
+            $this->authorizeSchoolAccess($schoolId);
             $query->where('school_id', $schoolId);
             $schoolName = School::findOrFail($schoolId)->name;
         } else {

@@ -12,14 +12,18 @@ class CycleStrategyController extends Controller
     {  
         $this->authorizePengawas();
 
-        $schools = School::orderBy('name', 'asc')->get();
+        $schools = $this->supervisedSchoolsQuery()->orderBy('name', 'asc')->get();
         
         // Tangkap data sekolah yang dipilih dari Dropdown (URL GET)
         $selectedSchoolId = $request->get('school_id');
         $selectedSchool = $selectedSchoolId ? School::findOrFail($selectedSchoolId) : null;
+        if ($selectedSchool) {
+            $this->authorizeSchoolAccess($selectedSchool->id);
+        }
 
         // Jika sekolah dipilih, ambil data strateginya. Jika tidak, ambil SEMUA data strategi.
-        $query = CycleStrategy::with('school');
+        $schoolIds = $schools->pluck('id');
+        $query = CycleStrategy::with('school')->whereIn('school_id', $schoolIds);
         
         if ($selectedSchool) {
             $query->where('school_id', $selectedSchoolId);
@@ -28,7 +32,7 @@ class CycleStrategyController extends Controller
         $strategies = $query->latest()->get();
 
         // Ambil SEMUA data strategi khusus untuk Recap, agar selalu merepresentasikan seluruh sekolah
-        $allStrategies = CycleStrategy::all();
+        $allStrategies = CycleStrategy::whereIn('school_id', $schoolIds)->get();
 
         // Siapkan Data Rekapitulasi Keseluruhan (Semua Sekolah)
         $recapAll = [
@@ -68,6 +72,8 @@ class CycleStrategyController extends Controller
             'keterangan' => 'nullable|string'
         ]);
 
+        $this->authorizeSchoolAccess($data['school_id']);
+
         CycleStrategy::create($data);
 
         return back()->with('success', 'Siklus & Strategi berhasil ditambahkan!');
@@ -83,6 +89,7 @@ class CycleStrategyController extends Controller
         ]);
 
         $strategy = CycleStrategy::findOrFail($id);
+        $this->authorizeSchoolAccess($strategy->school_id);
         $strategy->update($data);
         return back()->with('success', 'Data strategi berhasil diperbarui!');
     }
@@ -91,7 +98,9 @@ class CycleStrategyController extends Controller
     {
         $this->authorizePengawas();
 
-        CycleStrategy::findOrFail($id)->delete();
+        $strategy = CycleStrategy::findOrFail($id);
+        $this->authorizeSchoolAccess($strategy->school_id);
+        $strategy->delete();
         return back()->with('success', 'Data strategi berhasil dihapus!');
     }
 
@@ -101,10 +110,11 @@ class CycleStrategyController extends Controller
         $this->authorizePengawas();
 
         $schoolId = $request->get('school_id');
-        $query = CycleStrategy::with('school');
+        $query = CycleStrategy::with('school')->whereIn('school_id', $this->supervisedSchoolIds());
 
         // Jika sedang memilih sekolah tertentu, export khusus data sekolah itu
         if ($schoolId) {
+            $this->authorizeSchoolAccess($schoolId);
             $query->where('school_id', $schoolId);
             $schoolName = School::findOrFail($schoolId)->name;
         } else {

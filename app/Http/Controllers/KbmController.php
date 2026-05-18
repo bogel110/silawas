@@ -15,11 +15,14 @@ class KbmController extends Controller
         $kbms = collect();
         $selectedSchool = null;
 
-        if ($user->role === 'pengawas') {
-            $schools = School::orderBy('name', 'asc')->get();
+        if (in_array($user->role, ['pengawas', 'super_admin'], true)) {
+            $schools = $this->supervisedSchoolsQuery()->orderBy('name', 'asc')->get();
+            $schoolIds = $schools->pluck('id');
             
             // Ambil semua KBM, urutkan berdasarkan Tahun Pelajaran
-            $query = KbmReport::with('school')->orderBy('tahun_pelajaran', 'desc');
+            $query = KbmReport::with('school')
+                ->whereIn('school_id', $schoolIds)
+                ->orderBy('tahun_pelajaran', 'desc');
 
             if ($request->filled('school_id')) {
                 $query->where('school_id', $request->school_id);
