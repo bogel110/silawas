@@ -268,7 +268,7 @@
 
                         <div class="col-12">
                             <label class="small fw-bold text-muted mb-1">Keterangan / Nama Lomba</label>
-                            <textarea name="keterangan" class="form-control bg-light border-0" rows="3" placeholder="Contoh: Lomba Pidato Bahasa Inggris Tingkat Provinsi" required></textarea>
+                            <textarea name="keterangan" class="form-control bg-light border-0" rows="3" placeholder="Contoh: Lomba Pidato Bahasa Inggris - Cabdin Sumenep" required></textarea>
                         </div>
                     </div>
                 </div>
