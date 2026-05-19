@@ -5,9 +5,19 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\School;
 use App\Models\CycleStrategy;
+use Illuminate\Validation\Rule;
 
 class CycleStrategyController extends Controller
 {
+    private const STRATEGIES = [
+        'Penyemaian Perubahan (Seeding Change)',
+        'Perubahan Segera (Rapid Change)',
+        'Penguatan Perubahan (Reinforcing Change)',
+        'Perubahan Berangsur (Gradual Change)',
+        'Pemicu Perubahan (Triggering Change)',
+        'Perubahan Berkelanjutan (Sustainable Change)',
+    ];
+
     public function index(Request $request)
     {  
         $this->authorizePengawas();
@@ -68,7 +78,7 @@ class CycleStrategyController extends Controller
 
         $data = $request->validate([
             'school_id' => 'required|exists:schools,id',
-            'strategy' => 'required|string',
+            'strategy' => ['required', 'string', Rule::in(self::STRATEGIES)],
             'keterangan' => 'nullable|string'
         ]);
 
@@ -84,7 +94,7 @@ class CycleStrategyController extends Controller
         $this->authorizePengawas();
 
         $data = $request->validate([
-            'strategy' => 'required|string',
+            'strategy' => ['required', 'string', Rule::in(self::STRATEGIES)],
             'keterangan' => 'nullable|string'
         ]);
 

@@ -14,9 +14,9 @@ class AttendanceController extends Controller
         $selectedSchool = null;
         $schools = [];
 
-        // Logika untuk Pengawas: Ambil semua data sekolah untuk dimasukkan ke dropdown
-        if ($user->role === 'pengawas') {
-            $schools = School::orderBy('name', 'asc')->get();
+        // Logika untuk Pengawas/Super Admin: Ambil data sekolah sesuai hak akses
+        if (in_array($user->role, ['pengawas', 'super_admin'], true)) {
+            $schools = $this->supervisedSchoolsQuery()->orderBy('name', 'asc')->get();
 
             // Jika pengawas sudah memilih sekolah dari dropdown
             if ($request->filled('school_id')) {
@@ -29,6 +29,10 @@ class AttendanceController extends Controller
         }
         // Logika untuk Admin Sekolah: Langsung tampilkan jurnal sekolahnya sendiri
         elseif ($user->role === 'admin_sekolah') {
+            if (! $user->school_id) {
+                abort(403, 'Akun admin sekolah belum terhubung ke data sekolah.');
+            }
+
             $selectedSchool = School::with(['attendances' => function ($query) {
                 $query->orderBy('tanggal', 'desc');
             }])->findOrFail($user->school_id);

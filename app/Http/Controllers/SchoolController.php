@@ -137,17 +137,21 @@ class SchoolController extends Controller
             'humas_link' => 'nullable',
         ]);
 
-        MonthlyReport::create([
-            'school_id' => $id,
-            'bulan' => $request->bulan,
-            'tahun' => date('Y'), 
-            'tahun_pelajaran' => $request->tahun_pelajaran,
-            'semester' => $request->semester,
-            'kurikulum_link' => $request->kurikulum_link,
-            'kesiswaan_link' => $request->kesiswaan_link,
-            'sarpras_link' => $request->sarpras_link,
-            'humas_link' => $request->humas_link,
-        ]);
+        MonthlyReport::updateOrCreate(
+            [
+                'school_id' => $id,
+                'bulan' => $request->bulan,
+                'tahun_pelajaran' => $request->tahun_pelajaran,
+                'semester' => $request->semester,
+            ],
+            [
+                'tahun' => date('Y'),
+                'kurikulum_link' => $request->kurikulum_link,
+                'kesiswaan_link' => $request->kesiswaan_link,
+                'sarpras_link' => $request->sarpras_link,
+                'humas_link' => $request->humas_link,
+            ]
+        );
 
         return redirect()->back()->with('success', 'Laporan bulanan Wakasek berhasil disimpan!');
     }
@@ -204,7 +208,7 @@ class SchoolController extends Controller
     public function updateMonthlyReport(Request $request, $id)
     {
         $report = MonthlyReport::findOrFail($id);
-        $this->authorizeSchoolAccess($report->school_id);
+        $this->authorizeAdminForSchool($report->school_id);
         
         $data = $request->validate([
             'tahun_pelajaran' => 'required|string',
@@ -223,7 +227,7 @@ class SchoolController extends Controller
     public function destroyMonthlyReport($id)
     {
         $report = MonthlyReport::findOrFail($id);
-        $this->authorizeSchoolAccess($report->school_id);
+        $this->authorizeAdminForSchool($report->school_id);
 
         $report->delete();
         return redirect()->back()->with('success', 'Laporan bulanan berhasil dihapus!');
@@ -231,10 +235,9 @@ class SchoolController extends Controller
 
     public function destroy($id)
     {
-        $this->authorizePengawas();
+        $this->authorizeSuperAdmin();
 
         $school = School::findOrFail($id);
-        $this->authorizeSchoolAccess($school->id);
         $school->delete();
 
         return redirect()->back()->with('success', 'Data sekolah berhasil dihapus!');

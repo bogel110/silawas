@@ -33,6 +33,10 @@ class KbmController extends Controller
             $kbms = $query->get();
         } 
         elseif ($user->role === 'admin_sekolah') {
+            if (! $user->school_id) {
+                abort(403, 'Akun admin sekolah belum terhubung ke data sekolah.');
+            }
+
             $selectedSchool = School::findOrFail($user->school_id);
             $this->authorizeSchoolAccess($selectedSchool->id);
 

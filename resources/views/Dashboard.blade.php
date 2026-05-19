@@ -11,7 +11,7 @@
                     Ringkasan Supervisi
                 </span>
                 <h2 class="display-6 font-headline fw-bold mb-2">Halo, {{ auth()->user()->name }}</h2>
-                <h4 class="isplay-6 font-headline fw-bold mb-2">
+                <h4 class="display-6 font-headline fw-bold mb-2">
                     Dashboard Pemantauan Sekolah Binaan
                 </h4>
                 <p class="text-soft small mb-0" style="text-align: justify;">
@@ -167,13 +167,15 @@
                                     <a href="{{ route('school.show', $school->id) }}" class="btn btn-outline-primary btn-sm px-3">
                                         Detail
                                     </a>
-                                    <form action="{{ route('school.destroy', $school->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus sekolah {{ $school->name }}? Semua data terkait juga akan terhapus.');">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-outline-danger btn-sm px-3" title="Hapus Sekolah">
-                                            Hapus
-                                        </button>
-                                    </form>
+                                    @if(auth()->user()->role === 'super_admin')
+                                        <form action="{{ route('school.destroy', $school->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus sekolah {{ $school->name }}? Semua data terkait juga akan terhapus.');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-outline-danger btn-sm px-3" title="Hapus Sekolah">
+                                                Hapus
+                                            </button>
+                                        </form>
+                                    @endif
                                 </div>
                             </td>
                         </tr>

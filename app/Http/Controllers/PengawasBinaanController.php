@@ -32,7 +32,7 @@ class PengawasBinaanController extends Controller
 
         $data = $request->validate([
             'school_ids' => 'nullable|array',
-            'school_ids.*' => 'exists:schools,id',
+            'school_ids.*' => 'distinct|exists:schools,id',
         ]);
 
         $user->supervisedSchools()->sync($data['school_ids'] ?? []);

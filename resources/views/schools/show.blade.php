@@ -14,9 +14,9 @@
         </a>
         <div class="d-flex justify-content-between align-items-end">
             <div>
-                <span class="badge bg-primary bg-opacity-10 text-primary fw-bold mb-2">{{ $school->level }} • {{ $school->status }}</span>
+                <span class="badge bg-primary bg-opacity-10 text-primary fw-bold mb-2">{{ $school->level }} - {{ $school->status }}</span>
                 <div class="d-flex align-items-center gap-3">
-                    <h2 class="display-6 fw-extrabold font-headline mb-0">Halo  , {{ $school->name }}</h2>
+                    <h2 class="display-6 fw-extrabold font-headline mb-0">Halo, {{ $school->name }}</h2>
                 </div>
             </div>
             <div class="text-end">

@@ -59,10 +59,6 @@ class UserController extends Controller
             'school_id' => $school_id,
         ]);
 
-        if (auth()->user()?->role === 'pengawas' && $school_id) {
-            auth()->user()->supervisedSchools()->syncWithoutDetaching([$school_id]);
-        }
-
         $pesan = match ($request->role) {
             'super_admin' => 'Akun Super Admin berhasil ditambahkan!',
             'pengawas' => 'Akun Pengawas berhasil ditambahkan!',
@@ -128,10 +124,6 @@ class UserController extends Controller
                 'role' => 'admin_sekolah',
                 'school_id' => $school->id,
             ]);
-
-            if (auth()->user()?->role === 'pengawas') {
-                auth()->user()->supervisedSchools()->syncWithoutDetaching([$school->id]);
-            }
 
             $created++;
         }
@@ -475,6 +467,16 @@ class UserController extends Controller
             'role'  => 'required|in:super_admin,pengawas,admin_sekolah',
         ]);
 
+        if ((int) auth()->id() === (int) $user->id && $request->role !== 'super_admin') {
+            return back()->withErrors(['role' => 'Anda tidak dapat mengubah role akun yang sedang digunakan.']);
+        }
+
+        if ($user->role === 'super_admin'
+            && $request->role !== 'super_admin'
+            && ! User::where('role', 'super_admin')->whereKeyNot($user->id)->exists()) {
+            return back()->withErrors(['role' => 'Minimal harus ada satu akun Super Admin aktif.']);
+        }
+
         $user->name = $request->name;
         $user->email = $request->email;
         $user->role = $request->role;
@@ -506,8 +508,14 @@ class UserController extends Controller
         if ((int) auth()->id() === (int) $id) {
             return back()->withErrors(['user' => 'Anda tidak dapat menghapus akun yang sedang digunakan.']);
         }
-        
-        User::findOrFail($id)->delete();
+
+        $user = User::findOrFail($id);
+        if ($user->role === 'super_admin'
+            && ! User::where('role', 'super_admin')->whereKeyNot($user->id)->exists()) {
+            return back()->withErrors(['user' => 'Minimal harus ada satu akun Super Admin aktif.']);
+        }
+
+        $user->delete();
         return back()->with('success', 'Akun berhasil dihapus!');
     }
     

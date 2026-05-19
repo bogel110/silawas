@@ -10,17 +10,15 @@ class User extends Authenticatable
 {
     use HasFactory, Notifiable;
 
-    // 1. GUNAKAN ARRAY KLASIK INI (Hapus #[Fillable] di atas)
     protected $fillable = [
         'name',
         'email',
         'password',
-        'role',       // <--- SAYA UBAH DARI 'role' MENJADI 'level' AGAR SESUAI DENGAN FORM
-        'school_name', // (Opsional, dibiarkan jika masih butuh backup teks manual)
-        'school_id',   // <--- PASTIKAN INI ADA UNTUK MENYIMPAN ID
+        'role',
+        'school_name',
+        'school_id',
     ];
 
-    // 2. GUNAKAN ARRAY KLASIK INI (Hapus #[Hidden] di atas)
     protected $hidden = [
         'password',
         'remember_token',
@@ -39,7 +37,6 @@ class User extends Authenticatable
         ];
     }
     
-    // 3. KEMBALIKAN FUNGSI INI AGAR BISA MENGAMBIL NAMA SEKOLAH DI BLADE
     public function school()
     {
         return $this->belongsTo(School::class, 'school_id');

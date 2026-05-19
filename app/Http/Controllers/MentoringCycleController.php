@@ -5,9 +5,17 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\School;
 use App\Models\MentoringCycle;
+use Illuminate\Validation\Rule;
 
 class MentoringCycleController extends Controller
 {
+    private const CYCLES = [
+        'Perencanaan Pendampingan',
+        'Pendampingan Perencanaan Program',
+        'Pendampingan Pelaksanaan Program',
+        'Pelaporan Pendampingan',
+    ];
+
     public function index(Request $request)
     {
         $this->authorizePengawas();
@@ -89,7 +97,7 @@ class MentoringCycleController extends Controller
 
         $data = $request->validate([
             'school_id' => 'required|exists:schools,id',
-            'siklus' => 'required|string',
+            'siklus' => ['required', 'string', Rule::in(self::CYCLES)],
             'tanggal' => 'required|date',
             'keterangan' => 'nullable|string'
         ]);
@@ -105,7 +113,7 @@ class MentoringCycleController extends Controller
         $this->authorizePengawas();
 
         $data = $request->validate([
-            'siklus' => 'required|string',
+            'siklus' => ['required', 'string', Rule::in(self::CYCLES)],
             'tanggal' => 'required|date',
             'keterangan' => 'nullable|string'
         ]);
