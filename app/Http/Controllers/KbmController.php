@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\School;
-use App\Models\KbmReport; // Pastikan model KBM dipanggil
+use App\Models\KbmReport;
 
 class KbmController extends Controller
 {
@@ -19,7 +19,6 @@ class KbmController extends Controller
             $schools = $this->supervisedSchoolsQuery()->orderBy('name', 'asc')->get();
             $schoolIds = $schools->pluck('id');
             
-            // Ambil semua KBM, urutkan berdasarkan Tahun Pelajaran
             $query = KbmReport::with('school')
                 ->whereIn('school_id', $schoolIds)
                 ->orderBy('tahun_pelajaran', 'desc');
@@ -40,7 +39,6 @@ class KbmController extends Controller
             $selectedSchool = School::findOrFail($user->school_id);
             $this->authorizeSchoolAccess($selectedSchool->id);
 
-            // Ambil KBM khusus sekolah admin yang login
             $kbms = KbmReport::where('school_id', $user->school_id)
                                 ->orderBy('tahun_pelajaran', 'desc')
                                 ->get();
@@ -49,10 +47,5 @@ class KbmController extends Controller
         }
 
         return view('kbm.index', compact('schools', 'kbms', 'selectedSchool'));
-    }
-
-    public function store_kbm()
-    {
-
     }
 }

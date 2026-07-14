@@ -77,6 +77,6 @@ abstract class Controller
 
     protected function supervisedSchoolIds(): array
     {
-        return $this->supervisedSchoolsQuery()->pluck('schools.id')->all();
+        return $this->supervisedSchoolsQuery()->pluck('id')->all();
     }
 }
