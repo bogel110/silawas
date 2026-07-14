@@ -72,6 +72,7 @@
                             <th>Peringkat & Tingkat</th>
                             <th>Nama Lengkap Peserta & Kategori</th>
                             <th>Keterangan Lomba</th>
+                            <th>Link Sertifikat</th>
                             <th class="text-center">Aksi</th>
                         </tr>
                     </thead>
@@ -90,6 +91,13 @@
                                 <span class="badge bg-primary bg-opacity-10 text-primary border border-primary-subtle">{{ $ach->tipe_peserta }}</span>
                             </td>
                             <td class="small text-muted">{{ $ach->keterangan }}</td>
+                            <td>
+                                @if($ach->link_sertifikat)
+                                    <a href="{{ $ach->link_sertifikat }}" target="_blank" class="badge bg-success text-decoration-none">Cek Berkas</a>
+                                @else
+                                    <span class="badge bg-secondary">Kosong</span>
+                                @endif
+                            </td>
                             
                             <td class="text-center">
                                 <div class="d-flex justify-content-center gap-2">
@@ -169,11 +177,16 @@
                                                         <input type="text" name="nama_peserta" class="form-control bg-light border-0" value="{{ $ach->nama_peserta }}" placeholder="Contoh: Andi Wijaya" required>
                                                     </div>
 
-                                                    <div class="col-12">
-                                                        <label class="small fw-bold text-muted mb-1">Keterangan / Nama Lomba</label>
-                                                        <textarea name="keterangan" class="form-control bg-light border-0" rows="3" required>{{ $ach->keterangan }}</textarea>
-                                                    </div>
-                                                </div>
+                                                     <div class="col-12">
+                                                         <label class="small fw-bold text-muted mb-1">Keterangan / Nama Lomba</label>
+                                                         <textarea name="keterangan" class="form-control bg-light border-0" rows="3" required>{{ $ach->keterangan }}</textarea>
+                                                     </div>
+
+                                                     <div class="col-12">
+                                                         <label class="small fw-bold text-muted mb-1">Link Sertifikat / Berkas</label>
+                                                         <input type="url" name="link_sertifikat" class="form-control bg-light border-0" value="{{ $ach->link_sertifikat }}" placeholder="https://drive.google.com/...">
+                                                     </div>
+                                                 </div>
                                             </div>
                                             
                                             <div class="modal-footer bg-light border-0 px-4 py-3 rounded-bottom-4">
@@ -186,9 +199,9 @@
                             </td>
                         </tr>
                         @empty
-                        <tr id="emptyRow"><td colspan="5" class="text-center py-5 text-muted small">Belum ada data prestasi.</td></tr>
+                        <tr id="emptyRow"><td colspan="6" class="text-center py-5 text-muted small">Belum ada data prestasi.</td></tr>
                         @endforelse
-                        <tr id="notFoundRow" style="display:none;"><td colspan="5" class="text-center py-4 text-muted small">Data tidak ditemukan.</td></tr>
+                        <tr id="notFoundRow" style="display:none;"><td colspan="6" class="text-center py-4 text-muted small">Data tidak ditemukan.</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -269,6 +282,11 @@
                         <div class="col-12">
                             <label class="small fw-bold text-muted mb-1">Keterangan / Nama Lomba</label>
                             <textarea name="keterangan" class="form-control bg-light border-0" rows="3" placeholder="Contoh: Lomba Pidato Bahasa Inggris - Cabdin Sumenep" required></textarea>
+                        </div>
+                        
+                        <div class="col-12">
+                            <label class="small fw-bold text-muted mb-1">Link Sertifikat / Berkas</label>
+                            <input type="url" name="link_sertifikat" class="form-control bg-light border-0" placeholder="https://drive.google.com/...">
                         </div>
                     </div>
                 </div>

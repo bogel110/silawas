@@ -15,11 +15,12 @@ class MonthlyReport extends Model
         'bulan', 
         'tahun',
         'tahun_pelajaran', 
-        'semester', // <--- Tambahan baru
+        'semester',
         'kurikulum_link', 
         'kesiswaan_link', 
         'sarpras_link', 
-        'humas_link'
+        'humas_link',
+        'catatan_pengawas'
     ];
 
     public function school()

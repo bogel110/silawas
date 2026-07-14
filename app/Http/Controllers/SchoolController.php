@@ -224,6 +224,23 @@ class SchoolController extends Controller
         return redirect()->back()->with('success', 'Laporan bulanan berhasil diperbarui!');
     }
 
+    public function updateCatatanLaporan(Request $request, $id)
+    {
+        $this->authorizePengawas();
+
+        $request->validate([
+            'catatan_pengawas' => 'nullable|string',
+        ]);
+
+        $report = MonthlyReport::findOrFail($id);
+        // Authorization check if the pengawas can access this school
+        $this->authorizeSchoolAccess($report->school_id);
+        
+        $report->update(['catatan_pengawas' => $request->catatan_pengawas]);
+
+        return redirect()->back()->with('success', 'Catatan pengawas untuk laporan bulanan berhasil disimpan!');
+    }
+
     public function destroyMonthlyReport($id)
     {
         $report = MonthlyReport::findOrFail($id);
@@ -392,5 +409,22 @@ class SchoolController extends Controller
         $kbm->delete();
 
         return redirect()->back()->with('success', 'Data laporan KBM berhasil dihapus!');
+    }
+
+    public function updateCatatanKbm(Request $request, $id)
+    {
+        $this->authorizePengawas();
+
+        $request->validate([
+            'catatan_pengawas' => 'nullable|string',
+        ]);
+
+        $kbm = KbmReport::findOrFail($id);
+        // Authorization check if the pengawas can access this school
+        $this->authorizeSchoolAccess($kbm->school_id);
+        
+        $kbm->update(['catatan_pengawas' => $request->catatan_pengawas]);
+
+        return redirect()->back()->with('success', 'Catatan pengawas untuk KBM berhasil disimpan!');
     }
 }

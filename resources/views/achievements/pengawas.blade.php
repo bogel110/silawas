@@ -173,6 +173,7 @@
                             <th>Peringkat/Tingkat</th>
                             <th>Nama Lengkap Peserta & Kategori</th>
                             <th>Keterangan</th>
+                            <th>Link Sertifikat</th>
                         </tr>
                     </thead>
                     <tbody id="prestasiTableBody">
@@ -189,11 +190,18 @@
                                 <span class="badge bg-info bg-opacity-10 text-info border border-info">{{ $ach->kategori }}</span>
                             </td>
                             <td class="text-muted">{{ $ach->keterangan }}</td>
+                            <td>
+                                @if($ach->link_sertifikat)
+                                    <a href="{{ $ach->link_sertifikat }}" target="_blank" class="badge bg-success text-decoration-none">Lihat</a>
+                                @else
+                                    <span class="badge bg-secondary">-</span>
+                                @endif
+                            </td>
                         </tr>
                         @empty
-                        <tr id="emptyRow"><td colspan="5" class="text-center py-5 text-muted small">Belum ada riwayat prestasi yang tercatat.</td></tr>
+                        <tr id="emptyRow"><td colspan="6" class="text-center py-5 text-muted small">Belum ada riwayat prestasi yang tercatat.</td></tr>
                         @endforelse
-                        <tr id="notFoundRow" style="display:none;"><td colspan="5" class="text-center py-4 text-muted small">Data tidak ditemukan.</td></tr>
+                        <tr id="notFoundRow" style="display:none;"><td colspan="6" class="text-center py-4 text-muted small">Data tidak ditemukan.</td></tr>
                     </tbody>
                 </table>
             </div>

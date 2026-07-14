@@ -35,6 +35,9 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/monthly-report/{id}', [SchoolController::class, 'updateMonthlyReport'])->name('school.update_monthly_report');
     Route::delete('/monthly-report/{id}', [SchoolController::class, 'destroyMonthlyReport'])->name('school.destroy_monthly_report');
 
+    // Route untuk Pengawas/Super Admin menyimpan catatan pada laporan bulanan
+    Route::put('/monthly-report/{id}/catatan', [SchoolController::class, 'updateCatatanLaporan'])->name('school.update_catatan_laporan');
+
     // Route bawaan Breeze untuk ganti password/profil (biarkan saja agar tidak error)
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -75,6 +78,8 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/school/kbm/{id}', [SchoolController::class, 'updateKbm'])->name('school.update_kbm');
     //Delete Kontrol KBM
     Route::delete('/school/kbm/{id}', [SchoolController::class, 'destroyKbm'])->name('school.destroy_kbm');
+    //Pengawas/Super Admin update catatan pada KBM
+    Route::put('/school/kbm/{id}/catatan', [SchoolController::class, 'updateCatatanKbm'])->name('school.update_catatan_kbm');
 
     //Menu Jurnal KBM
     Route::get('/jurnal-kepsek', [App\Http\Controllers\AttendanceController::class, 'index'])->name('jurnal.index');

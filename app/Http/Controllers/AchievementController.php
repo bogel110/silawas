@@ -26,13 +26,14 @@ class AchievementController extends Controller
         $this->authorizeAdminForSchool(auth()->user()->school_id);
 
         $data = $request->validate([
-            'tanggal'      => 'required|date',
-            'peringkat'    => 'required|string',
-            'tingkat'      => 'required|string',
-            'kategori'     => 'required|string',
-            'tipe_peserta' => 'required|string',
-            'nama_peserta' => 'required|string|max:255', 
-            'keterangan'   => 'required|string'
+            'tanggal'         => 'required|date',
+            'peringkat'       => 'required|string',
+            'tingkat'         => 'required|string',
+            'kategori'        => 'required|string',
+            'tipe_peserta'    => 'required|string',
+            'nama_peserta'    => 'required|string|max:255', 
+            'keterangan'      => 'required|string',
+            'link_sertifikat' => 'nullable|url',
         ]);
 
         $this->authorizeAdminForSchool(auth()->user()->school_id);
@@ -45,13 +46,14 @@ class AchievementController extends Controller
     public function update(Request $request, $id)
     {
         $data = $request->validate([
-            'tanggal'      => 'required|date',
-            'peringkat'    => 'required|string',
-            'tingkat'      => 'required|string',
-            'kategori'     => 'required|string',
-            'tipe_peserta' => 'required|string',
-            'nama_peserta' => 'required|string|max:255', 
-            'keterangan'   => 'required|string'
+            'tanggal'         => 'required|date',
+            'peringkat'       => 'required|string',
+            'tingkat'         => 'required|string',
+            'kategori'        => 'required|string',
+            'tipe_peserta'    => 'required|string',
+            'nama_peserta'    => 'required|string|max:255', 
+            'keterangan'      => 'required|string',
+            'link_sertifikat' => 'nullable|url',
         ]);
 
         $achievement = Achievement::findOrFail($id);
@@ -91,7 +93,7 @@ class AchievementController extends Controller
             $file = fopen('php://output', 'w');
             fputs($file, $bom =(chr(0xEF) . chr(0xBB) . chr(0xBF))); 
             
-            fputcsv($file, ['Tanggal', 'Peringkat', 'Tingkat', 'Kategori', 'Tipe Peserta', 'Nama Peserta', 'Keterangan Lomba'], ';');
+            fputcsv($file, ['Tanggal', 'Peringkat', 'Tingkat', 'Kategori', 'Tipe Peserta', 'Nama Peserta', 'Keterangan Lomba', 'Link Sertifikat'], ';');
 
             foreach ($data as $row) {
                 fputcsv($file, [
@@ -101,7 +103,8 @@ class AchievementController extends Controller
                     $row->kategori, 
                     $row->tipe_peserta, 
                     $row->nama_peserta, 
-                    $row->keterangan
+                    $row->keterangan,
+                    $row->link_sertifikat ?? '-'
                 ], ';');
             }
             fclose($file);
@@ -262,7 +265,7 @@ class AchievementController extends Controller
             $file = fopen('php://output', 'w');
             fputs($file, $bom =(chr(0xEF) . chr(0xBB) . chr(0xBF))); 
             
-            fputcsv($file, ['Tanggal', 'Nama Sekolah', 'Peringkat', 'Tingkat', 'Kategori', 'Tipe Peserta', 'Nama Peserta', 'Keterangan Lomba'], ';');
+            fputcsv($file, ['Tanggal', 'Nama Sekolah', 'Peringkat', 'Tingkat', 'Kategori', 'Tipe Peserta', 'Nama Peserta', 'Keterangan Lomba', 'Link Sertifikat'], ';');
 
             foreach ($data as $row) {
                 fputcsv($file, [
@@ -273,7 +276,8 @@ class AchievementController extends Controller
                     $row->kategori, 
                     $row->tipe_peserta, 
                     $row->nama_peserta,
-                    $row->keterangan
+                    $row->keterangan,
+                    $row->link_sertifikat ?? '-'
                 ], ';');
             }
             fclose($file);

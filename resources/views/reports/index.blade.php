@@ -159,7 +159,7 @@
     @else
         @php
             $canManageLaporan = auth()->user()->role === 'admin_sekolah' && auth()->user()->school_id == $school->id;
-            $reportColspan = $canManageLaporan ? 8 : 7;
+            $reportColspan = $canManageLaporan ? 9 : 8;
         @endphp
 
         <div class="card border-0 shadow-sm rounded-4 mb-4" id="laporan-kegiatan">
@@ -252,6 +252,7 @@
                                     <th>Kesiswaan</th>
                                     <th>Sarpras</th>
                                     <th>Humas</th>
+                                    <th>Catatan Pengawas</th>
                                     @if($canManageLaporan)
                                         <th class="text-center">Aksi</th>
                                     @endif
@@ -267,6 +268,42 @@
                                         <td>@if($report->kesiswaan_link) <a href="{{ $report->kesiswaan_link }}" target="_blank" class="badge bg-success text-decoration-none">Cek Berkas</a> @else - @endif</td>
                                         <td>@if($report->sarpras_link) <a href="{{ $report->sarpras_link }}" target="_blank" class="badge bg-success text-decoration-none">Cek Berkas</a> @else - @endif</td>
                                         <td>@if($report->humas_link) <a href="{{ $report->humas_link }}" target="_blank" class="badge bg-success text-decoration-none">Cek Berkas</a> @else - @endif</td>
+                                        <td style="min-width: 200px; white-space: normal;">
+                                            @if(in_array(auth()->user()->role, ['pengawas', 'super_admin'], true))
+                                                <div class="d-flex align-items-start gap-2">
+                                                    <span class="small text-muted text-wrap text-break" style="line-height: 1.4;">{!! $report->catatan_pengawas ? nl2br(e($report->catatan_pengawas)) : '-' !!}</span>
+                                                    <button class="btn btn-link text-primary p-0 ms-auto flex-shrink-0" data-bs-toggle="modal" data-bs-target="#editCatatanModal{{ $report->id }}">
+                                                        <span class="material-symbols-outlined fs-6">edit_note</span>
+                                                    </button>
+                                                </div>
+
+                                                <!-- Modal Edit Catatan -->
+                                                <div class="modal fade" id="editCatatanModal{{ $report->id }}" tabindex="-1" aria-hidden="true">
+                                                    <div class="modal-dialog modal-dialog-centered">
+                                                        <div class="modal-content border-0 shadow rounded-4 text-start">
+                                                            <div class="modal-header border-bottom-0">
+                                                                <h1 class="modal-title fs-6 font-headline fw-bold">Catatan Pengawas: {{ \Carbon\Carbon::create()->month($report->bulan)->translatedFormat('F') }}</h1>
+                                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                            </div>
+                                                            <form action="{{ route('school.update_catatan_laporan', $report->id) }}" method="POST">
+                                                                @csrf @method('PUT')
+                                                                <div class="modal-body py-0">
+                                                                    <div class="mb-3">
+                                                                        <label class="small fw-bold">Catatan / Komentar</label>
+                                                                        <textarea name="catatan_pengawas" class="form-control form-control-sm" rows="4" placeholder="Ketikkan catatan/komentar di sini...">{{ $report->catatan_pengawas }}</textarea>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="modal-footer border-top-0">
+                                                                    <button type="submit" class="btn btn-primary btn-sm w-100 fw-bold">Simpan Catatan</button>
+                                                                </div>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            @else
+                                                <span class="small text-muted text-wrap text-break" style="line-height: 1.4;">{!! $report->catatan_pengawas ? nl2br(e($report->catatan_pengawas)) : '-' !!}</span>
+                                            @endif
+                                        </td>
                                         @if($canManageLaporan)
                                             <td class="text-center">
                                                 <div class="d-flex justify-content-center gap-2">

@@ -48,6 +48,10 @@
 
     {{-- TAMPILAN DATA & REKAP KBM (Muncul Jika Admin Login ATAU Pengawas Sudah Memilih Sekolah) --}}
     @if($selectedSchool)
+        @php
+            $isAdminSekolah = auth()->user()->role === 'admin_sekolah' && auth()->user()->school_id == $selectedSchool->id;
+            $colspanKbm = $isAdminSekolah ? 6 : 5;
+        @endphp
         
         {{-- TABEL DATA KBM --}}
         <div class="card border-0 shadow-sm rounded-4 mb-4">
@@ -102,6 +106,7 @@
                                     <th>Intrakurikuler</th>
                                     <th>Kokurikuler</th>
                                     <th>Ekstrakurikuler</th>
+                                    <th>Catatan Pengawas</th>
                                     
                                     {{-- Kolom Aksi Hanya untuk Admin Sekolah --}}
                                     @if(auth()->user()->role === 'admin_sekolah' && auth()->user()->school_id == $selectedSchool->id)
@@ -125,6 +130,43 @@
                                     <td>
                                         @if($kbm->extra_link) <a href="{{ $kbm->extra_link }}" target="_blank" class="badge bg-success text-decoration-none">Cek Berkas</a>
                                         @else <span class="badge bg-danger">Kosong</span> @endif
+                                    </td>
+                                    
+                                    <td style="min-width: 200px; white-space: normal;">
+                                        @if(in_array(auth()->user()->role, ['pengawas', 'super_admin'], true))
+                                            <div class="d-flex align-items-start gap-2">
+                                                <span class="small text-muted text-wrap text-break" style="line-height: 1.4;">{!! $kbm->catatan_pengawas ? nl2br(e($kbm->catatan_pengawas)) : '-' !!}</span>
+                                                <button class="btn btn-link text-primary p-0 ms-auto flex-shrink-0" data-bs-toggle="modal" data-bs-target="#editCatatanKbmModal{{ $kbm->id }}">
+                                                    <span class="material-symbols-outlined fs-6">edit_note</span>
+                                                </button>
+                                            </div>
+
+                                            <!-- Modal Edit Catatan -->
+                                            <div class="modal fade" id="editCatatanKbmModal{{ $kbm->id }}" tabindex="-1" aria-hidden="true">
+                                                <div class="modal-dialog modal-dialog-centered">
+                                                    <div class="modal-content border-0 shadow rounded-4 text-start">
+                                                        <div class="modal-header border-bottom-0">
+                                                            <h1 class="modal-title fs-6 font-headline fw-bold">Catatan Pengawas: KBM {{ $kbm->tahun_pelajaran }}</h1>
+                                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                        </div>
+                                                        <form action="{{ route('school.update_catatan_kbm', $kbm->id) }}" method="POST">
+                                                            @csrf @method('PUT')
+                                                            <div class="modal-body py-0">
+                                                                <div class="mb-3">
+                                                                    <label class="small fw-bold">Catatan / Komentar</label>
+                                                                    <textarea name="catatan_pengawas" class="form-control form-control-sm" rows="4" placeholder="Ketikkan catatan/komentar di sini...">{{ $kbm->catatan_pengawas }}</textarea>
+                                                                </div>
+                                                            </div>
+                                                            <div class="modal-footer border-top-0">
+                                                                <button type="submit" class="btn btn-primary btn-sm w-100 fw-bold">Simpan Catatan</button>
+                                                            </div>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @else
+                                            <span class="small text-muted text-wrap text-break" style="line-height: 1.4;">{!! $kbm->catatan_pengawas ? nl2br(e($kbm->catatan_pengawas)) : '-' !!}</span>
+                                        @endif
                                     </td>
                                     
                                     {{-- Aksi (Edit & Hapus) --}}
@@ -189,11 +231,11 @@
                                     @endif
                                 </tr>
                                 @empty
-                                <tr id="emptyKbmRow"><td colspan="5" class="text-center small text-muted py-5">Belum ada data KBM untuk sekolah ini.</td></tr>
+                                <tr id="emptyKbmRow"><td colspan="{{ $colspanKbm }}" class="text-center small text-muted py-5">Belum ada data KBM untuk sekolah ini.</td></tr>
                                 @endforelse
 
                                 <tr id="notFoundKbm" style="display: none;">
-                                    <td colspan="5" class="text-center small text-muted py-3">Data tidak ditemukan.</td>
+                                    <td colspan="{{ $colspanKbm }}" class="text-center small text-muted py-3">Data tidak ditemukan.</td>
                                 </tr>
                             </tbody>
                         </table>
