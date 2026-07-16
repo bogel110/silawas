@@ -111,7 +111,23 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/prestasi/{id}', [App\Http\Controllers\AchievementController::class, 'destroy'])->name('achievement.destroy');
     Route::get('/prestasi/export', [App\Http\Controllers\AchievementController::class, 'exportAdmin'])->name('achievement.export');
 
-    // Rute Rekap Prestasi Khusus PENGAWAS
+    // Rute Alumni Khusus ADMIN SEKOLAH
+    Route::get('/alumni', [App\Http\Controllers\AlumniController::class, 'index'])->name('alumni.index');
+    Route::get('/alumni/search', [App\Http\Controllers\AlumniController::class, 'search'])->name('alumni.search');
+    Route::get('/alumni/search-pengawas', [App\Http\Controllers\AlumniController::class, 'searchPengawas'])->name('alumni.search_pengawas');
+    Route::get('/alumni/table-data', [App\Http\Controllers\AlumniController::class, 'getTableData'])->name('alumni.table_data');
+    Route::get('/alumni/export-template', [App\Http\Controllers\AlumniController::class, 'exportTemplate'])->name('alumni.export_template');
+    Route::get('/alumni/export-data', [App\Http\Controllers\AlumniController::class, 'exportData'])->name('alumni.export_data');
+    Route::post('/alumni/import', [App\Http\Controllers\AlumniController::class, 'importAlumni'])->name('alumni.import');
+    Route::post('/alumni', [App\Http\Controllers\AlumniController::class, 'store'])->name('alumni.store');
+    Route::put('/alumni/{id}', [App\Http\Controllers\AlumniController::class, 'update'])->name('alumni.update');
+    Route::delete('/alumni/{id}', [App\Http\Controllers\AlumniController::class, 'destroy'])->name('alumni.destroy');
+
+    // Rute Alumni Khusus PENGAWAS & SUPER ADMIN
+    Route::get('/peta-alumni', [App\Http\Controllers\AlumniController::class, 'indexPengawas'])->name('alumni.pengawas');
+    Route::get('/peta-alumni/search', [App\Http\Controllers\AlumniController::class, 'searchPengawas'])->name('alumni.search_pengawas');
+    Route::get('/peta-alumni/table-data', [App\Http\Controllers\AlumniController::class, 'getTableDataPengawas'])->name('alumni.table_data_pengawas');
+    Route::get('/peta-alumni/export', [App\Http\Controllers\AlumniController::class, 'exportPengawas'])->name('alumni.export.pengawas');
     Route::get('/rekap-prestasi', [App\Http\Controllers\AchievementController::class, 'indexPengawas'])->name('achievement.pengawas');
     Route::get('/rekap-prestasi/export', [App\Http\Controllers\AchievementController::class, 'exportPengawas'])->name('achievement.export.pengawas');
         

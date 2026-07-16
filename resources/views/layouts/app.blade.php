@@ -1005,12 +1005,24 @@
                             <span>Prestasi Sekolah</span>
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('alumni.*') ? 'active' : '' }}" href="{{ route('alumni.index') }}">
+                            <span class="material-symbols-outlined">diversity_3</span>
+                            <span>Peta Alumni</span>
+                        </a>
+                    </li>
                 @endif
                 @if($isPengawasArea)
                     <li class="nav-item">
                         <a class="nav-link {{ request()->routeIs('achievement.pengawas') ? 'active' : '' }}" href="{{ route('achievement.pengawas') }}">
                             <span class="material-symbols-outlined">social_leaderboard</span>
                             <span>Rekap Prestasi</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('alumni.pengawas') ? 'active' : '' }}" href="{{ route('alumni.pengawas') }}">
+                            <span class="material-symbols-outlined">diversity_3</span>
+                            <span>Peta Alumni</span>
                         </a>
                     </li>
                     <li class="nav-item">
@@ -1123,6 +1135,7 @@
     </main>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const sidebar = document.getElementById('sidebar');

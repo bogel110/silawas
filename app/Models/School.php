@@ -26,6 +26,11 @@ class School extends Model
         return $this->hasMany(KbmReport::class)->orderBy('tahun_pelajaran', 'desc');
     }
 
+    public function alumni()
+    {
+        return $this->hasMany(Alumni::class);
+    }
+
     public function supervisors()
     {
         return $this->belongsToMany(User::class, 'pengawas_school', 'school_id', 'user_id')
