@@ -238,13 +238,14 @@
                  <div class="col-12 col-md-auto">
                      <div class="d-flex align-items-center gap-2">
                          <label for="perPageSelectorPengawas" class="form-label mb-0 small fw-600">Tampilkan:</label>
-                         <select id="perPageSelectorPengawas" class="form-select form-select-sm" style="width: auto;">
-                             <option value="5">5</option>
-                             <option value="10" selected>10</option>
-                             <option value="25">25</option>
-                             <option value="50">50</option>
-                             <option value="100">100</option>
-                         </select>
+                          <select id="perPageSelectorPengawas" class="form-select form-select-sm" style="width: auto;">
+                              <option value="5" {{ $perPage == 5 ? 'selected' : '' }}>5</option>
+                              <option value="10" {{ $perPage == 10 ? 'selected' : '' }}>10</option>
+                              <option value="25" {{ $perPage == 25 ? 'selected' : '' }}>25</option>
+                              <option value="50" {{ $perPage == 50 ? 'selected' : '' }}>50</option>
+                              <option value="100" {{ $perPage == 100 ? 'selected' : '' }}>100</option>
+                              <option value="200" {{ $perPage == 200 ? 'selected' : '' }}>200</option>
+                          </select>
                          <span class="small text-soft">data per halaman</span>
                      </div>
                  </div>

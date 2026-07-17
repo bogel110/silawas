@@ -254,11 +254,13 @@
                  <div class="d-flex align-items-center gap-2">
                      <label for="perPageSelector" class="form-label mb-0 small fw-600">Tampilkan:</label>
                      <select id="perPageSelector" class="form-select form-select-sm" style="width: auto;">
-                         <option value="10" {{ $perPage == 10 ? 'selected' : '' }}>10</option>
-                         <option value="25" {{ $perPage == 25 ? 'selected' : '' }}>25</option>
-                         <option value="50" {{ $perPage == 50 ? 'selected' : '' }}>50</option>
-                         <option value="100" {{ $perPage == 100 ? 'selected' : '' }}>100</option>
-                     </select>
+                          <option value="5" {{ $perPage == 5 ? 'selected' : '' }}>5</option>
+                          <option value="10" {{ $perPage == 10 ? 'selected' : '' }}>10</option>
+                          <option value="25" {{ $perPage == 25 ? 'selected' : '' }}>25</option>
+                          <option value="50" {{ $perPage == 50 ? 'selected' : '' }}>50</option>
+                          <option value="100" {{ $perPage == 100 ? 'selected' : '' }}>100</option>
+                          <option value="200" {{ $perPage == 200 ? 'selected' : '' }}>200</option>
+                      </select>
                      <span class="small text-soft">data per halaman</span>
                  </div>
              </div>
@@ -380,7 +382,13 @@
                     
                     <div class="mb-3">
                         <label for="fileImport" class="form-label fw-600">Pilih File CSV <span class="text-danger">*</span></label>
-                        <input type="file" class="form-control" id="fileImport" name="file" accept=".csv,.txt" required>
+                        <div class="custom-file-input-wrapper">
+                            <input type="file" class="custom-file-input" id="fileImport" name="file" accept=".csv,.txt" required>
+                            <label for="fileImport" class="custom-file-label">
+                                <span class="material-symbols-outlined">upload_file</span>
+                                <span id="fileNameDisplay">Pilih file CSV...</span>
+                            </label>
+                        </div>
                         <small class="text-soft">Format: CSV | Ukuran maksimal: 2MB</small>
                     </div>
 
@@ -468,14 +476,69 @@
         color: #63c7d2;
     }
 
-    #fileImport.form-control {
-        background-color: #fff !important;
-        color: var(--text-main) !important;
+    /* Custom File Input Styling */
+    .custom-file-input {
+        display: none;
     }
 
-    html[data-theme="dark"] #fileImport.form-control {
-        background-color: #112a31 !important;
-        border-color: rgba(180, 221, 227, 0.15) !important;
+    .custom-file-input-wrapper {
+        position: relative;
+        display: block;
+    }
+
+    .custom-file-label {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.625rem 0.875rem;
+        background-color: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 0.375rem;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        font-size: 0.9375rem;
+        color: var(--text-main);
+        min-height: 2.625rem;
+    }
+
+    .custom-file-label:hover {
+        border-color: var(--brand-700);
+        background-color: var(--surface-soft);
+    }
+
+    .custom-file-label .material-symbols-outlined {
+        font-size: 1.25rem;
+        color: var(--text-soft);
+        flex-shrink: 0;
+    }
+
+    .custom-file-label span:last-child {
+        flex: 1;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        color: var(--text-soft);
+    }
+
+    .custom-file-input:focus + .custom-file-label {
+        border-color: var(--brand-700);
+        box-shadow: 0 0 0 0.2rem rgba(15, 107, 125, 0.15);
+    }
+
+    html[data-theme="dark"] .custom-file-label {
+        background-color: rgba(99, 199, 210, 0.08);
+        border-color: rgba(180, 221, 227, 0.15);
+        color: var(--text-main);
+    }
+
+    html[data-theme="dark"] .custom-file-label:hover {
+        background-color: rgba(99, 199, 210, 0.12);
+        border-color: #63c7d2;
+    }
+
+    html[data-theme="dark"] .custom-file-input:focus + .custom-file-label {
+        border-color: #63c7d2;
+        box-shadow: 0 0 0 0.2rem rgba(99, 199, 210, 0.15);
     }
 
     /* Search Bar Styling */
@@ -950,8 +1013,26 @@
         paginationLinks.forEach(link => {
             link.removeEventListener('click', handlePaginationClick); // Remove listener lama
             link.addEventListener('click', handlePaginationClick);
-        });
+      });
     }
+
+      // ===== CUSTOM FILE INPUT HANDLER =====
+      document.addEventListener('DOMContentLoaded', function() {
+          const fileInput = document.getElementById('fileImport');
+          const fileNameDisplay = document.getElementById('fileNameDisplay');
+
+          if (fileInput) {
+              fileInput.addEventListener('change', function() {
+                  if (this.files && this.files.length > 0) {
+                      fileNameDisplay.textContent = this.files[0].name;
+                  } else {
+                      fileNameDisplay.textContent = 'Pilih file CSV...';
+                  }
+              });
+          }
+      });
+      // ===== END CUSTOM FILE INPUT =====
+
 
     function handlePaginationClick(e) {
         e.preventDefault();
@@ -1046,34 +1127,47 @@
      });
 
      // ===== PIE CHARTS =====
-     document.addEventListener('DOMContentLoaded', function() {
-         const isDarkMode = document.documentElement.dataset.theme === 'dark';
-         const textColor = isDarkMode ? '#e7f3f5' : '#18323a';
-         const borderColor = isDarkMode ? 'rgba(180, 221, 227, 0.15)' : 'rgba(15, 107, 125, 0.1)';
+     function getChartColors() {
+         const isDark = document.documentElement.dataset.theme === 'dark';
+         return {
+             textColor: isDark ? '#e7f3f5' : '#18323a',
+             borderColor: isDark ? 'rgba(15, 35, 41, 0.95)' : 'rgba(255, 255, 255, 0.95)',
+         };
+     }
+
+     let chartStudi = null;
+     let chartPekerjaan = null;
+
+     function createCharts() {
+         const colors = getChartColors();
+
+         // Destroy existing charts jika ada
+         if (chartStudi) chartStudi.destroy();
+         if (chartPekerjaan) chartPekerjaan.destroy();
 
          // Chart Klasifikasi Studi
          const ctxStudi = document.getElementById('chartStudi');
          if (ctxStudi) {
-             new Chart(ctxStudi, {
+             chartStudi = new Chart(ctxStudi.getContext('2d'), {
                  type: 'doughnut',
                  data: {
                      labels: ['PTN', 'PTS', 'KEDINASAN'],
                      datasets: [{
                          data: [{{ $stats['ptn'] }}, {{ $stats['pts'] }}, {{ $stats['kedinasan_studi'] }}],
                          backgroundColor: ['#0D84E8', '#63C7D2', '#FFB74D'],
-                         borderColor: [borderColor, borderColor, borderColor],
+                         borderColor: colors.borderColor,
                          borderWidth: 2,
                          borderRadius: 8,
                      }]
                  },
                  options: {
                      responsive: true,
-                     maintainAspectRatio: true,
+                     maintainAspectRatio: false,
                      plugins: {
                          legend: {
                              position: 'bottom',
                              labels: {
-                                 color: textColor,
+                                 color: colors.textColor,
                                  font: { size: 13, weight: '600' },
                                  padding: 16,
                                  usePointStyle: true,
@@ -1082,10 +1176,9 @@
                              }
                          },
                          tooltip: {
-                             backgroundColor: isDarkMode ? 'rgba(15, 35, 41, 0.9)' : 'rgba(24, 50, 58, 0.9)',
-                             titleColor: textColor,
-                             bodyColor: textColor,
-                             borderColor: borderColor,
+                             backgroundColor: 'rgba(0,0,0,0.8)',
+                             titleColor: '#fff',
+                             bodyColor: '#fff',
                              borderWidth: 1,
                              padding: 12,
                              titleFont: { size: 13, weight: 'bold' },
@@ -1099,26 +1192,26 @@
          // Chart Klasifikasi Pekerjaan
          const ctxPekerjaan = document.getElementById('chartPekerjaan');
          if (ctxPekerjaan) {
-             new Chart(ctxPekerjaan, {
+             chartPekerjaan = new Chart(ctxPekerjaan.getContext('2d'), {
                  type: 'doughnut',
                  data: {
                      labels: ['ASN', 'TNI', 'POLRI', 'SWASTA'],
                      datasets: [{
                          data: [{{ $stats['asn'] }}, {{ $stats['tni'] }}, {{ $stats['polri'] }}, {{ $stats['swasta'] }}],
                          backgroundColor: ['#28A745', '#0D84E8', '#FF6B6B', '#FFC107'],
-                         borderColor: [borderColor, borderColor, borderColor, borderColor],
+                         borderColor: colors.borderColor,
                          borderWidth: 2,
                          borderRadius: 8,
                      }]
                  },
                  options: {
                      responsive: true,
-                     maintainAspectRatio: true,
+                     maintainAspectRatio: false,
                      plugins: {
                          legend: {
                              position: 'bottom',
                              labels: {
-                                 color: textColor,
+                                 color: colors.textColor,
                                  font: { size: 13, weight: '600' },
                                  padding: 16,
                                  usePointStyle: true,
@@ -1127,10 +1220,9 @@
                              }
                          },
                          tooltip: {
-                             backgroundColor: isDarkMode ? 'rgba(15, 35, 41, 0.9)' : 'rgba(24, 50, 58, 0.9)',
-                             titleColor: textColor,
-                             bodyColor: textColor,
-                             borderColor: borderColor,
+                             backgroundColor: 'rgba(0,0,0,0.8)',
+                             titleColor: '#fff',
+                             bodyColor: '#fff',
                              borderWidth: 1,
                              padding: 12,
                              titleFont: { size: 13, weight: 'bold' },
@@ -1140,7 +1232,25 @@
                  }
              });
          }
- 
+     }
+
+     // Listen untuk perubahan theme
+     document.addEventListener('DOMContentLoaded', function() {
+         // Buat chart saat halaman load (Chart.js sudah terload)
+         createCharts();
+
+         const observer = new MutationObserver((mutations) => {
+             mutations.forEach((mutation) => {
+                 if (mutation.type === 'attributes' && mutation.attributeName === 'data-theme') {
+                     createCharts();
+                 }
+             });
+         });
+
+         observer.observe(document.documentElement, {
+             attributes: true,
+             attributeFilter: ['data-theme']
+         });
      });
 
 </script>

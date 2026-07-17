@@ -458,7 +458,8 @@ class AlumniController extends Controller
             $stats['swasta'] = $alumni->where('jenis_pekerjaan', 'SWASTA')->count();
         }
 
-        return view('alumni.pengawas', compact('schools', 'selectedSchool', 'alumni', 'stats'));
+        $perPage = (int) $request->get('per_page', 10);
+        return view('alumni.pengawas', compact('schools', 'selectedSchool', 'alumni', 'stats', 'perPage'));
     }
 
     public function exportPengawas(Request $request)
