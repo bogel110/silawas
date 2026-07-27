@@ -14,6 +14,16 @@
         </div>
     @endif
 
+    @if($errors->any())
+        <div class="alert alert-danger py-2 px-3 small mb-4 shadow-sm border-0">
+            <ul class="mb-0 ps-3">
+                @foreach($errors->all() as $err)
+                    <li>{{ $err }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
     {{-- KOTAK TABEL UTAMA --}}
     <div class="card border-0 shadow-sm rounded-4 mb-2">
         {{-- HEADER TABEL: Judul, Tombol, Entries, dan Search --}}
@@ -149,6 +159,7 @@
                                                     <div class="col-md-4">
                                                         <label class="small fw-bold text-muted mb-1">Tingkat</label>
                                                         <select name="tingkat" class="form-select bg-light border-0" required>
+                                                            <option value="Kecamatan" {{ $ach->tingkat == 'Kecamatan' ? 'selected' : '' }}>Kecamatan</option>
                                                             <option value="Kota/Kabupaten" {{ $ach->tingkat == 'Kota/Kabupaten' ? 'selected' : '' }}>Kota/Kabupaten</option>
                                                             <option value="Provinsi" {{ $ach->tingkat == 'Provinsi' ? 'selected' : '' }}>Provinsi</option>
                                                             <option value="Nasional" {{ $ach->tingkat == 'Nasional' ? 'selected' : '' }}>Nasional</option>
@@ -249,6 +260,7 @@
                             <label class="small fw-bold text-muted mb-1">Tingkat</label>
                             <select name="tingkat" class="form-select bg-light border-0" required>
                                 <option value="">-- Pilih Tingkat --</option>
+                                <option value="Kecamatan">Kecamatan</option>
                                 <option value="Kota/Kabupaten">Kota/Kabupaten</option>
                                 <option value="Provinsi">Provinsi</option>
                                 <option value="Nasional">Nasional</option>

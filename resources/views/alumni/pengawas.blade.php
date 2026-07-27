@@ -64,7 +64,7 @@
 @if($selectedSchool)
     <!-- Statistik Cards -->
     <div class="row mb-4">
-        <div class="col-12 col-sm-6 col-lg-3 mb-3">
+        <div class="col-12 col-sm-6 col-lg mb-3">
             <div class="metric-card">
                 <div class="d-flex align-items-start justify-content-between">
                     <div>
@@ -77,7 +77,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-12 col-sm-6 col-lg-3 mb-3">
+        <div class="col-12 col-sm-6 col-lg mb-3">
             <div class="metric-card">
                 <div class="d-flex align-items-start justify-content-between">
                     <div>
@@ -90,7 +90,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-12 col-sm-6 col-lg-3 mb-3">
+        <div class="col-12 col-sm-6 col-lg mb-3">
             <div class="metric-card">
                 <div class="d-flex align-items-start justify-content-between">
                     <div>
@@ -103,11 +103,24 @@
                 </div>
             </div>
         </div>
-        <div class="col-12 col-sm-6 col-lg-3 mb-3">
+        <div class="col-12 col-sm-6 col-lg mb-3">
             <div class="metric-card">
                 <div class="d-flex align-items-start justify-content-between">
                     <div>
-                        <p class="text-soft mb-1 small">Persentase</p>
+                        <p class="text-soft mb-1 small">Lain-Lain</p>
+                        <h3 class="h2 fw-bold mb-0">{{ $stats['lain_lain'] }}</h3>
+                    </div>
+                    <div class="icon-box" style="background: linear-gradient(135deg, rgba(255, 152, 0, 0.14), rgba(255, 152, 0, 0.06)); color: #ff9800;">
+                        <span class="material-symbols-outlined">more_horiz</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-sm-6 col-lg mb-3">
+            <div class="metric-card">
+                <div class="d-flex align-items-start justify-content-between">
+                    <div>
+                        <p class="text-soft mb-1 small">Persentase Lanjut</p>
                         <h3 class="h2 fw-bold mb-0">{{ $stats['total'] > 0 ? round(($stats['melanjutkan_studi'] / $stats['total']) * 100) : 0 }}%</h3>
                     </div>
                     <div class="icon-box" style="background: linear-gradient(135deg, rgba(255, 193, 7, 0.14), rgba(255, 193, 7, 0.06)); color: #ffc107;">
@@ -200,8 +213,10 @@
                             <td>
                                 @if($item->status === 'Melanjutkan Studi')
                                     <span class="badge bg-primary">Melanjutkan Studi</span>
-                                @else
+                                @elseif($item->status === 'Bekerja')
                                     <span class="badge bg-success">Bekerja</span>
+                                @else
+                                    <span class="badge bg-warning text-dark">Lain-Lain</span>
                                 @endif
                             </td>
                             <td>
@@ -210,9 +225,13 @@
                                         <strong>{{ $item->jenis_studi }}</strong> ({{ $item->jalur_penerimaan }})<br>
                                         {{ Str::limit($item->keterangan ?? '-', 50) }}
                                     </small>
-                                @else
+                                @elseif($item->status === 'Bekerja')
                                     <small class="text-soft">
                                         <strong>{{ $item->jenis_pekerjaan }}</strong><br>
+                                        {{ Str::limit($item->keterangan ?? '-', 50) }}
+                                    </small>
+                                @else
+                                    <small class="text-soft">
                                         {{ Str::limit($item->keterangan ?? '-', 50) }}
                                     </small>
                                 @endif
@@ -341,10 +360,10 @@
             chartStatus = new Chart(ctxStatus, {
                 type: 'doughnut',
                 data: {
-                    labels: ['Melanjutkan Studi', 'Bekerja'],
+                    labels: ['Melanjutkan Studi', 'Bekerja', 'Lain-Lain'],
                     datasets: [{
-                        data: [{{ $stats['melanjutkan_studi'] }}, {{ $stats['bekerja'] }}],
-                        backgroundColor: ['#0dcaf0', '#198754'],
+                        data: [{{ $stats['melanjutkan_studi'] }}, {{ $stats['bekerja'] }}, {{ $stats['lain_lain'] }}],
+                        backgroundColor: ['#0dcaf0', '#198754', '#ff9800'],
                         borderColor: colors.borderColor,
                         borderWidth: 3,
                     }]
@@ -496,13 +515,17 @@
                 data.data.forEach((item, index) => {
                     const statusBadge = item.status === 'Melanjutkan Studi' 
                         ? '<span class="badge bg-primary">Melanjutkan Studi</span>'
-                        : '<span class="badge bg-success">Bekerja</span>';
+                        : item.status === 'Bekerja'
+                            ? '<span class="badge bg-success">Bekerja</span>'
+                            : '<span class="badge bg-warning text-dark">Lain-Lain</span>';
 
                     let detailHtml = '';
                     if (item.status === 'Melanjutkan Studi') {
                         detailHtml = '<small class="text-soft"><strong>' + (item.jenis_studi || '') + '</strong> (' + (item.jalur_penerimaan || '') + ')<br>' + (item.keterangan ? item.keterangan.substring(0, 50) : '-') + '</small>';
-                    } else {
+                    } else if (item.status === 'Bekerja') {
                         detailHtml = '<small class="text-soft"><strong>' + (item.jenis_pekerjaan || '') + '</strong><br>' + (item.keterangan ? item.keterangan.substring(0, 50) : '-') + '</small>';
+                    } else {
+                        detailHtml = '<small class="text-soft">' + (item.keterangan ? item.keterangan.substring(0, 50) : '-') + '</small>';
                     }
 
                     html += `

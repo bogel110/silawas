@@ -6,8 +6,10 @@
         <td>
             @if($item->status === 'Melanjutkan Studi')
                 <span class="badge bg-primary">Melanjutkan Studi</span>
-            @else
+            @elseif($item->status === 'Bekerja')
                 <span class="badge bg-success">Bekerja</span>
+            @else
+                <span class="badge bg-warning text-dark">Lain-Lain</span>
             @endif
         </td>
         <td>
@@ -16,9 +18,13 @@
                     <strong>{{ $item->jenis_studi }}</strong> ({{ $item->jalur_penerimaan }})<br>
                     {{ Str::limit($item->keterangan ?? '-', 50) }}
                 </small>
-            @else
+            @elseif($item->status === 'Bekerja')
                 <small class="text-soft">
                     <strong>{{ $item->jenis_pekerjaan }}</strong><br>
+                    {{ Str::limit($item->keterangan ?? '-', 50) }}
+                </small>
+            @else
+                <small class="text-soft">
                     {{ Str::limit($item->keterangan ?? '-', 50) }}
                 </small>
             @endif

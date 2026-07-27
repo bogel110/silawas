@@ -6,14 +6,16 @@
         <td>
             @if($item->status === 'Melanjutkan Studi')
                 <span class="badge bg-primary">{{ $item->status }}</span>
-            @else
+            @elseif($item->status === 'Bekerja')
                 <span class="badge bg-success">{{ $item->status }}</span>
+            @else
+                <span class="badge bg-warning text-dark">{{ $item->status }}</span>
             @endif
         </td>
         <td>
             @if($item->status === 'Melanjutkan Studi')
                 <small class="text-soft">{{ $item->jenis_studi }} ({{ $item->jalur_penerimaan }})</small>
-            @else
+            @elseif($item->status === 'Bekerja')
                 <small class="text-soft">{{ $item->jenis_pekerjaan }}</small>
             @endif
             <br>

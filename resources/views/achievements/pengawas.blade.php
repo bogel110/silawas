@@ -99,19 +99,19 @@
         <div class="card-body p-4">
             <div class="row g-3 mb-4">
                 <div class="col-12 col-sm-4">
-                    <div class="p-3 bg-light rounded-4 border border-success border-opacity-25 text-center h-100">
+                    <div class="p-3 bg-light rounded-4 border text-center h-100" style="border-color: var(--line) !important;">
                         <small class="text-muted fw-bold text-uppercase d-block mb-1" style="font-size: 0.65rem;">Total Prestasi</small>
                         <h3 class="fw-bold text-success mb-0">{{ $schoolTotalPrestasi }}</h3>
                     </div>
                 </div>
                 <div class="col-6 col-sm-4">
-                    <div class="p-3 bg-light rounded-4 text-center h-100">
+                    <div class="p-3 bg-light rounded-4 text-center h-100 border" style="border-color: var(--line) !important;">
                         <small class="text-muted fw-bold text-uppercase d-block mb-1" style="font-size: 0.65rem;">Siswa</small>
                         <h3 class="fw-bold text-dark mb-0">{{ $schoolTotalSiswa }}</h3>
                     </div>
                 </div>
                 <div class="col-6 col-sm-4">
-                    <div class="p-3 bg-light rounded-4 text-center h-100">
+                    <div class="p-3 bg-light rounded-4 text-center h-100 border" style="border-color: var(--line) !important;">
                         <small class="text-muted fw-bold text-uppercase d-block mb-1" style="font-size: 0.65rem;">Guru/Tendik</small>
                         <h3 class="fw-bold text-dark mb-0">{{ $schoolTotalGuruTendik }}</h3>
                     </div>
@@ -227,10 +227,10 @@
                 new Chart(globalTingkatCtx.getContext('2d'), {
                     type: 'pie',
                     data: {
-                        labels: ['Kota/Kab', 'Provinsi', 'Nasional', 'Internasional'],
+                        labels: ['Kecamatan', 'Kota/Kab', 'Provinsi', 'Nasional', 'Internasional'],
                         datasets: [{
                             data: @json($globalTingkatChart),
-                            backgroundColor: ['#f4a261', '#2a9d8f', '#e76f51', '#e9c46a'],
+                            backgroundColor: ['#6c757d', '#f4a261', '#2a9d8f', '#e76f51', '#e9c46a'],
                             borderWidth: 0
                         }]
                     },
@@ -304,10 +304,10 @@
                     new Chart(schoolTingkatCtx.getContext('2d'), {
                         type: 'pie',
                         data: {
-                            labels: ['Kota/Kab', 'Prov', 'Nas', 'Intl'],
+                            labels: ['Kecamatan', 'Kota/Kab', 'Prov', 'Nas', 'Intl'],
                             datasets: [{
                                 data: @json($schoolTingkatChart),
-                                backgroundColor: ['#f4a261', '#2a9d8f', '#e76f51', '#e9c46a'],
+                                backgroundColor: ['#6c757d', '#f4a261', '#2a9d8f', '#e76f51', '#e9c46a'],
                                 borderWidth: 0
                             }]
                         },

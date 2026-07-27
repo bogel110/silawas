@@ -131,6 +131,7 @@ class AchievementController extends Controller
         // 1. DATA GLOBAL (Untuk Grafik & Kartu Angka Paling Atas - Selalu Dihitung)
         $allAchievements = Achievement::whereIn('school_id', $schoolIds)->get();
         $globalTingkatChart = [
+            $allAchievements->where('tingkat', 'Kecamatan')->count(),
             $allAchievements->where('tingkat', 'Kota/Kabupaten')->count(),
             $allAchievements->where('tingkat', 'Provinsi')->count(),
             $allAchievements->where('tingkat', 'Nasional')->count(),
@@ -138,12 +139,14 @@ class AchievementController extends Controller
         ];
         $globalTingkatTipeChart = [
             'siswa' => [
+                $allAchievements->where('tingkat', 'Kecamatan')->where('tipe_peserta', 'Siswa')->count(),
                 $allAchievements->where('tingkat', 'Kota/Kabupaten')->where('tipe_peserta', 'Siswa')->count(),
                 $allAchievements->where('tingkat', 'Provinsi')->where('tipe_peserta', 'Siswa')->count(),
                 $allAchievements->where('tingkat', 'Nasional')->where('tipe_peserta', 'Siswa')->count(),
                 $allAchievements->where('tingkat', 'Internasional')->where('tipe_peserta', 'Siswa')->count(),
             ],
             'guru_tendik' => [
+                $allAchievements->where('tingkat', 'Kecamatan')->whereIn('tipe_peserta', ['Guru', 'Tendik'])->count(),
                 $allAchievements->where('tingkat', 'Kota/Kabupaten')->whereIn('tipe_peserta', ['Guru', 'Tendik'])->count(),
                 $allAchievements->where('tingkat', 'Provinsi')->whereIn('tipe_peserta', ['Guru', 'Tendik'])->count(),
                 $allAchievements->where('tingkat', 'Nasional')->whereIn('tipe_peserta', ['Guru', 'Tendik'])->count(),
@@ -168,10 +171,10 @@ class AchievementController extends Controller
         $totalGuruTendik = $allAchievements->whereIn('tipe_peserta', ['Guru', 'Tendik'])->count();
 
         // 2. DATA SPESIFIK SEKOLAH & TABEL
-        $schoolTingkatChart = [0, 0, 0, 0];
+        $schoolTingkatChart = [0, 0, 0, 0, 0];
         $schoolTingkatTipeChart = [
-            'siswa' => [0, 0, 0, 0],
-            'guru_tendik' => [0, 0, 0, 0],
+            'siswa' => [0, 0, 0, 0, 0],
+            'guru_tendik' => [0, 0, 0, 0, 0],
         ];
         $schoolKategoriTipeChart = [
             'individu' => [0, 0, 0],
@@ -186,6 +189,7 @@ class AchievementController extends Controller
             
             // Hitung data HANYA untuk sekolah yang dipilih
             $schoolTingkatChart = [
+                $achievements->where('tingkat', 'Kecamatan')->count(),
                 $achievements->where('tingkat', 'Kota/Kabupaten')->count(),
                 $achievements->where('tingkat', 'Provinsi')->count(),
                 $achievements->where('tingkat', 'Nasional')->count(),
@@ -193,12 +197,14 @@ class AchievementController extends Controller
             ];
             $schoolTingkatTipeChart = [
                 'siswa' => [
+                    $achievements->where('tingkat', 'Kecamatan')->where('tipe_peserta', 'Siswa')->count(),
                     $achievements->where('tingkat', 'Kota/Kabupaten')->where('tipe_peserta', 'Siswa')->count(),
                     $achievements->where('tingkat', 'Provinsi')->where('tipe_peserta', 'Siswa')->count(),
                     $achievements->where('tingkat', 'Nasional')->where('tipe_peserta', 'Siswa')->count(),
                     $achievements->where('tingkat', 'Internasional')->where('tipe_peserta', 'Siswa')->count(),
                 ],
                 'guru_tendik' => [
+                    $achievements->where('tingkat', 'Kecamatan')->whereIn('tipe_peserta', ['Guru', 'Tendik'])->count(),
                     $achievements->where('tingkat', 'Kota/Kabupaten')->whereIn('tipe_peserta', ['Guru', 'Tendik'])->count(),
                     $achievements->where('tingkat', 'Provinsi')->whereIn('tipe_peserta', ['Guru', 'Tendik'])->count(),
                     $achievements->where('tingkat', 'Nasional')->whereIn('tipe_peserta', ['Guru', 'Tendik'])->count(),

@@ -41,6 +41,7 @@ class AlumniController extends Controller
             'total' => $allAlumni->count(),
             'melanjutkan_studi' => $allAlumni->where('status', 'Melanjutkan Studi')->count(),
             'bekerja' => $allAlumni->where('status', 'Bekerja')->count(),
+            'lain_lain' => $allAlumni->where('status', 'Lain-Lain')->count(),
             'ptn' => $allAlumni->where('jenis_studi', 'PTN')->count(),
             'pts' => $allAlumni->where('jenis_studi', 'PTS')->count(),
             'kedinasan_studi' => $allAlumni->where('jenis_studi', 'KEDINASAN')->count(),
@@ -120,9 +121,10 @@ class AlumniController extends Controller
         $rules = [
             'nama_lengkap' => 'required|string|max:255',
             'tahun_lulus'  => 'required|integer|min:1900|max:' . (date('Y') + 10),
-            'status'       => 'required|in:Melanjutkan Studi,Bekerja',
+            'status'       => 'required|in:Melanjutkan Studi,Bekerja,Lain-Lain',
             'keterangan_studi' => 'nullable|string',
             'keterangan_kerja' => 'nullable|string',
+            'keterangan_lain'  => 'nullable|string',
         ];
 
         // Validasi berdasarkan status
@@ -134,6 +136,10 @@ class AlumniController extends Controller
             $rules['jenis_pekerjaan'] = 'required|in:ASN,TNI,POLRI,SWASTA';
             $rules['jenis_studi'] = 'nullable';
             $rules['jalur_penerimaan'] = 'nullable';
+        } elseif ($request->input('status') === 'Lain-Lain') {
+            $rules['jenis_studi'] = 'nullable';
+            $rules['jalur_penerimaan'] = 'nullable';
+            $rules['jenis_pekerjaan'] = 'nullable';
         }
 
         $data = $request->validate($rules);
@@ -142,15 +148,21 @@ class AlumniController extends Controller
         if ($data['status'] === 'Melanjutkan Studi') {
             $data['keterangan'] = $data['keterangan_studi'] ?? null;
             $data['jenis_pekerjaan'] = null;
-        } else {
+        } elseif ($data['status'] === 'Bekerja') {
             $data['keterangan'] = $data['keterangan_kerja'] ?? null;
             $data['jenis_studi'] = null;
             $data['jalur_penerimaan'] = null;
+        } elseif ($data['status'] === 'Lain-Lain') {
+            $data['keterangan'] = $data['keterangan_lain'] ?? null;
+            $data['jenis_studi'] = null;
+            $data['jalur_penerimaan'] = null;
+            $data['jenis_pekerjaan'] = null;
         }
 
         // Remove temporary fields
         unset($data['keterangan_studi']);
         unset($data['keterangan_kerja']);
+        unset($data['keterangan_lain']);
 
         $data['school_id'] = auth()->user()->school_id;
         Alumni::create($data);
@@ -166,9 +178,10 @@ class AlumniController extends Controller
         $rules = [
             'nama_lengkap' => 'required|string|max:255',
             'tahun_lulus'  => 'required|integer|min:1900|max:' . (date('Y') + 10),
-            'status'       => 'required|in:Melanjutkan Studi,Bekerja',
+            'status'       => 'required|in:Melanjutkan Studi,Bekerja,Lain-Lain',
             'keterangan_studi' => 'nullable|string',
             'keterangan_kerja' => 'nullable|string',
+            'keterangan_lain'  => 'nullable|string',
         ];
 
         // Validasi berdasarkan status
@@ -180,6 +193,10 @@ class AlumniController extends Controller
             $rules['jenis_pekerjaan'] = 'required|in:ASN,TNI,POLRI,SWASTA';
             $rules['jenis_studi'] = 'nullable';
             $rules['jalur_penerimaan'] = 'nullable';
+        } elseif ($request->input('status') === 'Lain-Lain') {
+            $rules['jenis_studi'] = 'nullable';
+            $rules['jalur_penerimaan'] = 'nullable';
+            $rules['jenis_pekerjaan'] = 'nullable';
         }
 
         $data = $request->validate($rules);
@@ -188,15 +205,21 @@ class AlumniController extends Controller
         if ($data['status'] === 'Melanjutkan Studi') {
             $data['keterangan'] = $data['keterangan_studi'] ?? null;
             $data['jenis_pekerjaan'] = null;
-        } else {
+        } elseif ($data['status'] === 'Bekerja') {
             $data['keterangan'] = $data['keterangan_kerja'] ?? null;
             $data['jenis_studi'] = null;
             $data['jalur_penerimaan'] = null;
+        } elseif ($data['status'] === 'Lain-Lain') {
+            $data['keterangan'] = $data['keterangan_lain'] ?? null;
+            $data['jenis_studi'] = null;
+            $data['jalur_penerimaan'] = null;
+            $data['jenis_pekerjaan'] = null;
         }
 
         // Remove temporary fields
         unset($data['keterangan_studi']);
         unset($data['keterangan_kerja']);
+        unset($data['keterangan_lain']);
 
         $alumni->update($data);
 
@@ -242,6 +265,9 @@ class AlumniController extends Controller
             // Sample rows - Bekerja
             fputcsv($file, ['Dewi Lestari', '2024', 'Bekerja', '', '', 'ASN', 'Administrasi - Aparatur Sipil Negara'], ';');
             fputcsv($file, ['Roni Hermawan', '2023', 'Bekerja', '', '', 'SWASTA', 'IT Developer - PT Telkom'], ';');
+            
+            // Sample row - Lain-Lain
+            fputcsv($file, ['Mega Putri', '2024', 'Lain-Lain', '', '', '', 'Wirausaha kuliner rumahan'], ';');
             
             fclose($file);
         };
@@ -346,8 +372,8 @@ class AlumniController extends Controller
                     }
 
                     // Validasi status
-                    if (!in_array($validated['status'], ['Melanjutkan Studi', 'Bekerja'])) {
-                        $errors[] = "Baris $row: Status harus 'Melanjutkan Studi' atau 'Bekerja'";
+                    if (!in_array($validated['status'], ['Melanjutkan Studi', 'Bekerja', 'Lain-Lain'])) {
+                        $errors[] = "Baris $row: Status harus 'Melanjutkan Studi', 'Bekerja', atau 'Lain-Lain'";
                         continue;
                     }
 
@@ -383,6 +409,11 @@ class AlumniController extends Controller
                         // Clear studi
                         $validated['jenis_studi'] = null;
                         $validated['jalur_penerimaan'] = null;
+                    } else if ($validated['status'] === 'Lain-Lain') {
+                        // Clear studi dan pekerjaan
+                        $validated['jenis_studi'] = null;
+                        $validated['jalur_penerimaan'] = null;
+                        $validated['jenis_pekerjaan'] = null;
                     }
 
                     $validated['school_id'] = $schoolId;
@@ -431,6 +462,7 @@ class AlumniController extends Controller
             'total' => 0,
             'melanjutkan_studi' => 0,
             'bekerja' => 0,
+            'lain_lain' => 0,
             'ptn' => 0,
             'pts' => 0,
             'kedinasan' => 0,
@@ -449,6 +481,7 @@ class AlumniController extends Controller
             $stats['total'] = $alumni->count();
             $stats['melanjutkan_studi'] = $alumni->where('status', 'Melanjutkan Studi')->count();
             $stats['bekerja'] = $alumni->where('status', 'Bekerja')->count();
+            $stats['lain_lain'] = $alumni->where('status', 'Lain-Lain')->count();
             $stats['ptn'] = $alumni->where('jenis_studi', 'PTN')->count();
             $stats['pts'] = $alumni->where('jenis_studi', 'PTS')->count();
             $stats['kedinasan'] = $alumni->where('jenis_studi', 'KEDINASAN')->count();

@@ -52,7 +52,7 @@
 <!-- Statistik Alumni Cards -->
 <div class="row g-3 mb-4">
     <!-- Stat Card 1: Total Alumni -->
-    <div class="col-12 col-sm-6 col-lg-3">
+    <div class="col-12 col-sm-6 col-lg">
         <div class="stat-card">
             <div class="stat-icon" style="background: linear-gradient(135deg, #0F6B7D 0%, #138B9C 100%);">
                 <span class="material-symbols-outlined">people</span>
@@ -65,7 +65,7 @@
     </div>
 
     <!-- Stat Card 2: Melanjutkan Studi -->
-    <div class="col-12 col-sm-6 col-lg-3">
+    <div class="col-12 col-sm-6 col-lg">
         <div class="stat-card">
             <div class="stat-icon" style="background: linear-gradient(135deg, #0D84E8 0%, #0B9FE8 100%);">
                 <span class="material-symbols-outlined">school</span>
@@ -78,7 +78,7 @@
     </div>
 
     <!-- Stat Card 3: Bekerja -->
-    <div class="col-12 col-sm-6 col-lg-3">
+    <div class="col-12 col-sm-6 col-lg">
         <div class="stat-card">
             <div class="stat-icon" style="background: linear-gradient(135deg, #28A745 0%, #2BCA5C 100%);">
                 <span class="material-symbols-outlined">work</span>
@@ -90,10 +90,23 @@
         </div>
     </div>
 
-    <!-- Stat Card 4: Data Lengkap -->
-    <div class="col-12 col-sm-6 col-lg-3">
+    <!-- Stat Card 4: Lain-Lain -->
+    <div class="col-12 col-sm-6 col-lg">
         <div class="stat-card">
             <div class="stat-icon" style="background: linear-gradient(135deg, #FF9800 0%, #FFB74D 100%);">
+                <span class="material-symbols-outlined">more_horiz</span>
+            </div>
+            <div class="stat-content">
+                <p class="stat-label">Lain-Lain</p>
+                <h4 class="stat-value">{{ $stats['lain_lain'] }}</h4>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stat Card 5: Kelengkapan -->
+    <div class="col-12 col-sm-6 col-lg">
+        <div class="stat-card">
+            <div class="stat-icon" style="background: linear-gradient(135deg, #6C757D 0%, #ADB5BD 100%);">
                 <span class="material-symbols-outlined">check_circle</span>
             </div>
             <div class="stat-content">
@@ -196,14 +209,16 @@
                         <td>
                             @if($item->status === 'Melanjutkan Studi')
                                 <span class="badge bg-primary">{{ $item->status }}</span>
-                            @else
+                            @elseif($item->status === 'Bekerja')
                                 <span class="badge bg-success">{{ $item->status }}</span>
+                            @else
+                                <span class="badge bg-warning text-dark">{{ $item->status }}</span>
                             @endif
                         </td>
                         <td>
                             @if($item->status === 'Melanjutkan Studi')
                                 <small class="text-soft">{{ $item->jenis_studi }} ({{ $item->jalur_penerimaan }})</small>
-                            @else
+                            @elseif($item->status === 'Bekerja')
                                 <small class="text-soft">{{ $item->jenis_pekerjaan }}</small>
                             @endif
                             <br>
@@ -306,6 +321,7 @@
                             <option value="">-- Pilih Status --</option>
                             <option value="Melanjutkan Studi">Melanjutkan Studi</option>
                             <option value="Bekerja">Bekerja</option>
+                            <option value="Lain-Lain">Lain-Lain</option>
                         </select>
                     </div>
 
@@ -356,6 +372,14 @@
                             <textarea class="form-control" id="keteranganKerja" name="keterangan_kerja" placeholder="Contoh: IT Developer - PT Telkom" rows="2"></textarea>
                         </div>
                     </div>
+
+                    <!-- Fields untuk Lain-Lain -->
+                    <div id="otherFieldsWrapper" style="display: none;">
+                        <div class="mb-3">
+                            <label for="keteranganLain" class="form-label fw-600">Keterangan</label>
+                            <textarea class="form-control" id="keteranganLain" name="keterangan_lain" placeholder="Contoh: Wirausaha, mengurus keluarga, dll." rows="3"></textarea>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="modal-footer border-top">
@@ -398,6 +422,7 @@
                             <li>Gunakan separator semicolon (;) dalam file CSV</li>
                             <li><strong>Melanjutkan Studi:</strong> Jenis Studi (PTN/PTS/KEDINASAN), Jalur (SNBP/SNBT/MANDIRI/KEDINASAN) wajib diisi</li>
                             <li><strong>Bekerja:</strong> Jenis Pekerjaan (ASN/TNI/POLRI/SWASTA) wajib diisi</li>
+                            <li><strong>Lain-Lain:</strong> Cukup isi kolom Keterangan saja</li>
                         </ul>
                     </div>
                 </div>
@@ -910,13 +935,17 @@
                 data.data.forEach((item, index) => {
                     const statusBadge = item.status === 'Melanjutkan Studi' 
                         ? '<span class="badge bg-primary">' + item.status + '</span>'
-                        : '<span class="badge bg-success">' + item.status + '</span>';
+                        : item.status === 'Bekerja'
+                            ? '<span class="badge bg-success">' + item.status + '</span>'
+                            : '<span class="badge bg-warning text-dark">' + item.status + '</span>';
 
                     let detailHtml = '';
                     if (item.status === 'Melanjutkan Studi') {
                         detailHtml = '<small class="text-soft">' + (item.jenis_studi || '') + ' (' + (item.jalur_penerimaan || '') + ')</small><br><small class="text-soft">' + (item.keterangan ? item.keterangan.substring(0, 50) : '-') + '</small>';
-                    } else {
+                    } else if (item.status === 'Bekerja') {
                         detailHtml = '<small class="text-soft">' + (item.jenis_pekerjaan || '') + '</small><br><small class="text-soft">' + (item.keterangan ? item.keterangan.substring(0, 50) : '-') + '</small>';
+                    } else {
+                        detailHtml = '<small class="text-soft">' + (item.keterangan ? item.keterangan.substring(0, 50) : '-') + '</small>';
                     }
 
                     html += `
@@ -1068,27 +1097,33 @@
         const status = document.getElementById('status').value;
         const studyWrapper = document.getElementById('studyFieldsWrapper');
         const workWrapper = document.getElementById('workFieldsWrapper');
+        const otherWrapper = document.getElementById('otherFieldsWrapper');
         const jenisStudi = document.getElementById('jenisStudi');
         const jalurPenerimaan = document.getElementById('jalurPenerimaan');
         const jenisPekerjaan = document.getElementById('jenisPekerjaan');
         const keteranganStudi = document.getElementById('keteranganStudi');
         const keteranganKerja = document.getElementById('keteranganKerja');
+        const keteranganLain = document.getElementById('keteranganLain');
+
+        studyWrapper.style.display = 'none';
+        workWrapper.style.display = 'none';
+        otherWrapper.style.display = 'none';
 
         if (status === 'Melanjutkan Studi') {
             studyWrapper.style.display = 'block';
-            workWrapper.style.display = 'none';
             jenisStudi.required = true;
             jalurPenerimaan.required = true;
             jenisPekerjaan.required = false;
         } else if (status === 'Bekerja') {
-            studyWrapper.style.display = 'none';
             workWrapper.style.display = 'block';
             jenisStudi.required = false;
             jalurPenerimaan.required = false;
             jenisPekerjaan.required = true;
-        } else {
-            studyWrapper.style.display = 'none';
-            workWrapper.style.display = 'none';
+        } else if (status === 'Lain-Lain') {
+            otherWrapper.style.display = 'block';
+            jenisStudi.required = false;
+            jalurPenerimaan.required = false;
+            jenisPekerjaan.required = false;
         }
     }
 
@@ -1105,11 +1140,17 @@
              document.getElementById('jenisStudi').value = alumni.jenis_studi || '';
              document.getElementById('jalurPenerimaan').value = alumni.jalur_penerimaan || '';
              document.getElementById('keteranganStudi').value = alumni.keterangan || '';
-             document.getElementById('keteranganKerja').value = ''; // Clear kerja field
+             document.getElementById('keteranganKerja').value = '';
+             document.getElementById('keteranganLain').value = '';
          } else if (alumni.status === 'Bekerja') {
              document.getElementById('jenisPekerjaan').value = alumni.jenis_pekerjaan || '';
              document.getElementById('keteranganKerja').value = alumni.keterangan || '';
-             document.getElementById('keteranganStudi').value = ''; // Clear studi field
+             document.getElementById('keteranganStudi').value = '';
+             document.getElementById('keteranganLain').value = '';
+         } else if (alumni.status === 'Lain-Lain') {
+             document.getElementById('keteranganLain').value = alumni.keterangan || '';
+             document.getElementById('keteranganStudi').value = '';
+             document.getElementById('keteranganKerja').value = '';
          }
          
          document.getElementById('formMethod').value = 'PUT';
@@ -1120,10 +1161,12 @@
      // Reset form ketika modal ditutup
      document.getElementById('modalAlumni').addEventListener('hidden.bs.modal', function() {
          document.getElementById('modalAlumniTitle').textContent = 'Tambah Alumni';
-         document.getElementById('formAlumni').reset();
-         document.getElementById('formMethod').value = 'POST';
-         document.getElementById('formAlumni').action = '{{ route("alumni.store") }}';
-         toggleStatusFields();
+document.getElementById('formAlumni').reset();
+          document.getElementById('formMethod').value = 'POST';
+          document.getElementById('formAlumni').action = '{{ route("alumni.store") }}';
+          const keteranganLain = document.getElementById('keteranganLain');
+          if (keteranganLain) keteranganLain.value = '';
+          toggleStatusFields();
      });
 
      // ===== PIE CHARTS =====

@@ -125,6 +125,17 @@
         </div>
     @endif
 
+    @if($errors->any())
+        <div class="alert alert-danger alert-dismissible fade show py-2 small mb-4" role="alert">
+            <ul class="mb-0 ps-3">
+                @foreach($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+            <button type="button" class="btn-close pb-2" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+
     {{-- KOTAK PENCARIAN KHUSUS PENGAWAS --}}
     @if($isPengawasArea)
         <div class="card border-0 shadow-sm rounded-4 mb-4 bg-primary bg-opacity-10 border-start border-4 border-primary">
@@ -211,6 +222,7 @@
                                     <th class="text-center">Kepsek Hadir</th>
                                     <th>Tupoksi</th>
                                     <th>Keterangan</th>
+                                    <th>Foto</th>
                                     
                                     {{-- KEPALA KOLOM AKSI (Hanya muncul untuk pengawas) --}}
                                     @if($isPengawasArea)
@@ -234,6 +246,13 @@
                                     </td>
                                     <td class="small fw-medium">{{ $absen->tupoksi ?? '-' }}</td>
                                     <td class="small text-muted" style="max-width: 200px; white-space: normal;">{{ $absen->keterangan ?? '-' }}</td>
+                                    <td>
+                                        @if($absen->foto_kegiatan)
+                                            <a href="{{ $absen->foto_kegiatan }}" target="_blank" class="badge bg-info text-decoration-none">Check Kegiatan</a>
+                                        @else
+                                            <span class="text-muted" style="font-size: 0.75rem;">-</span>
+                                        @endif
+                                    </td>
                                     
                                     {{-- TOMBOL HAPUS (Hanya muncul untuk pengawas) --}}
                                     @if($isPengawasArea)
@@ -249,11 +268,11 @@
                                     @endif
                                 </tr>
                                 @empty
-                                <tr id="emptyAbsensiRow"><td colspan="8" class="text-center small text-muted py-4">Belum ada data jurnal harian untuk sekolah ini.</td></tr>
+                                <tr id="emptyAbsensiRow"><td colspan="9" class="text-center small text-muted py-4">Belum ada data jurnal harian untuk sekolah ini.</td></tr>
                                 @endforelse
 
                                 <tr id="notFoundAbsensi" style="display: none;">
-                                    <td colspan="8" class="text-center small text-muted py-3">Data tidak ditemukan.</td>
+                                    <td colspan="9" class="text-center small text-muted py-3">Data tidak ditemukan.</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -328,6 +347,11 @@
                                 <div class="col-12">
                                     <label class="form-label small fw-bold text-muted mb-1">Keterangan Aktivitas</label>
                                     <textarea name="keterangan" class="form-control rounded-3 px-3 py-2" style="font-size: 0.9rem;" rows="3" placeholder="Tulis ringkasan kegiatan, agenda, atau catatan penting hari ini..." required></textarea>
+                                </div>
+
+                                <div class="col-12">
+                                    <label class="form-label small fw-bold text-muted mb-1">Link Foto Kegiatan <small class="text-muted">(opsional)</small></label>
+                                    <input type="url" name="foto_kegiatan" class="form-control rounded-3 px-3 py-2" style="font-size: 0.9rem;" placeholder="https://drive.google.com/file/d/...">
                                 </div>
                             </div>
                         </div>

@@ -103,6 +103,7 @@ class SchoolController extends Controller
             'kepsek_hadir' => 'required|boolean',
             'tupoksi'      => 'required|string',
             'keterangan'   => 'nullable|string',
+            'foto_kegiatan' => 'nullable|string',
         ]);
 
         Attendance::updateOrCreate(
@@ -116,6 +117,7 @@ class SchoolController extends Controller
                 'kepsek_hadir' => $request->kepsek_hadir,
                 'tupoksi'      => $request->tupoksi,
                 'keterangan'   => $request->keterangan,
+                'foto_kegiatan' => $request->foto_kegiatan,
             ]
         );
 
@@ -321,7 +323,7 @@ class SchoolController extends Controller
             "Expires"             => "0"
         ];
 
-        $columns = ['No.', 'Tanggal', 'Siswa Hadir', 'Guru Hadir', 'Status Kepsek', 'Tupoksi Kepsek', 'Keterangan'];
+        $columns = ['No.', 'Tanggal', 'Siswa Hadir', 'Guru Hadir', 'Status Kepsek', 'Tupoksi Kepsek', 'Keterangan', 'Link Foto Kegiatan'];
 
         $callback = function() use($school, $columns) {
             $file = fopen('php://output', 'w');
@@ -340,7 +342,8 @@ class SchoolController extends Controller
                     $absen->guru_hadir,
                     $statusKepsek,
                     $absen->tupoksi ?? '-',      
-                    $absen->keterangan ?? '-'    
+                    $absen->keterangan ?? '-',
+                    $absen->foto_kegiatan ?? '-',
                 ];
 
                 fputcsv($file, $row, ';');

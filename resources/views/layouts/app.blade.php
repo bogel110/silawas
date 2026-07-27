@@ -675,6 +675,10 @@
             color: var(--text-main);
         }
 
+        html[data-theme="dark"] .border-success {
+            border-color: rgba(var(--bs-primary-rgb), var(--bs-border-opacity, 1)) !important;
+        }
+
         html[data-theme="dark"] .hero-panel {
             background:
                 radial-gradient(circle at top right, rgba(244, 162, 97, 0.12), transparent 24%),
