@@ -61,6 +61,272 @@
             border-top: none;
         }
 
+        /* Tampilan kalender Data Jurnal - struktur dan logika tabel tetap dipertahankan */
+        .journal-calendar-table {
+            border-collapse: separate;
+            border-spacing: 0 0.85rem;
+            background: transparent;
+        }
+
+        .journal-calendar-table thead {
+            display: none;
+        }
+
+        .journal-calendar-table tbody {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1rem;
+            padding: 0.25rem;
+        }
+
+        .journal-calendar-table tbody tr.absensi-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.7rem;
+            align-content: start;
+            min-height: 270px;
+            padding: 1.15rem;
+            border: 1px solid var(--line);
+            border-radius: 22px;
+            background: var(--surface);
+            box-shadow: var(--shadow-card);
+            transition: transform 0.2s ease, border-color 0.2s ease;
+        }
+
+        .journal-calendar-table tbody tr.absensi-row:hover {
+            transform: translateY(-3px);
+            border-color: var(--brand-700);
+        }
+
+        .journal-calendar-table tbody tr.absensi-row td {
+            display: block;
+            padding: 0.55rem 0.65rem;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            background: var(--surface-soft);
+            color: var(--text-main);
+        }
+
+        .journal-calendar-table tbody tr.absensi-row td::before {
+            display: block;
+            margin-bottom: 0.25rem;
+            color: var(--text-soft);
+            font-size: 0.66rem;
+            font-weight: 800;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+
+        .journal-calendar-table tbody tr.absensi-row td:nth-child(1) {
+            grid-column: 1 / -1;
+            padding: 0.8rem 0.9rem;
+            border: 0;
+            border-radius: 16px;
+            background: linear-gradient(135deg, var(--brand-700), var(--brand-800));
+            color: #fff;
+            font-size: 1.1rem;
+        }
+
+        .journal-calendar-table tbody tr.absensi-row td:nth-child(1)::before {
+            content: 'Tanggal Jurnal';
+            color: rgba(255, 255, 255, 0.72);
+        }
+
+        .journal-calendar-table tbody tr.absensi-row td:nth-child(2)::before { content: 'Siswa Hadir'; }
+        .journal-calendar-table tbody tr.absensi-row td:nth-child(3)::before { content: 'Guru Hadir'; }
+        .journal-calendar-table tbody tr.absensi-row td:nth-child(4)::before { content: 'Kepsek Hadir'; }
+        .journal-calendar-table tbody tr.absensi-row td:nth-child(5)::before { content: 'Tupoksi'; }
+        .journal-calendar-table tbody tr.absensi-row td:nth-child(6) {
+            grid-column: 1 / -1;
+        }
+        .journal-calendar-table tbody tr.absensi-row td:nth-child(6)::before { content: 'Keterangan'; }
+        .journal-calendar-table tbody tr.absensi-row td:nth-child(7)::before { content: 'Foto Kegiatan'; }
+        .journal-calendar-table tbody tr.absensi-row td:nth-child(8)::before { content: 'Aksi'; }
+
+        .journal-calendar-table tbody tr.absensi-row td:nth-child(4) {
+            text-align: center;
+        }
+
+        .journal-calendar-table tbody tr:not(.absensi-row) {
+            grid-column: 1 / -1;
+        }
+
+        .journal-calendar-table tbody tr:not(.absensi-row) td {
+            display: block;
+            width: 100%;
+            padding: 2rem 1rem;
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            background: var(--surface-soft);
+        }
+
+        .journal-month-calendar {
+            border: 1px solid var(--line);
+            border-radius: 22px;
+            overflow: hidden;
+            background: var(--surface);
+            box-shadow: var(--shadow-card);
+        }
+
+        .journal-calendar-toolbar {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 1.25rem;
+            background: var(--surface-soft);
+            border-bottom: 1px solid var(--line);
+        }
+
+        .journal-calendar-nav-btn,
+        .journal-calendar-pill {
+            min-height: 34px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            background: var(--surface);
+            color: var(--text-main);
+            font-weight: 800;
+        }
+
+        .journal-calendar-nav-btn {
+            width: 44px;
+        }
+
+        .journal-calendar-pill {
+            padding: 0.35rem 0.75rem;
+        }
+
+        .journal-calendar-pill.active {
+            background: var(--brand-100);
+            color: var(--brand-700);
+        }
+
+        .journal-calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, minmax(0, 1fr));
+        }
+
+        .journal-calendar-day-name {
+            padding: 0.85rem 0.5rem;
+            border-bottom: 1px solid var(--line);
+            border-right: 1px solid var(--line);
+            background: var(--surface-soft);
+            color: var(--text-soft);
+            font-size: 0.72rem;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-align: center;
+            text-transform: uppercase;
+        }
+
+        .journal-calendar-day-name:nth-child(7n) {
+            border-right: 0;
+        }
+
+        .journal-calendar-cell {
+            min-height: 138px;
+            padding: 0.65rem;
+            border-right: 1px solid var(--line);
+            border-bottom: 1px solid var(--line);
+            background: var(--surface);
+        }
+
+        .journal-calendar-cell:nth-child(7n) {
+            border-right: 0;
+        }
+
+        .journal-calendar-cell.is-muted {
+            background: var(--surface-soft);
+            opacity: 0.62;
+        }
+
+        .journal-calendar-date {
+            width: 30px;
+            height: 30px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 0.45rem;
+            border-radius: 999px;
+            color: var(--text-main);
+            font-weight: 800;
+        }
+
+        .journal-calendar-cell.has-journal .journal-calendar-date {
+            background: var(--brand-700);
+            color: #fff;
+        }
+
+        .journal-calendar-event {
+            padding: 0.55rem;
+            border-radius: 12px;
+            background: var(--brand-100);
+            color: var(--text-main);
+            font-size: 0.72rem;
+            line-height: 1.35;
+        }
+
+        .journal-calendar-event + .journal-calendar-event {
+            margin-top: 0.45rem;
+        }
+
+        .journal-calendar-meta {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.5rem;
+            margin-top: 0.45rem;
+        }
+
+        .journal-calendar-delete-btn {
+            width: 30px;
+            height: 30px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            border: 0;
+            border-radius: 999px;
+            background: rgba(220, 53, 69, 0.10);
+            color: #dc3545;
+        }
+
+        .journal-calendar-delete-btn:hover {
+            background: rgba(220, 53, 69, 0.18);
+            color: #b02a37;
+        }
+
+        html[data-theme="dark"] .journal-calendar-event {
+            background: rgba(var(--bs-primary-rgb), 0.14);
+        }
+
+        @media (max-width: 767.98px) {
+            .journal-calendar-grid {
+                min-width: 780px;
+            }
+
+            .journal-month-calendar {
+                overflow-x: auto;
+            }
+        }
+
+        @media (max-width: 575.98px) {
+            .journal-calendar-toolbar {
+                align-items: stretch;
+                flex-direction: column;
+            }
+
+            .journal-calendar-toolbar .btn-group {
+                justify-content: space-between;
+            }
+
+            .journal-calendar-table tbody {
+                grid-template-columns: 1fr;
+            }
+        }
+
         @media (max-width: 575.98px) {
             .journal-modal .modal-dialog {
                 margin: 0.5rem;
@@ -208,8 +474,56 @@
 
             <div class="card-body p-0">
                 <div class="p-4 pt-3">
-                    <div class="table-responsive">
-                        <table class="table table-sm align-middle mb-0" id="journalTable">
+                    @if($isPengawasArea)
+                        @php
+                            $journalAttendances = $selectedSchool->attendances;
+                            $calendarBaseDate = $journalAttendances->count()
+                                ? \Carbon\Carbon::parse($journalAttendances->first()->tanggal)
+                                : now();
+                            $calendarJournals = [];
+
+                            foreach ($journalAttendances as $absen) {
+                                $calendarJournals[] = [
+                                    'id' => $absen->id,
+                                    'tanggal' => $absen->tanggal,
+                                    'siswa_hadir' => $absen->siswa_hadir,
+                                    'guru_hadir' => $absen->guru_hadir,
+                                    'kepsek_hadir' => (bool) $absen->kepsek_hadir,
+                                    'created_time' => \Carbon\Carbon::parse($absen->created_at)->format('H:i:s'),
+                                    'tupoksi' => $absen->tupoksi ?? '-',
+                                    'keterangan' => $absen->keterangan ?? '-',
+                                    'foto_kegiatan' => $absen->foto_kegiatan,
+                                    'delete_url' => route('attendance.destroy', $absen->id),
+                                    'csrf' => csrf_token(),
+                                ];
+                            }
+                        @endphp
+                        <div class="journal-month-calendar mb-3" id="journalMonthCalendar"
+                             data-initial-year="{{ $calendarBaseDate->year }}"
+                             data-initial-month="{{ $calendarBaseDate->month }}">
+                            <div class="journal-calendar-toolbar">
+                                <div class="d-flex align-items-center gap-2 flex-wrap">
+                                    <button type="button" class="journal-calendar-nav-btn" id="journalCalendarPrev" aria-label="Bulan sebelumnya">
+                                        <span class="material-symbols-outlined fs-5">chevron_left</span>
+                                    </button>
+                                    <button type="button" class="journal-calendar-nav-btn" id="journalCalendarNext" aria-label="Bulan berikutnya">
+                                        <span class="material-symbols-outlined fs-5">chevron_right</span>
+                                    </button>
+                                    <button type="button" class="journal-calendar-pill" id="journalCalendarToday">Hari Ini</button>
+                                    <button type="button" class="journal-calendar-pill active">Bulan</button>
+                                    <button type="button" class="journal-calendar-pill">Minggu</button>
+                                    <button type="button" class="journal-calendar-pill">Hari</button>
+                                    <h5 class="fw-bold mb-0 ms-2" id="journalCalendarTitle">-</h5>
+                                </div>
+                            </div>
+                            <div class="journal-calendar-grid" id="journalCalendarGrid"></div>
+                        </div>
+                        <script type="application/json" id="journalCalendarData">
+                            @json($calendarJournals)
+                        </script>
+                    @endif
+                    <div class="table-responsive {{ $isPengawasArea ? 'd-none' : '' }}">
+                        <table class="table table-sm align-middle mb-0 {{ $isPengawasArea ? 'journal-calendar-table' : '' }}" id="journalTable">
                             <thead class="bg-light text-muted small">
                                 <tr>
                                     <th class="ps-2 cursor-pointer sortable user-select-none hover-bg-light" title="Klik untuk mengurutkan Tanggal">
@@ -278,7 +592,7 @@
                         </table>
                     </div>
                 </div>
-                <div class="p-3 bg-light bg-opacity-25 border-top d-flex justify-content-between align-items-center rounded-bottom-4">
+                <div class="p-3 bg-light bg-opacity-25 border-top {{ $isPengawasArea ? 'd-none' : 'd-flex' }} justify-content-between align-items-center rounded-bottom-4">
                     <small class="text-muted fw-semibold" id="absensiPageInfo">Menampilkan data...</small>
                     <nav id="absensiPagination"></nav>
                 </div>
@@ -384,7 +698,130 @@
             const pageInfo = document.getElementById('absensiPageInfo');
             const searchInput = document.getElementById('searchAbsensi');
             const notFoundRow = document.getElementById('notFoundAbsensi');
-            const entriesSelect = document.getElementById('entriesAbsensi'); 
+            const entriesSelect = document.getElementById('entriesAbsensi');
+            const calendarEl = document.getElementById('journalMonthCalendar');
+
+            if (calendarEl) {
+                const grid = document.getElementById('journalCalendarGrid');
+                const title = document.getElementById('journalCalendarTitle');
+                const prevBtn = document.getElementById('journalCalendarPrev');
+                const nextBtn = document.getElementById('journalCalendarNext');
+                const todayBtn = document.getElementById('journalCalendarToday');
+                const dataEl = document.getElementById('journalCalendarData');
+                const journals = dataEl ? JSON.parse(dataEl.textContent || '[]') : [];
+                const monthNames = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+                const dayNames = ['SEN', 'SEL', 'RAB', 'KAM', 'JUM', 'SAB', 'MIN'];
+                let currentYear = parseInt(calendarEl.dataset.initialYear, 10) || new Date().getFullYear();
+                let currentMonth = (parseInt(calendarEl.dataset.initialMonth, 10) || (new Date().getMonth() + 1)) - 1;
+
+                function journalDateKey(date) {
+                    const y = date.getFullYear();
+                    const m = String(date.getMonth() + 1).padStart(2, '0');
+                    const d = String(date.getDate()).padStart(2, '0');
+                    return `${y}-${m}-${d}`;
+                }
+
+                function escapeHtml(value) {
+                    const div = document.createElement('div');
+                    div.textContent = value || '';
+                    return div.innerHTML;
+                }
+
+                function renderJournalEvent(item) {
+                    const statusClass = item.kepsek_hadir ? 'text-success' : 'text-danger';
+                    const statusIcon = item.kepsek_hadir ? 'check_circle' : 'cancel';
+                    const photo = item.foto_kegiatan
+                        ? `<a href="${escapeHtml(item.foto_kegiatan)}" target="_blank" class="badge bg-info text-decoration-none mt-2">Check Kegiatan</a>`
+                        : '';
+                    const deleteForm = item.delete_url
+                        ? `<form action="${escapeHtml(item.delete_url)}" method="POST" class="mt-2" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data jurnal tanggal ini?')">
+                                <input type="hidden" name="_token" value="${escapeHtml(item.csrf)}">
+                                <input type="hidden" name="_method" value="DELETE">
+                                <button type="submit" class="journal-calendar-delete-btn" title="Hapus jurnal">
+                                    <span class="material-symbols-outlined fs-6">delete</span>
+                                </button>
+                           </form>`
+                        : '';
+
+                    return `
+                        <div class="journal-calendar-event">
+                            <div class="fw-bold mb-1">${escapeHtml(item.tupoksi)}</div>
+                            <div class="text-muted small">${escapeHtml(item.keterangan)}</div>
+                            <div class="journal-calendar-meta">
+                                <span>Siswa: <strong>${item.siswa_hadir}</strong></span>
+                                <span>Guru: <strong>${item.guru_hadir}</strong></span>
+                            </div>
+                            <div class="d-flex align-items-center gap-1 mt-1 ${statusClass}">
+                                <span class="material-symbols-outlined fs-6">${statusIcon}</span>
+                                <span class="small fw-bold">${escapeHtml(item.created_time)}</span>
+                            </div>
+                            ${photo}
+                            ${deleteForm}
+                        </div>
+                    `;
+                }
+
+                function renderCalendar() {
+                    if (!grid || !title) return;
+
+                    title.textContent = `${monthNames[currentMonth]} ${currentYear}`;
+                    const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
+                    const visibleJournals = searchTerm
+                        ? journals.filter(item => JSON.stringify(item).toLowerCase().includes(searchTerm))
+                        : journals;
+                    const eventsByDate = visibleJournals.reduce((acc, item) => {
+                        (acc[item.tanggal] = acc[item.tanggal] || []).push(item);
+                        return acc;
+                    }, {});
+
+                    const firstDay = new Date(currentYear, currentMonth, 1);
+                    const startOffset = (firstDay.getDay() + 6) % 7;
+                    const startDate = new Date(currentYear, currentMonth, 1 - startOffset);
+                    let html = dayNames.map(day => `<div class="journal-calendar-day-name">${day}</div>`).join('');
+
+                    for (let i = 0; i < 42; i++) {
+                        const date = new Date(startDate);
+                        date.setDate(startDate.getDate() + i);
+                        const key = journalDateKey(date);
+                        const items = eventsByDate[key] || [];
+                        const muted = date.getMonth() !== currentMonth ? ' is-muted' : '';
+                        const hasJournal = items.length ? ' has-journal' : '';
+                        html += `
+                            <div class="journal-calendar-cell${muted}${hasJournal}">
+                                <div class="journal-calendar-date">${date.getDate()}</div>
+                                ${items.map(renderJournalEvent).join('')}
+                            </div>
+                        `;
+                    }
+
+                    grid.innerHTML = html;
+                }
+
+                if (prevBtn) prevBtn.addEventListener('click', function () {
+                    currentMonth--;
+                    if (currentMonth < 0) { currentMonth = 11; currentYear--; }
+                    renderCalendar();
+                });
+
+                if (nextBtn) nextBtn.addEventListener('click', function () {
+                    currentMonth++;
+                    if (currentMonth > 11) { currentMonth = 0; currentYear++; }
+                    renderCalendar();
+                });
+
+                if (todayBtn) todayBtn.addEventListener('click', function () {
+                    const today = new Date();
+                    currentYear = today.getFullYear();
+                    currentMonth = today.getMonth();
+                    renderCalendar();
+                });
+
+                if (searchInput) {
+                    searchInput.addEventListener('keyup', renderCalendar);
+                }
+
+                renderCalendar();
+            }
             
             if(rows.length === 0) return;
 
