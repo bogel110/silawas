@@ -50,11 +50,11 @@
 @endif
 
 <!-- Statistik Alumni Cards -->
-<div class="row g-3 mb-4">
+<div class="row g-3 mb-4 alumni-stat-row">
     <!-- Stat Card 1: Total Alumni -->
     <div class="col-12 col-sm-6 col-lg">
         <div class="stat-card">
-            <div class="stat-icon" style="background: linear-gradient(135deg, #0F6B7D 0%, #138B9C 100%);">
+            <div class="stat-icon" style="--stat-accent-rgb: 32, 196, 220; --stat-accent-color: #20C4DC;">
                 <span class="material-symbols-outlined">people</span>
             </div>
             <div class="stat-content">
@@ -67,7 +67,7 @@
     <!-- Stat Card 2: Melanjutkan Studi -->
     <div class="col-12 col-sm-6 col-lg">
         <div class="stat-card">
-            <div class="stat-icon" style="background: linear-gradient(135deg, #0D84E8 0%, #0B9FE8 100%);">
+            <div class="stat-icon" style="--stat-accent-rgb: 13, 132, 232; --stat-accent-color: #0D84E8;">
                 <span class="material-symbols-outlined">school</span>
             </div>
             <div class="stat-content">
@@ -80,7 +80,7 @@
     <!-- Stat Card 3: Bekerja -->
     <div class="col-12 col-sm-6 col-lg">
         <div class="stat-card">
-            <div class="stat-icon" style="background: linear-gradient(135deg, #28A745 0%, #2BCA5C 100%);">
+            <div class="stat-icon" style="--stat-accent-rgb: 31, 142, 87; --stat-accent-color: #1F8E57;">
                 <span class="material-symbols-outlined">work</span>
             </div>
             <div class="stat-content">
@@ -93,7 +93,7 @@
     <!-- Stat Card 4: Lain-Lain -->
     <div class="col-12 col-sm-6 col-lg">
         <div class="stat-card">
-            <div class="stat-icon" style="background: linear-gradient(135deg, #FF9800 0%, #FFB74D 100%);">
+            <div class="stat-icon" style="--stat-accent-rgb: 255, 152, 0; --stat-accent-color: #FF9800;">
                 <span class="material-symbols-outlined">more_horiz</span>
             </div>
             <div class="stat-content">
@@ -103,37 +103,47 @@
         </div>
     </div>
 
-    <!-- Stat Card 5: Kelengkapan -->
+    <!-- Stat Card 5: Persentase Lanjut -->
     <div class="col-12 col-sm-6 col-lg">
         <div class="stat-card">
-            <div class="stat-icon" style="background: linear-gradient(135deg, #6C757D 0%, #ADB5BD 100%);">
-                <span class="material-symbols-outlined">check_circle</span>
+            <div class="stat-icon" style="--stat-accent-rgb: 255, 193, 7; --stat-accent-color: #FFC107;">
+                <span class="material-symbols-outlined">percent</span>
             </div>
             <div class="stat-content">
-                <p class="stat-label">Kelengkapan</p>
-                <h4 class="stat-value">{{ $stats['total'] > 0 ? round(100) : 0 }}%</h4>
+                <p class="stat-label">Persentase Lanjut</p>
+                <h4 class="stat-value">{{ $stats['total'] > 0 ? round(($stats['melanjutkan_studi'] / $stats['total']) * 100) : 0 }}%</h4>
             </div>
         </div>
     </div>
 </div>
 
 <!-- Breakdown Statistik - Pie Charts -->
-<div class="row g-3 mb-4">
+<div class="row g-4 mb-4">
+    <!-- Pie Chart Status Alumni -->
+    <div class="col-12 col-lg-4">
+        <div class="stat-breakdown-card alumni-chart-card">
+            <h5 class="fw-bold mb-4">Status Alumni</h5>
+            <div class="alumni-chart-wrapper">
+                <canvas id="chartStatus"></canvas>
+            </div>
+        </div>
+    </div>
+
     <!-- Pie Chart Klasifikasi Studi -->
-    <div class="col-12 col-lg-6">
-        <div class="stat-breakdown-card">
-            <h6 class="fw-bold mb-3">Klasifikasi Studi</h6>
-            <div style="height: 300px; display: flex; align-items: center; justify-content: center;">
+    <div class="col-12 col-lg-4">
+        <div class="stat-breakdown-card alumni-chart-card">
+            <h5 class="fw-bold mb-4">Klasifikasi Studi</h5>
+            <div class="alumni-chart-wrapper">
                 <canvas id="chartStudi"></canvas>
             </div>
         </div>
     </div>
 
     <!-- Pie Chart Klasifikasi Pekerjaan -->
-    <div class="col-12 col-lg-6">
-        <div class="stat-breakdown-card">
-            <h6 class="fw-bold mb-3">Klasifikasi Pekerjaan</h6>
-            <div style="height: 300px; display: flex; align-items: center; justify-content: center;">
+    <div class="col-12 col-lg-4">
+        <div class="stat-breakdown-card alumni-chart-card">
+            <h5 class="fw-bold mb-4">Klasifikasi Pekerjaan</h5>
+            <div class="alumni-chart-wrapper">
                 <canvas id="chartPekerjaan"></canvas>
             </div>
         </div>
@@ -587,14 +597,30 @@
 
     /* ===== Statistik Cards ===== */
     .stat-card {
+        position: relative;
+        min-height: 112px;
+        overflow: hidden;
         background: var(--surface);
         border: 1px solid var(--line);
-        border-radius: 16px;
-        padding: 1.25rem;
+        border-radius: 20px;
+        padding: 1.45rem 1.5rem;
         display: flex;
-        align-items: center;
+        align-items: flex-start;
+        justify-content: space-between;
         gap: 1rem;
         transition: all 0.2s ease;
+    }
+
+    .stat-card::after {
+        content: '';
+        position: absolute;
+        right: -18px;
+        bottom: -32px;
+        width: 98px;
+        height: 98px;
+        border-radius: 50%;
+        background: rgba(244, 162, 97, 0.10);
+        pointer-events: none;
     }
 
     .stat-card:hover {
@@ -607,40 +633,48 @@
     }
 
     .stat-icon {
-        width: 50px;
-        height: 50px;
-        border-radius: 14px;
+        position: relative;
+        z-index: 1;
+        order: 2;
+        width: 52px;
+        height: 52px;
+        border-radius: 18px;
         display: flex;
         align-items: center;
         justify-content: center;
         flex-shrink: 0;
+        background: rgba(var(--stat-accent-rgb), 0.12);
+        color: var(--stat-accent-color);
     }
 
     .stat-icon .material-symbols-outlined {
-        font-size: 1.6rem;
-        color: #fff;
+        font-size: 1.55rem;
+        color: currentColor;
     }
 
     .stat-content {
+        position: relative;
+        z-index: 1;
+        order: 1;
         min-width: 0;
     }
 
     .stat-label {
-        font-size: 0.8rem;
+        font-size: 0.9rem;
         font-weight: 500;
         color: var(--text-soft);
-        margin-bottom: 0.15rem;
+        margin-bottom: 0.35rem;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
     }
 
     .stat-value {
-        font-size: 1.6rem;
+        font-size: 2.15rem;
         font-weight: 800;
         color: var(--text-main);
         margin: 0;
-        line-height: 1.2;
+        line-height: 1;
     }
 
     /* ===== Breakdown Stat Cards ===== */
@@ -652,8 +686,24 @@
         transition: all 0.2s ease;
     }
 
+    .stat-breakdown-card h5,
     .stat-breakdown-card h6 {
         color: var(--text-main);
+    }
+
+    .alumni-chart-card {
+        min-height: 398px;
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .alumni-chart-wrapper {
+        position: relative;
+        height: 300px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
     /* ===== Table Styling ===== */
@@ -1178,6 +1228,7 @@ document.getElementById('formAlumni').reset();
          };
      }
 
+     let chartStatus = null;
      let chartStudi = null;
      let chartPekerjaan = null;
 
@@ -1185,8 +1236,54 @@ document.getElementById('formAlumni').reset();
          const colors = getChartColors();
 
          // Destroy existing charts jika ada
+         if (chartStatus) chartStatus.destroy();
          if (chartStudi) chartStudi.destroy();
          if (chartPekerjaan) chartPekerjaan.destroy();
+
+         // Chart Status Alumni
+         const ctxStatus = document.getElementById('chartStatus');
+         if (ctxStatus) {
+             chartStatus = new Chart(ctxStatus.getContext('2d'), {
+                 type: 'doughnut',
+                 data: {
+                     labels: ['Melanjutkan Studi', 'Bekerja', 'Lain-Lain'],
+                     datasets: [{
+                         data: [{{ $stats['melanjutkan_studi'] }}, {{ $stats['bekerja'] }}, {{ $stats['lain_lain'] }}],
+                         backgroundColor: ['#20C4DC', '#1F8E57', '#FF9800'],
+                         borderColor: colors.borderColor,
+                         borderWidth: 3,
+                         hoverOffset: 4,
+                     }]
+                 },
+                 options: {
+                     responsive: true,
+                     maintainAspectRatio: false,
+                     cutout: '50%',
+                     plugins: {
+                         legend: {
+                             position: 'bottom',
+                             labels: {
+                                 color: colors.textColor,
+                                 font: { size: 12, weight: '700' },
+                                 padding: 14,
+                                 usePointStyle: true,
+                                 pointStyle: 'circle',
+                                 boxWidth: 10,
+                             }
+                         },
+                         tooltip: {
+                             backgroundColor: 'rgba(0,0,0,0.8)',
+                             titleColor: '#fff',
+                             bodyColor: '#fff',
+                             borderWidth: 1,
+                             padding: 12,
+                             titleFont: { size: 13, weight: 'bold' },
+                             bodyFont: { size: 12 },
+                         }
+                     }
+                 }
+             });
+         }
 
          // Chart Klasifikasi Studi
          const ctxStudi = document.getElementById('chartStudi');
@@ -1197,15 +1294,15 @@ document.getElementById('formAlumni').reset();
                      labels: ['PTN', 'PTS', 'KEDINASAN'],
                      datasets: [{
                          data: [{{ $stats['ptn'] }}, {{ $stats['pts'] }}, {{ $stats['kedinasan_studi'] }}],
-                         backgroundColor: ['#0D84E8', '#63C7D2', '#FFB74D'],
+                         backgroundColor: ['#14758A', '#F4A261', '#20C997'],
                          borderColor: colors.borderColor,
-                         borderWidth: 2,
-                         borderRadius: 8,
+                         borderWidth: 3,
                      }]
                  },
                  options: {
                      responsive: true,
                      maintainAspectRatio: false,
+                     cutout: '50%',
                      plugins: {
                          legend: {
                              position: 'bottom',
@@ -1241,15 +1338,15 @@ document.getElementById('formAlumni').reset();
                      labels: ['ASN', 'TNI', 'POLRI', 'SWASTA'],
                      datasets: [{
                          data: [{{ $stats['asn'] }}, {{ $stats['tni'] }}, {{ $stats['polri'] }}, {{ $stats['swasta'] }}],
-                         backgroundColor: ['#28A745', '#0D84E8', '#FF6B6B', '#FFC107'],
+                         backgroundColor: ['#7042C4', '#E83E8C', '#FF7B0F', '#16C2DD'],
                          borderColor: colors.borderColor,
-                         borderWidth: 2,
-                         borderRadius: 8,
+                         borderWidth: 3,
                      }]
                  },
                  options: {
                      responsive: true,
                      maintainAspectRatio: false,
+                     cutout: '50%',
                      plugins: {
                          legend: {
                              position: 'bottom',

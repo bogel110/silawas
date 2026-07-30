@@ -11,19 +11,57 @@
 </div>
 
 <!-- Filter Sekolah -->
-<div class="content-panel mb-4">
+<div class="content-panel mb-4 alumni-school-filter-panel">
     <div class="p-4">
         <form method="GET" action="{{ route('alumni.pengawas') }}" class="row g-3 align-items-end">
             <div class="col-12 col-md-8">
-                <label for="schoolSelect" class="form-label fw-600">Pilih Sekolah Binaan</label>
-                <select class="form-select" id="schoolSelect" name="school_id" onchange="this.form.submit()">
-                    <option value="">-- Pilih Sekolah --</option>
-                    @foreach($schools as $school)
-                        <option value="{{ $school->id }}" {{ $selectedSchool && $selectedSchool->id === $school->id ? 'selected' : '' }}>
-                            {{ $school->name }}
-                        </option>
-                    @endforeach
-                </select>
+                <label for="schoolSearchToggle" class="form-label fw-600">Pilih Sekolah Binaan</label>
+                <div class="position-relative" id="schoolSearchWrapper">
+                    <button type="button"
+                            class="school-search-toggle w-100"
+                            id="schoolSearchToggle"
+                            aria-expanded="false"
+                            aria-controls="schoolSearchDropdown">
+                        <span id="schoolSearchSelectedText">
+                            {{ $selectedSchool?->name ?? '-- Menampilkan Semua Sekolah Binaan --' }}
+                        </span>
+                        <span class="material-symbols-outlined fs-6">expand_more</span>
+                    </button>
+                    <select class="d-none" id="schoolSelect" name="school_id">
+                        <option value="">-- Menampilkan Semua Sekolah Binaan --</option>
+                        @foreach($schools as $school)
+                            <option value="{{ $school->id }}" {{ $selectedSchool && $selectedSchool->id === $school->id ? 'selected' : '' }}>
+                                {{ $school->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                    <div class="school-search-dropdown d-none"
+                         id="schoolSearchDropdown">
+                        <input type="text"
+                               class="school-search-input"
+                               id="schoolSearchInput"
+                               placeholder="Ketik nama sekolah..."
+                               autocomplete="off"
+                               aria-label="Ketik nama sekolah">
+                        <div class="school-search-results" id="schoolSearchResults">
+                            <button type="button"
+                                    class="school-search-option"
+                                    data-school-id=""
+                                    data-school-name="-- Menampilkan Semua Sekolah Binaan --">
+                                -- Menampilkan Semua Sekolah Binaan --
+                            </button>
+                            @foreach($schools as $school)
+                                <button type="button"
+                                        class="school-search-option"
+                                        data-school-id="{{ $school->id }}"
+                                        data-school-name="{{ $school->name }}">
+                                    {{ $school->name }}
+                                </button>
+                            @endforeach
+                            <div class="school-search-empty d-none" id="schoolSearchEmpty">Sekolah tidak ditemukan.</div>
+                        </div>
+                    </div>
+                </div>
             </div>
             @if($selectedSchool)
                 <div class="col-12 col-md-4">
@@ -315,9 +353,115 @@
         color: var(--brand-700);
     }
 
+    .alumni-school-filter-panel {
+        position: relative;
+        z-index: 20;
+    }
+
+    .school-search-toggle {
+        min-height: 42px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+        padding: 0.65rem 0.85rem;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--surface-soft);
+        color: var(--text-main);
+        font-weight: 700;
+        text-align: left;
+    }
+
+    .school-search-toggle:focus {
+        border-color: var(--brand-700);
+        box-shadow: 0 0 0 0.2rem rgba(var(--bs-primary-rgb), 0.14);
+        outline: 0;
+    }
+
+    .school-search-dropdown {
+        position: absolute;
+        top: calc(100% + 0.1rem);
+        left: 0;
+        width: 100%;
+        z-index: 1050;
+        background: var(--surface-soft);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        box-shadow: var(--shadow-card);
+        overflow: hidden;
+    }
+
+    .school-search-input {
+        width: 100%;
+        min-height: 40px;
+        padding: 0.6rem 0.85rem;
+        border: 0;
+        border-bottom: 1px solid var(--line);
+        background: var(--surface-muted);
+        color: var(--text-main);
+        outline: 0;
+    }
+
+    .school-search-input::placeholder {
+        color: var(--text-soft);
+    }
+
+    .school-search-results {
+        max-height: 230px;
+        overflow-y: auto;
+        background: var(--surface-soft);
+    }
+
+    .school-search-option,
+    .school-search-empty {
+        width: 100%;
+        display: block;
+        padding: 0.85rem 1rem;
+        border: 0;
+        border-bottom: 1px solid var(--line);
+        background: var(--surface-soft);
+        color: var(--text-main);
+        font-weight: 700;
+        text-align: left;
+    }
+
+    .school-search-option:last-of-type {
+        border-bottom: 0;
+    }
+
+    .school-search-option:hover,
+    .school-search-option:focus {
+        background: var(--brand-100);
+        color: var(--brand-700);
+        outline: 0;
+    }
+
     html[data-theme="dark"] .metric-card {
         background: rgba(15, 35, 41, 0.92);
         border-color: rgba(180, 221, 227, 0.12);
+    }
+
+    html[data-theme="dark"] .school-search-toggle,
+    html[data-theme="dark"] .school-search-dropdown,
+    html[data-theme="dark"] .school-search-results,
+    html[data-theme="dark"] .school-search-option,
+    html[data-theme="dark"] .school-search-empty {
+        background: var(--surface-soft);
+        border-color: var(--line);
+        color: var(--text-main);
+    }
+
+    html[data-theme="dark"] .school-search-input {
+        background: var(--surface-muted);
+        border-color: var(--line);
+        color: var(--text-main);
+    }
+
+    html[data-theme="dark"] .school-search-option:hover,
+    html[data-theme="dark"] .school-search-option:focus {
+        background: rgba(var(--bs-primary-rgb), 0.16);
+        color: var(--brand-800);
     }
 </style>
 
@@ -632,6 +776,73 @@
          attachPaginationListenersPengawas();
      });
      // ===== END PAGINATION PENGAWAS =====
+
+     // ===== SCHOOL SEARCH / FILTER =====
+     (function () {
+         const wrapper = document.getElementById('schoolSearchWrapper');
+         const toggle  = document.getElementById('schoolSearchToggle');
+         const dropdown = document.getElementById('schoolSearchDropdown');
+         const input   = document.getElementById('schoolSearchInput');
+         const results = document.getElementById('schoolSearchResults');
+         const empty   = document.getElementById('schoolSearchEmpty');
+         const hidden  = document.getElementById('schoolSelect');
+         const label   = document.getElementById('schoolSearchSelectedText');
+         const form    = hidden ? hidden.closest('form') : null;
+
+         if (!wrapper || !toggle || !dropdown || !input || !results || !hidden || !form) return;
+
+         const options = Array.from(results.querySelectorAll('.school-search-option'));
+
+         function openDropdown() {
+             dropdown.classList.remove('d-none');
+             toggle.setAttribute('aria-expanded', 'true');
+             input.value = '';
+             filterOptions('');
+             input.focus();
+         }
+
+         function closeDropdown() {
+             dropdown.classList.add('d-none');
+             toggle.setAttribute('aria-expanded', 'false');
+         }
+
+         function filterOptions(query) {
+             const q = query.trim().toLowerCase();
+             let visibleCount = 0;
+             options.forEach(function (opt) {
+                 const match = !q || opt.dataset.schoolName.toLowerCase().includes(q);
+                 opt.classList.toggle('d-none', !match);
+                 if (match) visibleCount++;
+             });
+             empty.classList.toggle('d-none', visibleCount > 0);
+         }
+
+         toggle.addEventListener('click', function () {
+             dropdown.classList.contains('d-none') ? openDropdown() : closeDropdown();
+         });
+
+         input.addEventListener('input', function () {
+             filterOptions(this.value);
+         });
+
+         options.forEach(function (opt) {
+             opt.addEventListener('click', function () {
+                 hidden.value = opt.dataset.schoolId;
+                 label.textContent = opt.dataset.schoolName;
+                 closeDropdown();
+                 form.submit();
+             });
+         });
+
+         document.addEventListener('click', function (e) {
+             if (!wrapper.contains(e.target)) closeDropdown();
+         });
+
+         input.addEventListener('keydown', function (e) {
+             if (e.key === 'Escape') closeDropdown();
+         });
+     })();
+     // ===== END SCHOOL SEARCH / FILTER =====
 
 </script>
 @endsection
