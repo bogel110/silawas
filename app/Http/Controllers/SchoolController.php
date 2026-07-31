@@ -139,21 +139,34 @@ class SchoolController extends Controller
             'humas_link' => 'nullable',
         ]);
 
-        MonthlyReport::updateOrCreate(
-            [
+        $report = MonthlyReport::where([
+            'school_id' => $id,
+            'bulan' => $request->bulan,
+            'tahun_pelajaran' => $request->tahun_pelajaran,
+            'semester' => $request->semester,
+        ])->first();
+
+        if ($report) {
+            $report->update([
+                'tahun' => date('Y'),
+                'kurikulum_link' => $request->filled('kurikulum_link') ? $request->kurikulum_link : $report->kurikulum_link,
+                'kesiswaan_link' => $request->filled('kesiswaan_link') ? $request->kesiswaan_link : $report->kesiswaan_link,
+                'sarpras_link' => $request->filled('sarpras_link') ? $request->sarpras_link : $report->sarpras_link,
+                'humas_link' => $request->filled('humas_link') ? $request->humas_link : $report->humas_link,
+            ]);
+        } else {
+            MonthlyReport::create([
                 'school_id' => $id,
                 'bulan' => $request->bulan,
                 'tahun_pelajaran' => $request->tahun_pelajaran,
                 'semester' => $request->semester,
-            ],
-            [
                 'tahun' => date('Y'),
                 'kurikulum_link' => $request->kurikulum_link,
                 'kesiswaan_link' => $request->kesiswaan_link,
                 'sarpras_link' => $request->sarpras_link,
                 'humas_link' => $request->humas_link,
-            ]
-        );
+            ]);
+        }
 
         return redirect()->back()->with('success', 'Laporan bulanan Wakasek berhasil disimpan!');
     }
