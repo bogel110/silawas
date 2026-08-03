@@ -13,6 +13,8 @@ class AttendanceController extends Controller
         $user = auth()->user();
         $selectedSchool = null;
         $schools = [];
+        $selectedMonth = (int) $request->query('bulan', now()->month);
+        $selectedYear = (int) $request->query('tahun', now()->year);
 
         // Logika untuk Pengawas/Super Admin: Ambil data sekolah sesuai hak akses
         if (in_array($user->role, ['pengawas', 'super_admin'], true)) {
@@ -33,8 +35,10 @@ class AttendanceController extends Controller
                 abort(403, 'Akun admin sekolah belum terhubung ke data sekolah.');
             }
 
-            $selectedSchool = School::with(['attendances' => function ($query) {
-                $query->orderBy('tanggal', 'desc');
+            $selectedSchool = School::with(['attendances' => function ($query) use ($selectedMonth, $selectedYear) {
+                $query->whereMonth('tanggal', $selectedMonth)
+                    ->whereYear('tanggal', $selectedYear)
+                    ->orderBy('tanggal', 'desc');
             }])->findOrFail($user->school_id);
 
             $this->authorizeSchoolAccess($selectedSchool->id);
@@ -42,6 +46,6 @@ class AttendanceController extends Controller
             abort(403, 'Akses ditolak.');
         }
 
-        return view('journal.index', compact('schools', 'selectedSchool'));
+        return view('journal.index', compact('schools', 'selectedSchool', 'selectedMonth', 'selectedYear'));
     }
 }

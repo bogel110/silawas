@@ -61,6 +61,22 @@
             border-top: none;
         }
 
+        .journal-header-control {
+            background-color: var(--surface-soft) !important;
+            border: 1px solid var(--line) !important;
+            color: var(--text-main) !important;
+        }
+
+        .journal-header-control::placeholder {
+            color: var(--text-soft) !important;
+        }
+
+        .journal-header-control-icon {
+            background-color: var(--surface-soft) !important;
+            border-color: var(--line) !important;
+            color: var(--text-soft) !important;
+        }
+
         /* Tampilan kalender Data Jurnal - struktur dan logika tabel tetap dipertahankan */
         .journal-calendar-table {
             border-collapse: separate;
@@ -433,42 +449,77 @@
     @if($selectedSchool)
         
         <div class="card border-0 shadow-sm rounded-4 mb-4">
-            <div class="card-header bg-white border-bottom-0 pt-4 pb-0 px-4 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
-                <div class="d-flex align-items-center gap-3">
-                    <h5 class="font-headline fw-bold mb-0">
-                        @if($isPengawasArea)
-                            Data Jurnal: <span class="text-primary">{{ $selectedSchool->name }}</span>
-                        @else
-                            Rekap Jurnal Harian
-                        @endif
-                    </h5>
-                    
-                    @if(auth()->user()->role === 'admin_sekolah' && auth()->user()->school_id == $selectedSchool->id)
-                        <button type="button" class="btn btn-sm btn-primary fw-bold" data-bs-toggle="modal" data-bs-target="#modalAbsensi">
-                            + Isi Jurnal
-                        </button>
-                    @endif
-                </div>
+            <div class="card-header bg-white border-bottom-0 pt-4 pb-0 px-4">
+                <div class="d-flex flex-column flex-xl-row align-items-xl-start justify-content-between gap-3">
+                    <div class="d-flex flex-column gap-2">
+                        <div class="d-flex align-items-center gap-3 flex-wrap">
+                            <h5 class="font-headline fw-bold mb-0">
+                                @if($isPengawasArea)
+                                    Data Jurnal: <span class="text-primary">{{ $selectedSchool->name }}</span>
+                                @else
+                                    Rekap Jurnal Harian
+                                @endif
+                            </h5>
 
-                <div class="d-flex flex-column flex-sm-row gap-2 align-items-sm-center">
-                    <div class="d-flex align-items-center gap-2">
-                        <span class="small text-muted fw-bold d-none d-md-inline">Tampilkan</span>
-                        <select id="entriesAbsensi" class="form-select form-select-sm bg-light border-0 shadow-sm" style="width: auto; cursor: pointer;">
-                            <option value="5">5</option>
-                            <option value="10" selected>10</option>
-                            <option value="25">25</option>
-                            <option value="50">50</option>
-                        </select>
+                            @if(auth()->user()->role === 'admin_sekolah' && auth()->user()->school_id == $selectedSchool->id)
+                                @php
+                                    $exportMonth = $selectedMonth ?? now()->month;
+                                    $exportYear = $selectedYear ?? now()->year;
+                                @endphp
+                                <button type="button" class="btn btn-sm btn-primary fw-bold" data-bs-toggle="modal" data-bs-target="#modalAbsensi">
+                                    + Isi Jurnal
+                                </button>
+                                <form action="{{ route('jurnal.index') }}" method="GET" class="d-flex align-items-center gap-2 flex-wrap">
+                                    <select name="bulan" id="exportBulan" class="form-select form-select-sm journal-header-control shadow-sm" style="width: auto; min-width: 140px; cursor: pointer;">
+                                        @for($i = 1; $i <= 12; $i++)
+                                            <option value="{{ $i }}" {{ (int) $exportMonth === $i ? 'selected' : '' }}>{{ \Carbon\Carbon::create()->month($i)->translatedFormat('F') }}</option>
+                                        @endfor
+                                    </select>
+                                    <select name="tahun" id="exportTahun" class="form-select form-select-sm journal-header-control shadow-sm" style="width: auto; min-width: 110px; cursor: pointer;">
+                                        @for($i = now()->year - 5; $i <= now()->year + 1; $i++)
+                                            <option value="{{ $i }}" {{ (int) $exportYear === $i ? 'selected' : '' }}>{{ $i }}</option>
+                                        @endfor
+                                    </select>
+                                    <button type="submit" class="btn btn-primary btn-sm fw-bold d-flex align-items-center justify-content-center gap-1 shadow-sm">
+                                        <span class="material-symbols-outlined fs-6">filter_alt</span> Tampilkan
+                                    </button>
+                                </form>
+                            @endif
+                        </div>
+
+                        @if(auth()->user()->role === 'admin_sekolah' && auth()->user()->school_id == $selectedSchool->id)
+                            <small class="text-muted">Rekap aktif: {{ \Carbon\Carbon::create()->month((int) $exportMonth)->translatedFormat('F') }} {{ $exportYear }}.</small>
+                        @endif
                     </div>
-                    <div class="input-group input-group-sm shadow-sm" style="max-width: 200px;">
-                        <span class="input-group-text bg-white border-end-0">
-                            <span class="material-symbols-outlined fs-6 text-muted">search</span>
-                        </span>
-                        <input type="text" id="searchAbsensi" class="form-control border-start-0 ps-0" placeholder="Cari data...">
+
+                    <div class="d-flex align-items-center gap-2 flex-wrap justify-content-xl-end">
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="small text-muted fw-bold d-none d-md-inline">Tampilkan</span>
+                            <select id="entriesAbsensi" class="form-select form-select-sm journal-header-control shadow-sm" style="width: auto; cursor: pointer;">
+                                <option value="5">5</option>
+                                <option value="10" selected>10</option>
+                                <option value="25">25</option>
+                                <option value="50">50</option>
+                            </select>
+                        </div>
+
+                        <div class="input-group input-group-sm shadow-sm" style="max-width: 200px;">
+                            <span class="input-group-text journal-header-control-icon border-end-0">
+                                <span class="material-symbols-outlined fs-6">search</span>
+                            </span>
+                            <input type="text" id="searchAbsensi" class="form-control journal-header-control border-start-0 ps-0" placeholder="Cari data...">
+                        </div>
+
+                        @if(auth()->user()->role === 'admin_sekolah' && auth()->user()->school_id == $selectedSchool->id)
+                            <a href="{{ route('school.export_attendance', $selectedSchool->id) }}?bulan={{ $exportMonth }}&tahun={{ $exportYear }}" class="btn btn-success btn-sm fw-bold d-flex align-items-center justify-content-center gap-1 shadow-sm" title="Download Excel">
+                                <span class="material-symbols-outlined fs-6">download</span> Download Excel
+                            </a>
+                        @else
+                            <a href="{{ route('school.export_attendance', $selectedSchool->id) }}" class="btn btn-success btn-sm fw-bold d-flex align-items-center justify-content-center gap-1 shadow-sm" title="Download Excel">
+                                <span class="material-symbols-outlined fs-6">download</span> Download Excel
+                            </a>
+                        @endif
                     </div>
-                    <a href="{{ route('school.export_attendance', $selectedSchool->id) }}" class="btn btn-success btn-sm fw-bold d-flex align-items-center justify-content-center gap-1 shadow-sm" title="Download Excel">
-                        <span class="material-symbols-outlined fs-6">download</span> Download Excel
-                    </a>
                 </div>
             </div>
 
@@ -1026,6 +1077,18 @@
                     placeholder: true,
                     placeholderValue: '-- Silakan Pilih Sekolah Terlebih Dahulu --'
                 });
+            }
+
+            const exportBulan = document.getElementById('exportBulan');
+            const exportTahun = document.getElementById('exportTahun');
+            if (exportBulan && exportTahun) {
+                const exportBtn = document.querySelector('a[title="Download Excel"]');
+                const updateExportUrl = () => {
+                    const baseUrl = exportBtn.href.split('?')[0];
+                    exportBtn.href = `${baseUrl}?bulan=${exportBulan.value}&tahun=${exportTahun.value}`;
+                };
+                exportBulan.addEventListener('change', updateExportUrl);
+                exportTahun.addEventListener('change', updateExportUrl);
             }
         });
     </script>

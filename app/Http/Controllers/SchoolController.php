@@ -318,15 +318,24 @@ class SchoolController extends Controller
         return response()->stream($callback, 200, $headers);
     }
 
-    public function exportAttendanceExcel($id)
+    public function exportAttendanceExcel(Request $request, $id)
     {
-        $school = School::with(['attendances' => function($query) {
+        $bulan = $request->query('bulan');
+        $tahun = $request->query('tahun');
+
+        $school = School::with(['attendances' => function($query) use ($bulan, $tahun) {
+            if ($bulan) {
+                $query->whereMonth('tanggal', $bulan);
+            }
+            if ($tahun) {
+                $query->whereYear('tanggal', $tahun);
+            }
             $query->orderBy('tanggal', 'desc');
         }])->findOrFail($id);
         $this->authorizeSchoolAccess($school->id);
 
         $namaSekolah = str_replace(' ', '_', $school->name);
-        $filename = "Rekap_Jurnal_" . $namaSekolah . "_" . date('Ymd') . ".csv";
+        $filename = "Rekap_Jurnal_" . $namaSekolah . "_" . ($bulan ? $bulan . "_" : "") . ($tahun ? $tahun . "_" : "") . date('Ymd') . ".csv";
 
         $headers = [
             "Content-type"        => "text/csv; charset=UTF-8",

@@ -184,7 +184,49 @@ File terkait:
 
 - `resources/views/journal/index.blade.php`
 
-## 4. Catatan Verifikasi
+## 4. Menu Laporan Kegiatan
+
+### 4.1 Perbaikan Bug Tambah Laporan pada Admin Sekolah
+
+Bug pada modal `Tambahkan Laporan` untuk role Admin Sekolah telah diperbaiki.
+
+Kondisi bug sebelumnya:
+
+- Admin Sekolah membuka menu Laporan Kegiatan.
+- Admin Sekolah klik tombol `Tambah Laporan`.
+- User memilih Tahun Pelajaran yang sama.
+- User memilih Semester yang sama.
+- User memilih Bulan Laporan yang sama.
+- Jika beberapa field link dikosongkan, data lama pada periode yang sama dapat tertimpa menjadi kosong/null.
+
+Perbaikan yang dilakukan:
+
+- Sistem sekarang mengecek terlebih dahulu apakah laporan dengan kombinasi berikut sudah ada:
+  - `school_id`
+  - `bulan`
+  - `tahun_pelajaran`
+  - `semester`
+- Jika data laporan sudah ada, maka data tersebut akan diupdate.
+- Field link yang diisi user akan diperbarui.
+- Field link yang tidak diisi user akan tetap mempertahankan data lama.
+- Jika laporan pada periode tersebut belum ada, sistem tetap membuat data laporan baru seperti biasa.
+
+Field link yang dipertahankan agar tidak hilang saat input kosong:
+
+- `kurikulum_link`
+- `kesiswaan_link`
+- `sarpras_link`
+- `humas_link`
+
+File terkait:
+
+- `app/Http/Controllers/SchoolController.php`
+
+Method terkait:
+
+- `storeMonthlyReport()`
+
+## 5. Catatan Verifikasi
 
 Beberapa verifikasi telah dilakukan selama proses perubahan:
 
@@ -197,7 +239,7 @@ Error yang muncul:
 /usr/bin/bash: line 1: php: command not found
 ```
 
-## 5. Ringkasan File Utama yang Berubah
+## 6. Ringkasan File Utama yang Berubah
 
 Berikut file utama yang berkaitan dengan update menu:
 
