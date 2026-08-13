@@ -35,10 +35,8 @@ class AttendanceController extends Controller
                 abort(403, 'Akun admin sekolah belum terhubung ke data sekolah.');
             }
 
-            $selectedSchool = School::with(['attendances' => function ($query) use ($selectedMonth, $selectedYear) {
-                $query->whereMonth('tanggal', $selectedMonth)
-                    ->whereYear('tanggal', $selectedYear)
-                    ->orderBy('tanggal', 'desc');
+            $selectedSchool = School::with(['attendances' => function ($query) {
+                $query->orderBy('tanggal', 'desc');
             }])->findOrFail($user->school_id);
 
             $this->authorizeSchoolAccess($selectedSchool->id);

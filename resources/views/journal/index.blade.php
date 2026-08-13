@@ -314,6 +314,12 @@
             color: #b02a37;
         }
 
+        .journal-calendar-edit-btn {
+            border-radius: 999px;
+            font-size: 0.72rem;
+            padding: 0.2rem 0.6rem;
+        }
+
         html[data-theme="dark"] .journal-calendar-event {
             background: rgba(var(--bs-primary-rgb), 0.14);
         }
@@ -474,57 +480,16 @@
                                     </button>
                                 @endif
 
-                                @if($isAdminSchoolOwner)
-                                    <form action="{{ route('jurnal.index') }}" method="GET" class="d-flex align-items-center gap-2 flex-wrap">
-                                        <select name="bulan" id="exportBulan" class="form-select form-select-sm journal-header-control shadow-sm" style="width: auto; min-width: 140px; cursor: pointer;">
-                                            @for($i = 1; $i <= 12; $i++)
-                                                <option value="{{ $i }}" {{ (int) $exportMonth === $i ? 'selected' : '' }}>{{ \Carbon\Carbon::create()->month($i)->translatedFormat('F') }}</option>
-                                            @endfor
-                                        </select>
-                                        <select name="tahun" id="exportTahun" class="form-select form-select-sm journal-header-control shadow-sm" style="width: auto; min-width: 110px; cursor: pointer;">
-                                            @for($i = now()->year - 5; $i <= now()->year + 1; $i++)
-                                                <option value="{{ $i }}" {{ (int) $exportYear === $i ? 'selected' : '' }}>{{ $i }}</option>
-                                            @endfor
-                                        </select>
-                                        <button type="submit" class="btn btn-primary btn-sm fw-bold d-flex align-items-center justify-content-center gap-1 shadow-sm">
-                                            <span class="material-symbols-outlined fs-6">filter_alt</span> Tampilkan
-                                        </button>
-                                    </form>
-                                @endif
                             </div>
-
-                            @if($isAdminSchoolOwner)
-                                <small class="text-muted">Rekap aktif: {{ \Carbon\Carbon::create()->month((int) $exportMonth)->translatedFormat('F') }} {{ $exportYear }}.</small>
-                            @endif
                     </div>
 
-                    <div class="d-flex align-items-center gap-2 flex-wrap justify-content-xl-end">
-                        @if(! $isPengawasArea)
-                            <div class="d-flex align-items-center gap-2">
-                                <span class="small text-muted fw-bold d-none d-md-inline">Tampilkan</span>
-                                <select id="entriesAbsensi" class="form-select form-select-sm journal-header-control shadow-sm" style="width: auto; cursor: pointer;">
-                                    <option value="5">5</option>
-                                    <option value="10" selected>10</option>
-                                    <option value="25">25</option>
-                                    <option value="50">50</option>
-                                </select>
-                            </div>
-
-                            <div class="input-group input-group-sm shadow-sm" style="max-width: 200px;">
-                                <span class="input-group-text journal-header-control-icon border-end-0">
-                                    <span class="material-symbols-outlined fs-6">search</span>
-                                </span>
-                                <input type="text" id="searchAbsensi" class="form-control journal-header-control border-start-0 ps-0" placeholder="Cari data...">
-                            </div>
-                        @endif
-                    </div>
+                    <div class="d-flex align-items-center gap-2 flex-wrap justify-content-xl-end"></div>
                 </div>
             </div>
 
             <div class="card-body p-0">
                 <div class="p-4 pt-3">
-                    @if($isPengawasArea)
-                        @php
+                    @php
                             $journalAttendances = $selectedSchool->attendances;
                             $calendarBaseDate = $journalAttendances->count()
                                 ? \Carbon\Carbon::parse($journalAttendances->first()->tanggal)
@@ -542,7 +507,8 @@
                                     'tupoksi' => $absen->tupoksi ?? '-',
                                     'keterangan' => $absen->keterangan ?? '-',
                                     'foto_kegiatan' => $absen->foto_kegiatan,
-                                    'delete_url' => route('attendance.destroy', $absen->id),
+                                    'edit_url' => $isAdminSchoolOwner ? route('attendance.update', $absen->id) : null,
+                                    'delete_url' => $isPengawasArea ? route('attendance.destroy', $absen->id) : null,
                                     'csrf' => csrf_token(),
                                 ];
                             }
@@ -563,11 +529,9 @@
                                     <button type="button" class="journal-calendar-pill">Minggu</button>
                                     <button type="button" class="journal-calendar-pill">Hari</button>
                                     <h5 class="fw-bold mb-0 ms-2" id="journalCalendarTitle">-</h5>
-                                    @if($isPengawasArea)
-                                        <a href="{{ route('school.export_attendance', $selectedSchool->id) }}?bulan={{ $exportMonth }}&tahun={{ $exportYear }}" class="btn btn-success btn-sm fw-bold d-flex align-items-center gap-1 shadow-sm" title="Download Excel">
-                                            <span class="material-symbols-outlined fs-6">download</span> Download Excel
-                                        </a>
-                                    @endif
+                                    <a href="{{ route('school.export_attendance', $selectedSchool->id) }}?bulan={{ $exportMonth }}&tahun={{ $exportYear }}" class="btn btn-success btn-sm fw-bold d-flex align-items-center gap-1 shadow-sm" title="Download Excel">
+                                        <span class="material-symbols-outlined fs-6">download</span> Download Rekap Jurnal
+                                    </a>
                                 </div>
                             </div>
                             <div class="journal-calendar-grid" id="journalCalendarGrid"></div>
@@ -575,8 +539,7 @@
                         <script type="application/json" id="journalCalendarData">
                             @json($calendarJournals)
                         </script>
-                    @endif
-                    <div class="table-responsive {{ $isPengawasArea ? 'd-none' : '' }}">
+                    <div class="table-responsive d-none">
                         <table class="table table-sm align-middle mb-0 {{ $isPengawasArea ? 'journal-calendar-table' : '' }}" id="journalTable">
                             <thead class="bg-light text-muted small">
                                 <tr>
@@ -733,6 +696,67 @@
                     </form>
                 </div>
             </div>
+
+            <div class="modal fade journal-modal" id="modalEditAbsensi" tabindex="-1" aria-labelledby="modalEditAbsensiLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+                    <form id="editAbsensiForm" method="POST" class="modal-content border-0 shadow">
+                        @csrf
+                        @method('PUT')
+                        <div class="modal-header border-bottom-0 align-items-start pt-4 px-4 pb-0">
+                            <div class="w-100 pe-3">
+                                <span class="badge bg-primary bg-opacity-10 text-primary mb-2 px-3 py-2 rounded-pill fw-semibold">Ubah Jurnal</span>
+                                <h4 class="modal-title font-headline fw-bold mb-1" id="modalEditAbsensiLabel">Edit Jurnal Kepsek</h4>
+                                <p class="text-muted small mb-0">Tanggal Jurnal: <span id="editAbsensiTanggal" class="fw-bold"></span></p>
+                            </div>
+                            <button type="button" class="btn-close mt-1" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body px-4">
+                            <div class="row g-3 mb-3">
+                                <div class="col-12 col-md-6">
+                                    <label class="form-label small fw-bold text-muted mb-1">Siswa Hadir</label>
+                                    <input type="number" id="editSiswaHadir" name="siswa_hadir" class="form-control rounded-3 px-3 py-2" required min="0">
+                                </div>
+                                <div class="col-12 col-md-6">
+                                    <label class="form-label small fw-bold text-muted mb-1">Guru Hadir</label>
+                                    <input type="number" id="editGuruHadir" name="guru_hadir" class="form-control rounded-3 px-3 py-2" required min="0">
+                                </div>
+                            </div>
+                            <div class="row g-3">
+                                <div class="col-12 col-md-6">
+                                    <label class="form-label small fw-bold text-muted mb-1">Kehadiran Kepsek</label>
+                                    <select id="editKepsekHadir" name="kepsek_hadir" class="form-select rounded-3 px-3 py-2" required>
+                                        <option value="1">Hadir (Ada di tempat)</option>
+                                        <option value="0">Tidak Hadir (Dinas Luar / Izin)</option>
+                                    </select>
+                                </div>
+                                <div class="col-12 col-md-6">
+                                    <label class="form-label small fw-bold text-muted mb-1">Tupoksi Kepsek</label>
+                                    <select id="editTupoksi" name="tupoksi" class="form-select rounded-3 px-3 py-2" required>
+                                        <option value="Manajerial">1. Manajerial</option>
+                                        <option value="Educator">2. Educator</option>
+                                        <option value="Supervisor">3. Supervisor</option>
+                                        <option value="Leader">4. Leader</option>
+                                        <option value="Entrepreneur">5. Entrepreneur</option>
+                                        <option value="Pengelola Sistem Informasi">6. Pengelola Sistem Informasi</option>
+                                    </select>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label small fw-bold text-muted mb-1">Keterangan Aktivitas</label>
+                                    <textarea id="editKeterangan" name="keterangan" class="form-control rounded-3 px-3 py-2" rows="3" required></textarea>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label small fw-bold text-muted mb-1">Link Foto Kegiatan <small class="text-muted">(opsional)</small></label>
+                                    <input type="url" id="editFotoKegiatan" name="foto_kegiatan" class="form-control rounded-3 px-3 py-2">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer bg-light border-top-0 rounded-bottom-4 px-4 py-3 mt-2">
+                            <button type="button" class="btn btn-outline-secondary btn-sm fw-bold px-3" data-bs-dismiss="modal">Batal</button>
+                            <button type="submit" class="btn btn-primary btn-sm fw-bold px-4 shadow-sm">Simpan Perubahan</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
         @endif
 
     @elseif($isPengawasArea)
@@ -787,6 +811,11 @@
                     const photo = item.foto_kegiatan
                         ? `<a href="${escapeHtml(item.foto_kegiatan)}" target="_blank" class="badge bg-info text-decoration-none mt-2">Check Kegiatan</a>`
                         : '';
+                    const editButton = item.edit_url
+                        ? `<button type="button" class="btn btn-sm btn-outline-primary fw-bold mt-2 journal-calendar-edit-btn" data-journal-id="${item.id}" title="Edit Jurnal">
+                                <span class="material-symbols-outlined fs-6 align-middle">edit</span>
+                           </button>`
+                        : '';
                     const deleteForm = item.delete_url
                         ? `<form action="${escapeHtml(item.delete_url)}" method="POST" class="mt-2" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data jurnal tanggal ini?')">
                                 <input type="hidden" name="_token" value="${escapeHtml(item.csrf)}">
@@ -810,6 +839,7 @@
                                 <span class="small fw-bold">${escapeHtml(item.created_time)}</span>
                             </div>
                             ${photo}
+                            ${editButton}
                             ${deleteForm}
                         </div>
                     `;
@@ -869,6 +899,40 @@
                     currentMonth = today.getMonth();
                     renderCalendar();
                 });
+
+                // Modal Edit functionality
+                const editModalEl = document.getElementById('modalEditAbsensi');
+                const editForm = document.getElementById('editAbsensiForm');
+                const editTanggal = document.getElementById('editAbsensiTanggal');
+                const editSiswaHadir = document.getElementById('editSiswaHadir');
+                const editGuruHadir = document.getElementById('editGuruHadir');
+                const editKepsekHadir = document.getElementById('editKepsekHadir');
+                const editTupoksi = document.getElementById('editTupoksi');
+                const editKeterangan = document.getElementById('editKeterangan');
+                const editFotoKegiatan = document.getElementById('editFotoKegiatan');
+
+                if (editModalEl && editForm && editSiswaHadir) {
+                    // Attach click event to grid for dynamic elements
+                    grid.addEventListener('click', function (event) {
+                        const button = event.target.closest('.journal-calendar-edit-btn');
+                        if (!button) return;
+
+                        const itemId = parseInt(button.dataset.journalId, 10);
+                        const item = journals.find(journal => parseInt(journal.id, 10) === itemId);
+                        if (!item || !item.edit_url) return;
+
+                        editForm.action = item.edit_url;
+                        if (editTanggal) editTanggal.textContent = item.tanggal || '-';
+                        editSiswaHadir.value = item.siswa_hadir ?? '';
+                        editGuruHadir.value = item.guru_hadir ?? '';
+                        editKepsekHadir.value = item.kepsek_hadir ? '1' : '0';
+                        editTupoksi.value = item.tupoksi || '';
+                        editKeterangan.value = item.keterangan === '-' ? '' : (item.keterangan || '');
+                        editFotoKegiatan.value = item.foto_kegiatan || '';
+
+                        bootstrap.Modal.getOrCreateInstance(editModalEl).show();
+                    });
+                }
 
                 if (searchInput) {
                     searchInput.addEventListener('keyup', renderCalendar);

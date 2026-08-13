@@ -83,7 +83,8 @@ Route::middleware(['auth'])->group(function () {
 
     //Menu Jurnal KBM
     Route::get('/jurnal-kepsek', [App\Http\Controllers\AttendanceController::class, 'index'])->name('jurnal.index');
-    // Route untuk menghapus absensi harian
+    // Route untuk mengubah dan menghapus absensi harian
+    Route::put('/attendance/{id}', [SchoolController::class, 'updateAttendance'])->name('attendance.update');
     Route::delete('/attendance/{id}', [SchoolController::class, 'destroyAttendance'])->name('attendance.destroy');
     
     //Menu Ubah Password

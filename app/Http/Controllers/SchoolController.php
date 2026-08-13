@@ -211,6 +211,25 @@ class SchoolController extends Controller
         return redirect()->back()->with('success', 'Catatan evaluasi Pengawas berhasil disimpan!');
     }
 
+    public function updateAttendance(Request $request, $id)
+    {
+        $attendance = Attendance::findOrFail($id);
+        $this->authorizeAdminForSchool($attendance->school_id);
+
+        $data = $request->validate([
+            'siswa_hadir' => 'required|integer|min:0',
+            'guru_hadir' => 'required|integer|min:0',
+            'kepsek_hadir' => 'required|boolean',
+            'tupoksi' => 'required|string',
+            'keterangan' => 'nullable|string',
+            'foto_kegiatan' => 'nullable|string',
+        ]);
+
+        $attendance->update($data);
+
+        return redirect()->back()->with('success', 'Data Jurnal Kepsek berhasil diperbarui!');
+    }
+
     public function destroyAttendance($id)
     {
         $attendance = Attendance::findOrFail($id);
