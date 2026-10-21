@@ -18,9 +18,15 @@
     {{-- PANEL REKAPITULASI KESELURUHAN (SELURUH SEKOLAH) --}}
     <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center mb-3 gap-2">
         <h5 class="fw-bold mb-0 text-secondary" style="font-size: 1rem;">Rekapitulasi Seluruh Sekolah Binaan</h5>
-        <a href="{{ route('strategy.export') }}" class="btn btn-success btn-sm fw-bold d-flex align-items-center gap-1 shadow-sm">
-            <span class="material-symbols-outlined fs-6">download</span> Download File Rekap
-        </a>
+        @if($selectedSchool)
+            <a href="{{ route('strategy.export', ['school_id' => $selectedSchool->id]) }}" class="btn btn-success btn-sm fw-bold d-flex align-items-center gap-1 shadow-sm">
+                <span class="material-symbols-outlined fs-6">download</span> Download File Rekap
+            </a>
+        @else
+            <button type="button" class="btn btn-success btn-sm fw-bold d-flex align-items-center gap-1 shadow-sm" disabled title="Pilih sekolah binaan terlebih dahulu">
+                <span class="material-symbols-outlined fs-6">download</span> Download File Rekap
+            </button>
+        @endif
     </div>
     <div class="row g-3 mb-4">
         <div class="col-12 col-md-3">
@@ -158,11 +164,10 @@
         @endif
 
 
-        {{-- TABEL DATA STRATEGI DENGAN PAGINATION & SEARCH --}}
+        {{-- RIWAYAT STRATEGI: CARD LIST --}}
         <div class="card border-0 shadow-sm rounded-4 mb-4">
             <div class="card-header bg-white border-bottom-0 pt-4 pb-3 px-4 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
                 <h5 class="font-headline fw-bold mb-0">Riwayat Strategi</h5>
-                
                 <div class="d-flex flex-column flex-sm-row gap-2 align-items-sm-center">
                     <div class="d-flex align-items-center gap-2">
                         <span class="small text-muted fw-bold d-none d-sm-inline">Tampilkan</span>
@@ -180,80 +185,203 @@
             </div>
 
             <div class="card-body p-0">
-                <div class="p-4 pt-3 table-responsive">
-                    <table class="table table-sm align-middle mb-0">
-                        <thead class="bg-light text-muted small">
-                            <tr>
-                                <th class="ps-2">Tanggal</th>
-                                <th>Nama Sekolah</th>
-                                <th>Strategi Pendampingan</th>
-                                <th>Keterangan Tambahan</th>
-                                <th class="text-center">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody id="strategyTableBody">
-                            @forelse($strategies as $str)
-                            <tr class="strategy-row small">
-                                <td class="fw-bold text-nowrap ps-2">{{ $str->created_at->format('d M Y') }}</td>
-                                <td class="fw-bold text-primary">{{ $str->school->name ?? '-' }}</td>
-                                <td><span class="badge bg-dark bg-opacity-10 text-dark border border-dark">{{ $str->strategy }}</span></td>
-                                <td class="text-muted" style="max-width: 300px; white-space: normal;">{{ $str->keterangan ?? '-' }}</td>
-                                <td class="text-center">
-                                    <div class="d-flex justify-content-center gap-2">
-                                        <button class="btn btn-link text-primary p-0" data-bs-toggle="modal" data-bs-target="#editModal{{ $str->id }}"><span class="material-symbols-outlined fs-6">edit</span></button>
-                                        <form action="{{ route('strategy.destroy', $str->id) }}" method="POST" onsubmit="return confirm('Hapus riwayat strategi ini?')">
-                                            @csrf @method('DELETE')
-                                            <button type="submit" class="btn btn-link text-danger p-0"><span class="material-symbols-outlined fs-6">delete</span></button>
-                                        </form>
+                <div id="strategyListContainer" class="px-4 pb-4 pt-2">
+
+                    @forelse($strategies as $str)
+                    <div class="strategy-row strategy-history-card border rounded-4 p-0 mb-3 overflow-hidden">
+
+                        {{-- Header card: Nama Sekolah + Nomor + Tombol Aksi --}}
+                        <div class="strategy-history-header d-flex align-items-center justify-content-between px-4 py-3" style="border-bottom: 1px solid;">
+                            <div class="d-flex align-items-center gap-3">
+                                <span class="badge bg-primary rounded-pill px-3 py-2 fs-6 fw-bold">{{ $loop->iteration }}</span>
+                                <div>
+                                    <div class="fw-bold text-primary" style="font-size: 0.97rem;">{{ $str->school->name ?? '-' }}</div>
+                                    <small class="strategy-meta">Dibuat: {{ $str->created_at->format('d M Y') }}</small>
+                                </div>
+                            </div>
+                            <div class="strategy-actions d-flex gap-2">
+                                <button class="btn btn-sm btn-outline-primary rounded-3 d-flex align-items-center gap-1" data-bs-toggle="modal" data-bs-target="#editModal{{ $str->id }}" title="Edit">
+                                    <span class="material-symbols-outlined" style="font-size:1rem;">edit</span>
+                                    <span class="d-none d-sm-inline">Edit</span>
+                                </button>
+                                <form action="{{ route('strategy.destroy', $str->id) }}" method="POST" onsubmit="return confirm('Hapus riwayat strategi ini?')">
+                                    @csrf @method('DELETE')
+                                    <button type="submit" class="btn btn-sm btn-outline-danger rounded-3 d-flex align-items-center gap-1" title="Hapus">
+                                        <span class="material-symbols-outlined" style="font-size:1rem;">delete</span>
+                                        <span class="d-none d-sm-inline">Hapus</span>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+
+                        {{-- Body card: 7 field dalam 2 kolom --}}
+                        <div class="px-4 py-3">
+                            <div class="row g-3">
+
+                                {{-- Kiri: Strategi, Tahap, Metode, Jadwal --}}
+                                <div class="col-12 col-lg-4 d-flex flex-column gap-3">
+
+                                    {{-- 1. Strategi Pendampingan --}}
+                                    <div>
+                                        <div class="strategy-label text-uppercase fw-bold mb-1" style="font-size:0.6rem;letter-spacing:.08em;">Strategi Pendampingan</div>
+                                        <span class="badge strategy-badge-dark fw-semibold px-3 py-2 rounded-pill border" style="font-size:.78rem;">
+                                            {{ $str->strategy }}
+                                        </span>
                                     </div>
 
-                                    {{-- MODAL EDIT (Disembunyikan di dalam loop) --}}
-                                    <div class="modal fade" id="editModal{{ $str->id }}" tabindex="-1" aria-hidden="true">
-                                        <div class="modal-dialog modal-dialog-centered text-start">
-                                            <div class="modal-content border-0 shadow rounded-4">
-                                                <form action="{{ route('strategy.update', $str->id) }}" method="POST">
-                                                    @csrf @method('PUT')
-                                                    <div class="modal-header border-bottom-0">
-                                                        <h1 class="modal-title fs-5 font-headline fw-bold">Edit Strategi</h1>
-                                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                                    </div>
-                                                    <div class="modal-body p-4 pt-0">
-                                                        <div class="mb-3">
-                                                            <label class="small fw-bold">Strategi Pendampingan</label>
-                                                            <select name="strategy" class="form-select bg-light" required>
-                                                                <option value="Penyemaian Perubahan (Seeding Change)" {{ $str->strategy == 'Penyemaian Perubahan (Seeding Change)' ? 'selected' : '' }}>Penyemaian Perubahan (Seeding Change)</option>
-                                                                <option value="Perubahan Segera (Rapid Change)" {{ $str->strategy == 'Perubahan Segera (Rapid Change)' ? 'selected' : '' }}>Perubahan Segera (Rapid Change)</option>
-                                                                <option value="Penguatan Perubahan (Reinforcing Change)" {{ $str->strategy == 'Penguatan Perubahan (Reinforcing Change)' ? 'selected' : '' }}>Penguatan Perubahan (Reinforcing Change)</option>
-                                                                <option value="Perubahan Berangsur (Gradual Change)" {{ $str->strategy == 'Perubahan Berangsur (Gradual Change)' ? 'selected' : '' }}>Perubahan Berangsur (Gradual Change)</option>
-                                                                <option value="Pemicu Perubahan (Triggering Change)" {{ $str->strategy == 'Pemicu Perubahan (Triggering Change)' ? 'selected' : '' }}>Pemicu Perubahan (Triggering Change)</option>
-                                                                <option value="Perubahan Berkelanjutan (Sustainable Change)" {{ $str->strategy == 'Perubahan Berkelanjutan (Sustainable Change)' ? 'selected' : '' }}>Perubahan Berkelanjutan (Sustainable Change)</option>
-                                                            </select>
-                                                        </div>
-                                                        <div class="mb-3">
-                                                            <label class="small fw-bold">Keterangan / Alasan</label>
-                                                            <textarea name="keterangan" class="form-control bg-light" rows="3">{{ $str->keterangan }}</textarea>
-                                                        </div>
-                                                    </div>
-                                                    <div class="modal-footer bg-light border-top-0 rounded-bottom-4">
-                                                        <button type="button" class="btn btn-outline-secondary btn-sm fw-bold" data-bs-dismiss="modal">Batal</button>
-                                                        <button type="submit" class="btn btn-primary btn-sm fw-bold">Update Data</button>
-                                                    </div>
-                                                </form>
-                                            </div>
+                                    {{-- 2. Tahap Pendampingan --}}
+                                    <div>
+                                        <div class="strategy-label text-uppercase fw-bold mb-1" style="font-size:0.6rem;letter-spacing:.08em;">Tahap Pendampingan</div>
+                                        @if($str->tahap_pendampingan)
+                                            <span class="badge strategy-badge-purple fw-semibold px-3 py-2 rounded-pill border" style="font-size:.78rem;">
+                                                {{ $str->tahap_pendampingan }}
+                                            </span>
+                                        @else
+                                            <span class="strategy-meta small">-</span>
+                                        @endif
+                                    </div>
+
+                                    {{-- 4. Metode Pendampingan --}}
+                                    <div>
+                                        <div class="strategy-label text-uppercase fw-bold mb-1" style="font-size:0.6rem;letter-spacing:.08em;">Metode Pendampingan</div>
+                                        @if($str->metode_pendampingan)
+                                            <span class="badge strategy-badge-info fw-semibold px-3 py-2 rounded-pill border" style="font-size:.78rem;">
+                                                {{ $str->metode_pendampingan }}
+                                            </span>
+                                        @else
+                                            <span class="strategy-meta small">-</span>
+                                        @endif
+                                    </div>
+
+                                    {{-- 5. Jadwal Pendampingan --}}
+                                    <div>
+                                        <div class="strategy-label text-uppercase fw-bold mb-1" style="font-size:0.6rem;letter-spacing:.08em;">Jadwal Pendampingan</div>
+                                        @if($str->jadwal_pendampingan)
+                                            <span class="badge strategy-badge-date fw-semibold px-3 py-2 rounded-pill border" style="font-size:.78rem;">
+                                                <span class="material-symbols-outlined align-middle" style="font-size:.9rem;">calendar_month</span>
+                                                {{ \Carbon\Carbon::parse($str->jadwal_pendampingan)->translatedFormat('d F Y') }}
+                                            </span>
+                                        @else
+                                            <span class="strategy-meta small">-</span>
+                                        @endif
+                                    </div>
+
+                                </div>
+
+                                {{-- Kanan: Fokus, Langkah, Output --}}
+                                <div class="col-12 col-lg-8 d-flex flex-column gap-3">
+
+                                    {{-- 3. Fokus/Sasaran Pendampingan --}}
+                                    <div>
+                                        <div class="strategy-label text-uppercase fw-bold mb-1" style="font-size:0.6rem;letter-spacing:.08em;">Fokus / Sasaran Pendampingan</div>
+                                        <div class="strategy-value small lh-base" style="white-space:pre-line;">{{ $str->fokus_sasaran ?? '-' }}</div>
+                                    </div>
+
+                                    {{-- 6. Langkah/Rencana Aksi --}}
+                                    <div>
+                                        <div class="strategy-label text-uppercase fw-bold mb-1" style="font-size:0.6rem;letter-spacing:.08em;">Langkah / Rencana Aksi</div>
+                                        <div class="strategy-value small lh-base" style="white-space:pre-line;">{{ $str->langkah_rencana_aksi ?? '-' }}</div>
+                                    </div>
+
+                                    {{-- 7. Output dan Indikator Keberhasilan --}}
+                                    <div>
+                                        <div class="strategy-label text-uppercase fw-bold mb-1" style="font-size:0.6rem;letter-spacing:.08em;">Output dan Indikator Keberhasilan</div>
+                                        <div class="strategy-value small lh-base" style="white-space:pre-line;">{{ $str->output_indikator ?? '-' }}</div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Modal Edit data ini --}}
+                    <div class="modal fade strategy-edit-modal" id="editModal{{ $str->id }}" tabindex="-1" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable text-start modal-lg">
+                            <form action="{{ route('strategy.update', $str->id) }}" method="POST" class="modal-content border-0 shadow rounded-4">
+                                @csrf @method('PUT')
+                                <div class="modal-header border-bottom py-3 px-4">
+                                    <div>
+                                        <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill px-3 py-1 mb-1">Edit Data</span>
+                                        <h1 class="modal-title fs-5 font-headline fw-bold mb-0">Edit Strategi Pendampingan</h1>
+                                        <small class="strategy-meta">{{ $str->school->name ?? '-' }}</small>
+                                    </div>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                </div>
+                                <div class="modal-body p-4" style="max-height: calc(85vh - 140px); overflow-y: auto;">
+                                    <div class="row g-3">
+                                        <div class="col-12 col-md-6">
+                                            <label class="form-label small fw-bold">1. Strategi Pendampingan</label>
+                                            <select name="strategy" class="form-select" required>
+                                                <option value="Penyemaian Perubahan (Seeding Change)" {{ $str->strategy == 'Penyemaian Perubahan (Seeding Change)' ? 'selected' : '' }}>1. Penyemaian</option>
+                                                <option value="Perubahan Segera (Rapid Change)" {{ $str->strategy == 'Perubahan Segera (Rapid Change)' ? 'selected' : '' }}>2. Segera</option>
+                                                <option value="Penguatan Perubahan (Reinforcing Change)" {{ $str->strategy == 'Penguatan Perubahan (Reinforcing Change)' ? 'selected' : '' }}>3. Penguatan</option>
+                                                <option value="Perubahan Berangsur (Gradual Change)" {{ $str->strategy == 'Perubahan Berangsur (Gradual Change)' ? 'selected' : '' }}>4. Berangsur</option>
+                                                <option value="Pemicu Perubahan (Triggering Change)" {{ $str->strategy == 'Pemicu Perubahan (Triggering Change)' ? 'selected' : '' }}>5. Pemicu</option>
+                                                <option value="Perubahan Berkelanjutan (Sustainable Change)" {{ $str->strategy == 'Perubahan Berkelanjutan (Sustainable Change)' ? 'selected' : '' }}>6. Berkelanjutan</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-12 col-md-6">
+                                            <label class="form-label small fw-bold">2. Tahap Pendampingan</label>
+                                            <select name="tahap_pendampingan" class="form-select">
+                                                <option value="">-- Pilih --</option>
+                                                <option value="Pendampingan Perencanaan Program" {{ $str->tahap_pendampingan == 'Pendampingan Perencanaan Program' ? 'selected' : '' }}>1. Pendampingan Perencanaan Program</option>
+                                                <option value="Pelaksanaan Program" {{ $str->tahap_pendampingan == 'Pelaksanaan Program' ? 'selected' : '' }}>2. Pelaksanaan Program</option>
+                                                <option value="Evaluasi dan Umpan Balik" {{ $str->tahap_pendampingan == 'Evaluasi dan Umpan Balik' ? 'selected' : '' }}>3. Evaluasi dan Umpan Balik</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-12">
+                                            <label class="form-label small fw-bold">3. Fokus / Sasaran Pendampingan</label>
+                                            <textarea name="fokus_sasaran" class="form-control" rows="2">{{ $str->fokus_sasaran }}</textarea>
+                                        </div>
+                                        <div class="col-12 col-md-6">
+                                            <label class="form-label small fw-bold">4. Metode Pendampingan</label>
+                                            <select name="metode_pendampingan" class="form-select">
+                                                <option value="">-- Pilih --</option>
+                                                <option value="Training" {{ $str->metode_pendampingan == 'Training' ? 'selected' : '' }}>1. Training</option>
+                                                <option value="Consulting" {{ $str->metode_pendampingan == 'Consulting' ? 'selected' : '' }}>2. Consulting</option>
+                                                <option value="Mentoring" {{ $str->metode_pendampingan == 'Mentoring' ? 'selected' : '' }}>3. Mentoring</option>
+                                                <option value="Coaching" {{ $str->metode_pendampingan == 'Coaching' ? 'selected' : '' }}>4. Coaching</option>
+                                                <option value="Fasilitating" {{ $str->metode_pendampingan == 'Fasilitating' ? 'selected' : '' }}>5. Fasilitating</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-12 col-md-6">
+                                            <label class="form-label small fw-bold">5. Jadwal / Waktu Pendampingan</label>
+                                            <input type="date" name="jadwal_pendampingan" class="form-control" value="{{ $str->jadwal_pendampingan ? \Carbon\Carbon::parse($str->jadwal_pendampingan)->format('Y-m-d') : '' }}">
+                                        </div>
+                                        <div class="col-12">
+                                            <label class="form-label small fw-bold">6. Langkah / Rencana Aksi</label>
+                                            <textarea name="langkah_rencana_aksi" class="form-control" rows="2">{{ $str->langkah_rencana_aksi }}</textarea>
+                                        </div>
+                                        <div class="col-12">
+                                            <label class="form-label small fw-bold">7. Output dan Indikator Keberhasilan</label>
+                                            <textarea name="output_indikator" class="form-control" rows="2">{{ $str->output_indikator }}</textarea>
                                         </div>
                                     </div>
-                                </td>
-                            </tr>
-                            @empty
-                            <tr id="emptyRow"><td colspan="5" class="text-center small text-muted py-5">Belum ada strategi yang diinputkan.</td></tr>
-                            @endforelse
-                            <tr id="notFoundRow" style="display: none;"><td colspan="5" class="text-center small text-muted py-4">Data tidak ditemukan.</td></tr>
-                        </tbody>
-                    </table>
+                                </div>
+                                <div class="modal-footer border-top py-3 px-4 d-flex justify-content-between align-items-center">
+                                    <button type="button" class="btn btn-outline-secondary px-3 py-2 fw-semibold" data-bs-dismiss="modal">Batal</button>
+                                    <button type="submit" class="btn btn-primary px-4 py-2 fw-bold d-flex align-items-center gap-1 shadow-sm">
+                                        <span class="material-symbols-outlined fs-6">save</span> Simpan Perubahan
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    {{-- Empty State --}}
+                    <div id="emptyRow" class="{{ $strategies->isEmpty() ? '' : 'd-none' }} text-center py-5 text-muted small">
+                        Belum ada strategi yang diinputkan.
+                    </div>
+                    <div id="notFoundRow" class="d-none text-center py-4 text-muted small">
+                        Data tidak ditemukan.
+                    </div>
+
+                    @empty
+                    @endforelse
                 </div>
 
                 {{-- PAGINATION FOOTER --}}
-                <div class="p-3 bg-light bg-opacity-25 border-top d-flex justify-content-between align-items-center rounded-bottom-4">
+                <div class="px-4 pb-3 pt-0 d-flex justify-content-between align-items-center border-top">
                     <small class="text-muted fw-semibold" id="strategyPageInfo"></small>
                     <nav id="strategyPagination"></nav>
                 </div>
@@ -262,46 +390,82 @@
 
         @if($selectedSchool)
             {{-- MODAL TAMBAH DATA BARU (SUDAH OTOMATIS TERKUNCI KE SEKOLAH YANG DIPILIH) --}}
-            <div class="modal fade" id="modalStrategi" tabindex="-1" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered">
-                    <div class="modal-content border-0 shadow rounded-4 text-start">
-                        <form action="{{ route('strategy.store') }}" method="POST">
-                            @csrf
-                            {{-- KUNCI INPUTAN KE SEKOLAH YANG SEDANG DIPILIH --}}
-                            <input type="hidden" name="school_id" value="{{ $selectedSchool->id }}">
-                            
-                            <div class="modal-header border-bottom-0">
-                                <h1 class="modal-title fs-5 font-headline fw-bold">Input Siklus Strategi</h1>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            <div class="modal fade strategy-edit-modal" id="modalStrategi" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable text-start modal-lg">
+                    <form action="{{ route('strategy.store') }}" method="POST" class="modal-content border-0 shadow rounded-4">
+                        @csrf
+                        {{-- KUNCI INPUTAN KE SEKOLAH YANG SEDANG DIPILIH --}}
+                        <input type="hidden" name="school_id" value="{{ $selectedSchool->id }}">
+
+                        <div class="modal-header border-bottom py-3 px-4">
+                            <div>
+                                <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill px-3 py-1 mb-1">Input Data</span>
+                                <h1 class="modal-title fs-5 font-headline fw-bold mb-0">Input Siklus Strategi</h1>
+                                <small class="strategy-meta">{{ $selectedSchool->name }} (Skor: {{ $skor }}%)</small>
                             </div>
-                            <div class="modal-body p-4 pt-0">
-                                <div class="mb-3">
-                                    <label class="small fw-bold">Sekolah Binaan</label>
-                                    <input type="text" class="form-control bg-light text-muted fw-bold" value="{{ $selectedSchool->name }} (Skor: {{ $skor }}%)" disabled>
-                                </div>
-                                <div class="mb-3">
-                                    <label class="small fw-bold">Rekomendasi Strategi</label>
-                                    <select name="strategy" class="form-select" required>
-                                        <option value="">-- Pilih Strategi --</option>
-                                        <option value="Penyemaian Perubahan (Seeding Change)">1. Penyemaian Perubahan (Seeding Change)</option>
-                                        <option value="Perubahan Segera (Rapid Change)">2. Perubahan Segera (Rapid Change)</option>
-                                        <option value="Penguatan Perubahan (Reinforcing Change)">3. Penguatan Perubahan (Reinforcing Change)</option>
-                                        <option value="Perubahan Berangsur (Gradual Change)">4. Perubahan Berangsur (Gradual Change)</option>
-                                        <option value="Pemicu Perubahan (Triggering Change)">5. Pemicu Perubahan (Triggering Change)</option>
-                                        <option value="Perubahan Berkelanjutan (Sustainable Change)">6. Perubahan Berkelanjutan (Sustainable Change)</option>
-                                    </select>
-                                </div>
-                                <div class="mb-3">
-                                    <label class="small fw-bold">Keterangan / Alasan</label>
-                                    <textarea name="keterangan" class="form-control" rows="3" placeholder="Tuliskan alasan mengapa strategi ini dipilih..."></textarea>
-                                </div>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body p-4" style="max-height: calc(85vh - 140px); overflow-y: auto;">
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold">Sekolah Binaan</label>
+                                <input type="text" class="form-control text-muted fw-bold" value="{{ $selectedSchool->name }} (Skor: {{ $skor }}%)" disabled>
                             </div>
-                            <div class="modal-footer bg-light border-top-0 rounded-bottom-4">
-                                <button type="button" class="btn btn-outline-secondary btn-sm fw-bold" data-bs-dismiss="modal">Batal</button>
-                                <button type="submit" class="btn btn-primary btn-sm fw-bold">Simpan Data</button>
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold">1. Strategi Pendampingan</label>
+                                <select name="strategy" id="strategyInput" class="form-select" required>
+                                    <option value="">-- Pilih Strategi --</option>
+                                    <option value="Penyemaian Perubahan (Seeding Change)">1. Penyemaian</option>
+                                    <option value="Perubahan Segera (Rapid Change)">2. Segera</option>
+                                    <option value="Penguatan Perubahan (Reinforcing Change)">3. Penguatan</option>
+                                    <option value="Perubahan Berangsur (Gradual Change)">4. Berangsur</option>
+                                    <option value="Pemicu Perubahan (Triggering Change)">5. Pemicu</option>
+                                    <option value="Perubahan Berkelanjutan (Sustainable Change)">6. Berkelanjutan</option>
+                                </select>
                             </div>
-                        </form>
-                    </div>
+                            <div class="mb-3 strategy-detail-field d-none">
+                                <label class="form-label small fw-bold">2. Tahap Pendampingan</label>
+                                <select name="tahap_pendampingan" id="tahapPendampinganInput" class="form-select" required disabled>
+                                    <option value="">-- Pilih Tahap Pendampingan --</option>
+                                    <option value="Pendampingan Perencanaan Program">1. Pendampingan Perencanaan Program</option>
+                                    <option value="Pelaksanaan Program">2. Pelaksanaan Program</option>
+                                    <option value="Evaluasi dan Umpan Balik">3. Evaluasi dan Umpan Balik</option>
+                                </select>
+                            </div>
+                            <div class="mb-3 strategy-detail-field d-none">
+                                <label class="form-label small fw-bold">3. Fokus/Sasaran Pendampingan</label>
+                                <textarea name="fokus_sasaran" id="fokusSasaranInput" class="form-control" rows="3" required disabled></textarea>
+                            </div>
+                            <div class="mb-3 strategy-detail-field d-none">
+                                <label class="form-label small fw-bold">4. Metode Pendampingan</label>
+                                <select name="metode_pendampingan" id="metodePendampinganInput" class="form-select" required disabled>
+                                    <option value="">-- Pilih Metode Pendampingan --</option>
+                                    <option value="Training">1. Training</option>
+                                    <option value="Consulting">2. Consulting</option>
+                                    <option value="Mentoring">3. Mentoring</option>
+                                    <option value="Coaching">4. Coaching</option>
+                                    <option value="Fasilitating">5. Fasilitating</option>
+                                </select>
+                            </div>
+                            <div class="mb-3 strategy-detail-field d-none">
+                                <label class="form-label small fw-bold">5. Langkah/Rencana Aksi</label>
+                                <textarea name="langkah_rencana_aksi" id="langkahAksiInput" class="form-control" rows="3" required disabled></textarea>
+                            </div>
+                            <div class="mb-3 strategy-detail-field d-none">
+                                <label class="form-label small fw-bold">6. Output dan Indikator Keberhasilan</label>
+                                <textarea name="output_indikator" id="outputIndikatorInput" class="form-control" rows="3" required disabled></textarea>
+                            </div>
+                            <div class="mb-3 strategy-detail-field d-none">
+                                <label class="form-label small fw-bold">7. Jadwal/Waktu Pendampingan</label>
+                                <input type="date" name="jadwal_pendampingan" id="jadwalPendampinganInput" class="form-control" required disabled>
+                            </div>
+                        </div>
+                        <div class="modal-footer border-top py-3 px-4 d-flex justify-content-between align-items-center">
+                            <button type="button" class="btn btn-outline-secondary px-3 py-2 fw-semibold" data-bs-dismiss="modal">Batal</button>
+                            <button type="submit" class="btn btn-primary px-4 py-2 fw-bold d-flex align-items-center gap-1 shadow-sm">
+                                <span class="material-symbols-outlined fs-6">save</span> Simpan Data
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
         @endif
@@ -313,6 +477,110 @@
     <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
     
     <style>
+        /* Riwayat strategi mengikuti light/dark mode aplikasi */
+        .strategy-history-card {
+            background: var(--surface) !important;
+            border-color: var(--line) !important;
+            color: var(--text-main);
+        }
+
+        .strategy-history-header {
+            background: linear-gradient(90deg, var(--surface-soft), var(--surface-muted)) !important;
+            border-color: var(--line) !important;
+        }
+
+        .strategy-history-card .strategy-label {
+            color: var(--text-soft) !important;
+        }
+
+        .strategy-history-card .strategy-value {
+            color: var(--text-main) !important;
+        }
+
+        .strategy-history-card .strategy-meta {
+            color: var(--text-soft) !important;
+        }
+
+        .strategy-history-card .strategy-badge-dark {
+            background: rgba(128, 145, 151, .16) !important;
+            color: var(--text-main) !important;
+            border-color: var(--line) !important;
+        }
+
+        .strategy-history-card .strategy-badge-purple {
+            background: rgba(155, 110, 220, .16) !important;
+            color: #b995ed !important;
+            border-color: rgba(155, 110, 220, .35) !important;
+        }
+
+        .strategy-history-card .strategy-badge-info {
+            background: rgba(13, 202, 240, .14) !important;
+            color: #63d8ed !important;
+            border-color: rgba(13, 202, 240, .35) !important;
+        }
+
+        .strategy-history-card .strategy-badge-date {
+            background: rgba(13, 110, 253, .14) !important;
+            color: #76adff !important;
+            border-color: rgba(13, 110, 253, .35) !important;
+        }
+
+        .strategy-edit-modal .modal-content {
+            background: var(--surface) !important;
+            color: var(--text-main);
+        }
+
+        .strategy-edit-modal .modal-header,
+        .strategy-edit-modal .modal-footer {
+            background: var(--surface-soft) !important;
+            border-color: var(--line) !important;
+        }
+
+        .strategy-edit-modal .form-control,
+        .strategy-edit-modal .form-select {
+            background: var(--surface-muted) !important;
+            color: var(--text-main) !important;
+            border-color: var(--line) !important;
+        }
+
+        .strategy-edit-modal .form-control::placeholder {
+            color: var(--text-soft) !important;
+        }
+
+        .strategy-edit-modal .btn-close {
+            filter: none;
+        }
+
+        html[data-theme="dark"] .strategy-edit-modal .btn-close {
+            filter: invert(1) grayscale(1) brightness(2);
+        }
+
+        @media (max-width: 575.98px) {
+            .strategy-history-card .strategy-history-header {
+                align-items: flex-start !important;
+                gap: .75rem;
+                flex-direction: column;
+            }
+
+            .strategy-history-card .strategy-actions {
+                width: 100%;
+            }
+
+            .strategy-history-card .strategy-actions form,
+            .strategy-history-card .strategy-actions button {
+                flex: 1;
+            }
+
+            .strategy-edit-modal .modal-dialog {
+                margin: .5rem;
+            }
+
+            .strategy-edit-modal .modal-body {
+                padding-left: 1rem !important;
+                padding-right: 1rem !important;
+            }
+        }
+
         /* 1. Pengaturan Dasar */
         .choices { 
             font-size: 1rem; 
@@ -405,11 +673,36 @@
                 });
             }
 
-            // Inisiasi Paginasi & Pencarian Tabel
-            const tableBody = document.getElementById('strategyTableBody');
-            if(!tableBody) return;
+            // Tampilkan isian pendampingan secara bertahap setelah isian sebelumnya selesai.
+            const progressiveFields = [
+                { trigger: document.getElementById('strategyInput'), field: document.getElementById('tahapPendampinganInput') },
+                { trigger: document.getElementById('tahapPendampinganInput'), field: document.getElementById('fokusSasaranInput') },
+                { trigger: document.getElementById('fokusSasaranInput'), field: document.getElementById('metodePendampinganInput') },
+                { trigger: document.getElementById('metodePendampinganInput'), field: document.getElementById('langkahAksiInput') },
+                { trigger: document.getElementById('langkahAksiInput'), field: document.getElementById('outputIndikatorInput') },
+                { trigger: document.getElementById('outputIndikatorInput'), field: document.getElementById('jadwalPendampinganInput') },
+            ];
 
-            let allRows = Array.from(document.querySelectorAll('.strategy-row'));
+            progressiveFields.forEach(({ trigger, field }) => {
+                if (!trigger || !field) return;
+
+                const container = field.closest('.strategy-detail-field');
+                const updateVisibility = () => {
+                    const isCompleted = trigger.value.trim() !== '';
+                    container.classList.toggle('d-none', !isCompleted);
+                    field.disabled = !isCompleted;
+                };
+
+                trigger.addEventListener('input', updateVisibility);
+                trigger.addEventListener('change', updateVisibility);
+                updateVisibility();
+            });
+
+            // Inisiasi pencarian dan pagination daftar riwayat strategi.
+            const strategyListContainer = document.getElementById('strategyListContainer');
+            if(!strategyListContainer) return;
+
+            let allRows = Array.from(strategyListContainer.querySelectorAll('.strategy-row'));
             const searchInput = document.getElementById('searchStrategy');
             const entriesSelect = document.getElementById('entriesStrategy');
             const pageInfo = document.getElementById('strategyPageInfo');
