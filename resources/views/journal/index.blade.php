@@ -637,8 +637,9 @@
 
                         {{-- BODY MODAL --}}
                         <div class="modal-body px-4">
-                            <div class="alert alert-info bg-info bg-opacity-10 border-0 small mb-4 py-2 px-3 rounded-3">
-                                <span class="fw-bold text-info">Tanggal Jurnal:</span> <span class="text-info">{{ now()->translatedFormat('d F Y') }}</span>
+                            <div class="mb-4">
+                                <label class="form-label small fw-bold text-muted mb-1">Tanggal Jurnal</label>
+                                <input type="date" name="tanggal" class="form-control rounded-3 px-3 py-2" style="font-size: 0.9rem;" value="{{ old('tanggal', now()->format('Y-m-d')) }}" required>
                             </div>
 
                             <div class="row g-3 mb-3">

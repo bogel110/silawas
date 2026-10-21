@@ -98,6 +98,7 @@ class SchoolController extends Controller
         $this->authorizeAdminForSchool($school->id);
 
         $request->validate([
+            'tanggal'      => 'required|date',
             'siswa_hadir'  => 'required|integer|min:0',
             'guru_hadir'   => 'required|integer|min:0',
             'kepsek_hadir' => 'required|boolean',
@@ -109,7 +110,7 @@ class SchoolController extends Controller
         Attendance::updateOrCreate(
             [
                 'school_id' => $id,
-                'tanggal'   => now()->format('Y-m-d'),
+                'tanggal'   => $request->tanggal,
             ],
             [
                 'siswa_hadir'  => $request->siswa_hadir,

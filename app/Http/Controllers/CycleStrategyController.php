@@ -72,14 +72,33 @@ class CycleStrategyController extends Controller
         return view('strategy.index', compact('schools', 'selectedSchool', 'strategies', 'recapAll', 'recapSchool'));
     }
 
+    private const TAHAP_PENDAMPINGAN = [
+        'Pendampingan Perencanaan Program',
+        'Pelaksanaan Program',
+        'Evaluasi dan Umpan Balik',
+    ];
+
+    private const METODE_PENDAMPINGAN = [
+        'Training',
+        'Consulting',
+        'Mentoring',
+        'Coaching',
+        'Fasilitating',
+    ];
+
     public function store(Request $request)
     {
         $this->authorizePengawas();
 
         $data = $request->validate([
-            'school_id' => 'required|exists:schools,id',
-            'strategy' => ['required', 'string', Rule::in(self::STRATEGIES)],
-            'keterangan' => 'nullable|string'
+            'school_id'            => 'required|exists:schools,id',
+            'strategy'             => ['required', 'string', Rule::in(self::STRATEGIES)],
+            'tahap_pendampingan'   => ['nullable', 'string', Rule::in(self::TAHAP_PENDAMPINGAN)],
+            'fokus_sasaran'        => 'nullable|string',
+            'metode_pendampingan'  => ['nullable', 'string', Rule::in(self::METODE_PENDAMPINGAN)],
+            'langkah_rencana_aksi' => 'nullable|string',
+            'output_indikator'     => 'nullable|string',
+            'jadwal_pendampingan'  => 'nullable|date',
         ]);
 
         $this->authorizeSchoolAccess($data['school_id']);
@@ -94,8 +113,13 @@ class CycleStrategyController extends Controller
         $this->authorizePengawas();
 
         $data = $request->validate([
-            'strategy' => ['required', 'string', Rule::in(self::STRATEGIES)],
-            'keterangan' => 'nullable|string'
+            'strategy'             => ['required', 'string', Rule::in(self::STRATEGIES)],
+            'tahap_pendampingan'   => ['nullable', 'string', Rule::in(self::TAHAP_PENDAMPINGAN)],
+            'fokus_sasaran'        => 'nullable|string',
+            'metode_pendampingan'  => ['nullable', 'string', Rule::in(self::METODE_PENDAMPINGAN)],
+            'langkah_rencana_aksi' => 'nullable|string',
+            'output_indikator'     => 'nullable|string',
+            'jadwal_pendampingan'  => 'nullable|date',
         ]);
 
         $strategy = CycleStrategy::findOrFail($id);
@@ -120,18 +144,19 @@ class CycleStrategyController extends Controller
         $this->authorizePengawas();
 
         $schoolId = $request->get('school_id');
-        $query = CycleStrategy::with('school')->whereIn('school_id', $this->supervisedSchoolIds());
+        abort_unless($schoolId, 404, 'Pilih sekolah binaan terlebih dahulu untuk mengunduh rekap.');
+        $this->authorizeSchoolAccess($schoolId);
 
-        // Jika sedang memilih sekolah tertentu, export khusus data sekolah itu
-        if ($schoolId) {
-            $this->authorizeSchoolAccess($schoolId);
-            $query->where('school_id', $schoolId);
-            $schoolName = School::findOrFail($schoolId)->name;
-        } else {
-            $schoolName = "Semua_Sekolah";
-        }
-
-        $strategies = $query->latest()->get();
+        $school = School::findOrFail($schoolId);
+        $strategies = CycleStrategy::with('school')
+            ->where('school_id', $school->id)
+            ->latest()
+            ->get();
+        $schoolName = $school->name;
+        $principalName = \App\Models\User::where('school_id', $school->id)
+            ->where('role', 'admin_sekolah')
+            ->value('name') ?? '';
+        $supervisorName = auth()->user()->name;
         $filename = "Rekap_Siklus_Strategi_" . str_replace(' ', '_', $schoolName) . "_" . date('Y-m-d') . ".csv";
 
         $headers = [
@@ -142,26 +167,45 @@ class CycleStrategyController extends Controller
             "Expires"             => "0"
         ];
 
-        // Nama-nama kolom di baris paling atas Excel
-        $columns = ['Tanggal', 'Nama Sekolah', 'Skor Performa', 'Strategi Pendampingan', 'Keterangan Tambahan'];
+        $detailColumns = [
+            'No',
+            'Strategi Pendampingan',
+            'Tahap Pendampingan',
+            'Fokus/Sasaran Pendampingan',
+            'Metode Pendampingan',
+            'Langkah/Rencana Aksi',
+            'Output dan Indikator',
+            'Jadwal/Waktu Pendampingan',
+        ];
 
-        $callback = function() use($strategies, $columns) {
+        $callback = function() use($strategies, $detailColumns, $supervisorName, $schoolName, $principalName) {
             $file = fopen('php://output', 'w');
             
             // Tambahkan BOM agar Excel membaca karakter dengan benar (UTF-8)
             fputs($file, $bom =(chr(0xEF) . chr(0xBB) . chr(0xBF))); 
             
-            // Tulis baris header dengan pemisah titik koma (;)
-            fputcsv($file, $columns, ';');
+            // Informasi identitas rekap: label di kolom A, tanda titik dua dan nilai di kolom B.
+            fputcsv($file, ['Nama Pengawas', ': ' . $supervisorName], ';');
+            fputcsv($file, ['Unit Kerja', ':'], ';');
+            fputcsv($file, ['Nama Sekolah', ': ' . $schoolName], ';');
+            fputcsv($file, ['Nama Kepala Sekolah', ': ' . $principalName], ';');
+            fputcsv($file, ['NPSN', ':'], ';');
+            fputcsv($file, ['Alamat Sekolah', ':'], ';');
+            fputcsv($file, ['Periode Pendampingan', ':'], ';');
+            fputcsv($file, [], ';');
+            fputcsv($file, $detailColumns, ';');
 
-            // Tulis data per baris dengan pemisah titik koma (;)
-            foreach ($strategies as $str) {
+            // Tulis data strategi khusus untuk sekolah binaan yang dipilih.
+            foreach ($strategies as $index => $str) {
                 fputcsv($file, [
-                    $str->created_at->format('d/m/Y'),
-                    $str->school->name ?? '-',
-                    ($str->school->skor_performa ?? '0') . '%',
+                    $index + 1,
                     $str->strategy,
-                    $str->keterangan ?? '-'
+                    $str->tahap_pendampingan ?? '',
+                    $str->fokus_sasaran ?? '',
+                    $str->metode_pendampingan ?? '',
+                    $str->langkah_rencana_aksi ?? '',
+                    $str->output_indikator ?? '',
+                    $str->jadwal_pendampingan ? \Carbon\Carbon::parse($str->jadwal_pendampingan)->format('d/m/Y') : ''
                 ], ';');
             }
 
