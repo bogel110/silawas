@@ -39,7 +39,13 @@ class CycleStrategyController extends Controller
             $query->where('school_id', $selectedSchoolId);
         }
 
-        $strategies = $query->latest()->get();
+        // Riwayat diurutkan berdasarkan jadwal pendampingan dari yang terlama ke terbaru.
+        // Data tanpa jadwal ditempatkan setelah data yang memiliki tanggal.
+        $strategies = $query
+            ->orderByRaw('jadwal_pendampingan IS NULL')
+            ->orderBy('jadwal_pendampingan', 'asc')
+            ->orderBy('created_at', 'asc')
+            ->get();
 
         // Ambil SEMUA data strategi khusus untuk Recap, agar selalu merepresentasikan seluruh sekolah
         $allStrategies = CycleStrategy::whereIn('school_id', $schoolIds)->get();
@@ -72,11 +78,17 @@ class CycleStrategyController extends Controller
         return view('strategy.index', compact('schools', 'selectedSchool', 'strategies', 'recapAll', 'recapSchool'));
     }
 
-    private const TAHAP_PENDAMPINGAN = [
+    private const SIKLUS_PENDAMPINGAN = [
+        'Perencanaan Pendampingan',
         'Pendampingan Perencanaan Program',
+        'Pendampingan Pelaksanaan Program',
+        'Pelaporan Pendampingan',
+        // Nilai lama tetap disertakan agar data yang telah ada tetap valid
         'Pelaksanaan Program',
         'Evaluasi dan Umpan Balik',
     ];
+
+    private const TAHAP_PENDAMPINGAN = self::SIKLUS_PENDAMPINGAN;
 
     private const METODE_PENDAMPINGAN = [
         'Training',
@@ -150,7 +162,9 @@ class CycleStrategyController extends Controller
         $school = School::findOrFail($schoolId);
         $strategies = CycleStrategy::with('school')
             ->where('school_id', $school->id)
-            ->latest()
+            ->orderByRaw('jadwal_pendampingan IS NULL')
+            ->orderBy('jadwal_pendampingan', 'asc')
+            ->orderBy('created_at', 'asc')
             ->get();
         $schoolName = $school->name;
         $principalName = \App\Models\User::where('school_id', $school->id)
@@ -169,12 +183,12 @@ class CycleStrategyController extends Controller
 
         $detailColumns = [
             'No',
+            'Siklus Pendampingan',
             'Strategi Pendampingan',
-            'Tahap Pendampingan',
             'Fokus/Sasaran Pendampingan',
             'Metode Pendampingan',
             'Langkah/Rencana Aksi',
-            'Output dan Indikator',
+            'Output dan Indikator Keberhasilan',
             'Jadwal/Waktu Pendampingan',
         ];
 
@@ -199,8 +213,8 @@ class CycleStrategyController extends Controller
             foreach ($strategies as $index => $str) {
                 fputcsv($file, [
                     $index + 1,
-                    $str->strategy,
                     $str->tahap_pendampingan ?? '',
+                    $str->strategy,
                     $str->fokus_sasaran ?? '',
                     $str->metode_pendampingan ?? '',
                     $str->langkah_rencana_aksi ?? '',

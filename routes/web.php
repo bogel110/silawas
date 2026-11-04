@@ -98,13 +98,6 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/siklus-strategi/{id}', [App\Http\Controllers\CycleStrategyController::class, 'destroy'])->name('strategy.destroy');
     Route::get('/siklus-strategi/export', [App\Http\Controllers\CycleStrategyController::class, 'export'])->name('strategy.export');
 
-    // Modul Siklus Pendampingan (Khusus Pengawas)
-    Route::get('/siklus-pendampingan', [App\Http\Controllers\MentoringCycleController::class, 'index'])->name('mentoring.index');
-    Route::post('/siklus-pendampingan', [App\Http\Controllers\MentoringCycleController::class, 'store'])->name('mentoring.store');
-    Route::put('/siklus-pendampingan/{id}', [App\Http\Controllers\MentoringCycleController::class, 'update'])->name('mentoring.update');
-    Route::delete('/siklus-pendampingan/{id}', [App\Http\Controllers\MentoringCycleController::class, 'destroy'])->name('mentoring.destroy');
-    Route::get('/siklus-pendampingan/export', [App\Http\Controllers\MentoringCycleController::class, 'export'])->name('mentoring.export');
-
     // Rute Prestasi Khusus ADMIN SEKOLAH
     Route::get('/prestasi', [App\Http\Controllers\AchievementController::class, 'indexAdmin'])->name('achievement.admin');
     Route::post('/prestasi', [App\Http\Controllers\AchievementController::class, 'store'])->name('achievement.store');
