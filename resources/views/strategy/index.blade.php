@@ -4,7 +4,7 @@
 
 @section('content')
     <div class="mb-4">
-        <h2 class="display-6 fw-extrabold font-headline mb-0">Strategi Pendampingan</h2>
+        <h2 class="display-6 fw-extrabold font-headline mb-0">Siklus & Strategi Pendampingan</h2>
         <p class="text-muted small mb-0">Manajemen pendekatan pengawasan berdasarkan skor performa sekolah.</p>
     </div>
 
@@ -113,7 +113,7 @@
             @if($selectedSchool)
             <button type="button" class="btn btn-primary fw-bold shadow-sm px-4 py-2" data-bs-toggle="modal" data-bs-target="#modalStrategi">
                 <span class="d-flex align-items-center gap-2">
-                    <span class="material-symbols-outlined fs-5">add_circle</span> Input Strategi
+                    <span class="material-symbols-outlined fs-5">add_circle</span> Input Silus & Strategi
                 </span>
             </button>
             @endif
@@ -167,7 +167,7 @@
         {{-- RIWAYAT STRATEGI: CARD LIST --}}
         <div class="card border-0 shadow-sm rounded-4 mb-4">
             <div class="card-header bg-white border-bottom-0 pt-4 pb-3 px-4 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
-                <h5 class="font-headline fw-bold mb-0">Riwayat Strategi</h5>
+                <h5 class="font-headline fw-bold mb-0">Riwayat Siklus & Strategi</h5>
                 <div class="d-flex flex-column flex-sm-row gap-2 align-items-sm-center">
                     <div class="d-flex align-items-center gap-2">
                         <span class="small text-muted fw-bold d-none d-sm-inline">Tampilkan</span>
@@ -310,7 +310,17 @@
                                 <div class="modal-body p-4" style="max-height: calc(85vh - 140px); overflow-y: auto;">
                                     <div class="row g-3">
                                         <div class="col-12 col-md-6">
-                                            <label class="form-label small fw-bold">1. Strategi Pendampingan</label>
+                                            <label class="form-label small fw-bold">1. Siklus Pendampingan</label>
+                                            <select name="tahap_pendampingan" class="form-select">
+                                                <option value="">-- Pilih --</option>
+                                                <option value="Perencanaan Pendampingan" {{ $str->tahap_pendampingan == 'Perencanaan Pendampingan' ? 'selected' : '' }}>1. Perencanaan Pendampingan</option>
+                                                <option value="Pendampingan Perencanaan Program" {{ $str->tahap_pendampingan == 'Pendampingan Perencanaan Program' ? 'selected' : '' }}>2. Pendampingan Perencanaan Program</option>
+                                                <option value="Pendampingan Pelaksanaan Program" {{ $str->tahap_pendampingan == 'Pendampingan Pelaksanaan Program' ? 'selected' : '' }}>3. Pendampingan Pelaksanaan Program</option>
+                                                <option value="Pelaporan Pendampingan" {{ $str->tahap_pendampingan == 'Pelaporan Pendampingan' ? 'selected' : '' }}>4. Pelaporan Pendampingan</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-12 col-md-6">
+                                            <label class="form-label small fw-bold">2. Strategi Pendampingan</label>
                                             <select name="strategy" class="form-select" required>
                                                 <option value="Penyemaian Perubahan (Seeding Change)" {{ $str->strategy == 'Penyemaian Perubahan (Seeding Change)' ? 'selected' : '' }}>1. Penyemaian</option>
                                                 <option value="Perubahan Segera (Rapid Change)" {{ $str->strategy == 'Perubahan Segera (Rapid Change)' ? 'selected' : '' }}>2. Segera</option>
@@ -318,15 +328,6 @@
                                                 <option value="Perubahan Berangsur (Gradual Change)" {{ $str->strategy == 'Perubahan Berangsur (Gradual Change)' ? 'selected' : '' }}>4. Berangsur</option>
                                                 <option value="Pemicu Perubahan (Triggering Change)" {{ $str->strategy == 'Pemicu Perubahan (Triggering Change)' ? 'selected' : '' }}>5. Pemicu</option>
                                                 <option value="Perubahan Berkelanjutan (Sustainable Change)" {{ $str->strategy == 'Perubahan Berkelanjutan (Sustainable Change)' ? 'selected' : '' }}>6. Berkelanjutan</option>
-                                            </select>
-                                        </div>
-                                        <div class="col-12 col-md-6">
-                                            <label class="form-label small fw-bold">2. Tahap Pendampingan</label>
-                                            <select name="tahap_pendampingan" class="form-select">
-                                                <option value="">-- Pilih --</option>
-                                                <option value="Pendampingan Perencanaan Program" {{ $str->tahap_pendampingan == 'Pendampingan Perencanaan Program' ? 'selected' : '' }}>1. Pendampingan Perencanaan Program</option>
-                                                <option value="Pelaksanaan Program" {{ $str->tahap_pendampingan == 'Pelaksanaan Program' ? 'selected' : '' }}>2. Pelaksanaan Program</option>
-                                                <option value="Evaluasi dan Umpan Balik" {{ $str->tahap_pendampingan == 'Evaluasi dan Umpan Balik' ? 'selected' : '' }}>3. Evaluasi dan Umpan Balik</option>
                                             </select>
                                         </div>
                                         <div class="col-12">
@@ -400,7 +401,7 @@
                         <div class="modal-header border-bottom py-3 px-4">
                             <div>
                                 <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill px-3 py-1 mb-1">Input Data</span>
-                                <h1 class="modal-title fs-5 font-headline fw-bold mb-0">Input Siklus Strategi</h1>
+                                <h1 class="modal-title fs-5 font-headline fw-bold mb-0">Input Siklus & Strategi</h1>
                                 <small class="strategy-meta">{{ $selectedSchool->name }} (Skor: {{ $skor }}%)</small>
                             </div>
                             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -411,8 +412,18 @@
                                 <input type="text" class="form-control text-muted fw-bold" value="{{ $selectedSchool->name }} (Skor: {{ $skor }}%)" disabled>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label small fw-bold">1. Strategi Pendampingan</label>
-                                <select name="strategy" id="strategyInput" class="form-select" required>
+                                <label class="form-label small fw-bold">1. Siklus Pendampingan</label>
+                                <select name="tahap_pendampingan" id="siklusPendampinganInput" class="form-select" required>
+                                    <option value="">-- Pilih Siklus Pendampingan --</option>
+                                    <option value="Perencanaan Pendampingan">1. Perencanaan Pendampingan</option>
+                                    <option value="Pendampingan Perencanaan Program">2. Pendampingan Perencanaan Program</option>
+                                    <option value="Pendampingan Pelaksanaan Program">3. Pendampingan Pelaksanaan Program</option>
+                                    <option value="Pelaporan Pendampingan">4. Pelaporan Pendampingan</option>
+                                </select>
+                            </div>
+                            <div class="mb-3 strategy-detail-field d-none">
+                                <label class="form-label small fw-bold">2. Strategi Pendampingan</label>
+                                <select name="strategy" id="strategyInput" class="form-select" required disabled>
                                     <option value="">-- Pilih Strategi --</option>
                                     <option value="Penyemaian Perubahan (Seeding Change)">1. Penyemaian</option>
                                     <option value="Perubahan Segera (Rapid Change)">2. Segera</option>
@@ -420,15 +431,6 @@
                                     <option value="Perubahan Berangsur (Gradual Change)">4. Berangsur</option>
                                     <option value="Pemicu Perubahan (Triggering Change)">5. Pemicu</option>
                                     <option value="Perubahan Berkelanjutan (Sustainable Change)">6. Berkelanjutan</option>
-                                </select>
-                            </div>
-                            <div class="mb-3 strategy-detail-field d-none">
-                                <label class="form-label small fw-bold">2. Tahap Pendampingan</label>
-                                <select name="tahap_pendampingan" id="tahapPendampinganInput" class="form-select" required disabled>
-                                    <option value="">-- Pilih Tahap Pendampingan --</option>
-                                    <option value="Pendampingan Perencanaan Program">1. Pendampingan Perencanaan Program</option>
-                                    <option value="Pelaksanaan Program">2. Pelaksanaan Program</option>
-                                    <option value="Evaluasi dan Umpan Balik">3. Evaluasi dan Umpan Balik</option>
                                 </select>
                             </div>
                             <div class="mb-3 strategy-detail-field d-none">
@@ -675,8 +677,8 @@
 
             // Tampilkan isian pendampingan secara bertahap setelah isian sebelumnya selesai.
             const progressiveFields = [
-                { trigger: document.getElementById('strategyInput'), field: document.getElementById('tahapPendampinganInput') },
-                { trigger: document.getElementById('tahapPendampinganInput'), field: document.getElementById('fokusSasaranInput') },
+                { trigger: document.getElementById('siklusPendampinganInput'), field: document.getElementById('strategyInput') },
+                { trigger: document.getElementById('strategyInput'), field: document.getElementById('fokusSasaranInput') },
                 { trigger: document.getElementById('fokusSasaranInput'), field: document.getElementById('metodePendampinganInput') },
                 { trigger: document.getElementById('metodePendampinganInput'), field: document.getElementById('langkahAksiInput') },
                 { trigger: document.getElementById('langkahAksiInput'), field: document.getElementById('outputIndikatorInput') },

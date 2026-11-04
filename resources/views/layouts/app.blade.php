@@ -1032,13 +1032,7 @@
                     <li class="nav-item">
                         <a class="nav-link {{ request()->routeIs('strategy.*') ? 'active' : '' }}" href="{{ route('strategy.index') }}">
                             <span class="material-symbols-outlined">model_training</span>
-                            <span>Strategi Pendampingan</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {{ request()->routeIs('mentoring.*') ? 'active' : '' }}" href="{{ route('mentoring.index') }}">
-                            <div class="sb-nav-link-icon"><span class="material-symbols-outlined fs-6">sync</span></div>
-                            Siklus Pendampingan
+                            <span>Siklus & Strategi Pendampingan</span>
                         </a>
                     </li>
                 @endif
